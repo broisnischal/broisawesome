@@ -1,5 +1,5 @@
 import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
-import { typedLayout, typedRoute } from "./utils/typedRoute";
+import { typedFilePath, typedRoute } from "./utils/typedRoute";
 import { flatRoutes } from "@react-router/fs-routes"
 
 
@@ -15,21 +15,23 @@ export default [
     //     ]),
     // ]),
 
-
-    layout(typedLayout("routes/layout.tsx"), [
-        layout("routes/auth/layout.tsx", [
-            typedRoute("login", "routes/auth/login.tsx"),
-            typedRoute("signup", "routes/auth/signup.tsx"),
+    layout(typedFilePath("routes/layout.tsx"), [
+        // layout("routes/auth/layout.tsx", [
+        //     typedRoute("login", "routes/auth/login.tsx"),
+        //     typedRoute("signup", "routes/auth/signup.tsx"),
+        // ]),
+        ...prefix("blogs", [
+            index(typedFilePath("routes/_blog/route.tsx")),
+            ...(await flatRoutes({
+                rootDirectory: "routes/_blog/_contents",
+            }))
         ]),
         ...(await flatRoutes({
-            ignoredRouteFiles: ["routes/layout.tsx", "routes/auth/layout.tsx", "routes/_utils/route.tsx"],
-        }))
+            rootDirectory: "routes/_",
+        })),
     ]),
     ...(await flatRoutes({
         rootDirectory: "routes/_utils",
     })),
-
-
-
 
 ] satisfies RouteConfig;

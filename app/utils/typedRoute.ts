@@ -6,6 +6,6 @@ export function typedRoute(id: string, file: RouteFilePath) {
 }
 
 
-export function typedLayout(file: RouteFilePath) {
+export function typedFilePath(file: RouteFilePath) {
     return file;
 }

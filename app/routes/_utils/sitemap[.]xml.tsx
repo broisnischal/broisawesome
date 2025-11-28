@@ -26,3 +26,5 @@
 
 //   return xml(sitemap.toString());
 // }
+
+export {}
