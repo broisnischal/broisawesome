@@ -1,0 +1,189 @@
+---
+title: Typed client and server environment variables in Rv7
+description: Learn how to create and integrate strongly typed environemnt variable in react router or remix
+published: 2025-02-20
+featured: true
+tags: [khalti, payment, nepal, webcheckout]
+keywords: [payment, nepal, payment-gateway-nepal, khalti, epay, khalti]
+readTime: 3
+author: Nischal Dahal
+--- 
+
+## Introduction
+
+Today we are going to learn, how to create and integrate strongly typed environemnt variable in react router or remix,
+let's get started by creating the `env.common.ts` file in misc, or utils folder.
+
+Let's create the publicSchema using `zod`,
+
+```tsx
+// env.common.ts
+
+const publicEnvSchema = z.object({
+  GOOGLE_MAPS_API_KEY: z.string(),
+  STRIPE_PUBLIC_KEY: z.string(),
+});
+```
+
+now, let's create the function makeTypedEnv, which will take the schema as an argument, and will return a function, which will take the environment variables as an argument, and will return the strongly typed environment variables.
+
+```tsx
+// env.common.ts
+
+function makeTypedEnv<T>(schema: { parse: (data: unknown) => T }) {
+  return (args: Record<string, unknown>) => camelKeys(schema.parse(args));
+}
+```
+
+Let's create the publicEnvExpose function, and `getPublicEnvFrom` function,
+
+### Making Type-Safe Environment Helper
+
+```tsx
+// env.common.ts
+
+export function getPublicEnvExpose() {
+  if (typeof window == 'undefined') {
+    return getPublicEnvFrom(process.env);
+  }
+}
+
+const getPublicEnvFrom = makeTypedEnv(publicEnvSchema);
+```
+
+Here, we create the `getPublicEnv` function, which will take the environment variables as an argument, and will return the strongly typed environment variables.
+
+```tsx
+// env.common.ts
+
+export type PublicEnv = ReturnType<typeof getPublicEnvFrom>;
+export type PrivateEnv = ReturnType<typeof getPrivateEnvFrom>;
+
+function getPublicEnv() {
+  if (typeof window == 'undefined') {
+    return getPublicEnvFrom(process.env);
+  }
+
+  if (!window.PUBLIC_ENV) {
+    throw new Error('PUBLIC_ENV is not defined, Not exposed!');
+  }
+
+  return getPublicEnvFrom(window.PUBLIC_ENV);
+}
+
+export { publicEnvSchema, makeTypedEnv, getPublicEnv };
+```
+
+Let's create the `utils.tsx` file, which will expose the public environment variables to the window object, create `PublicEnv` component which will take the public environment variables as an argument, and will expose the public environment variables to the window object.
+
+### Exposing Environment Variables
+
+
+```tsx
+// utils.tsx
+
+type Props = ReturnType<typeof getPublicEnvExpose>;
+
+function PublicEnv(props: Props) {
+  return (
+    <script
+      id="public-env"
+      dangerouslySetInnerHTML={{
+        __html: `window.PUBLIC_ENV = ${JSON.stringify(props)};`,
+      }}
+    />
+  );
+}
+
+export { PublicEnv };
+
+declare global {
+  interface Window {
+    PUBLIC_ENV: Props;
+  }
+}
+```
+
+Now, let's add the publicEnv in the `root.tsx`
+
+
+```tsx
+// root.tsx
+export async function loader({ request }: Route.LoaderArgs) {
+  return data({
+    requestInfo: {
+      hints: getHints(request),
+      path: new URL(request.url).pathname,
+      userPrefs: {
+        theme: getTheme(request),
+      },
+    },
+    publicEnv: getPublicEnv(),
+  });
+}
+
+function Document({
+  children,
+  theme = 'light',
+  loaderData,
+}: {
+  children: React.ReactNode;
+  loaderData: Route.ComponentProps['loaderData'];
+  theme?: Theme;
+}) {
+  return (
+    <html lang="en" className={clsx(theme)} data-theme={theme}>
+      <head>
+        <ClientHintCheck nonce={new Date().toString()} />
+        <meta charSet="utf-8" />
+        <meta
+          name="color-scheme"
+          content={theme === 'light' ? 'light' : 'dark'}
+        />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="pagename" content="Nischal Dahal" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <Meta />
+        <Links />
+      </head>
+      <body className="">
+        <Layout>
+          <Navbar theme={theme} />
+          {children}
+        </Layout>
+        <ScrollRestoration
+          getKey={(location) => {
+            return location.pathname;
+          }}
+        />
+        <Scripts />
+        <PublicEnv {...loaderData.publicEnv} />
+      </body>
+    </html>
+  );
+}
+```
+
+### More you can achieve
+
+
+```tsx
+// Define the environment schema using ArkType.
+
+const envArkSchema = type({
+  MODE: ['"development"|"test"|"production"', '=', 'development'],
+});
+
+// // Create the environment parser for ArkType.
+const getArkEnv = makeTypedEnvironment((d) => envArkSchema.assert(d));
+```
+
+<br/>
+
+## Conclusion
+
+
+In this article, we have learned how to create and integrate strongly typed environemnt variable in react router or remix,
+
+
+

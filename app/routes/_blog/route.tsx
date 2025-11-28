@@ -16,15 +16,18 @@ export type BlogListItem = {
 };
 
 export function getBlogs() {
-  const modules = import.meta.glob("./_contents/*.mdx", { eager: true }) as Record<string, any>;
+  // recursive glob: match files in _contents and any nested subfolders
+  const modules = import.meta.glob("./_contents/**/*.mdx", { eager: true }) as Record<string, any>;
 
   return Object.entries(modules).map(([path, mod]) => {
-    const filename = path.split("/").pop() as string;
-    const slug = filename.replace(/\.mdx$/, "");
+    // path looks like "./_contents/<maybe-subdir>/filename.mdx" 
+    const relative = path.replace(/^\.\/_contents\//, "");
+    // preserve nested segments in slug (e.g. "category/post") so URLs can be nested
+
+    const slug = relative.replace(/\.mdx$/, "").replace(/route/, "");
     const fm = (mod.frontmatter ?? mod.attributes ?? {}) as BlogFrontmatter;
     const title = fm.title ?? slug.replace(/-/g, " ");
     const link = `/blogs/${slug}`;
-
     return {
       title,
       slug,
