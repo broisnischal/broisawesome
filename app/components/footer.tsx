@@ -4,13 +4,13 @@ export function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="border-t border-border bg-card text-card-foreground mt-auto">
+        <footer className=" bg-background text-card-foreground mt-auto">
             <div className="container mx-auto px-4 py-6">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="text-sm text-muted-foreground">
-                        © {currentYear} Portfolio. All rights reserved.
+                        © {currentYear} Blog. All rights reserved.
                     </div>
-                    <nav className="flex gap-6 text-sm">
+                    {/* <nav className="flex gap-6 text-sm">
                         <Link
                             to="/"
                             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -23,7 +23,7 @@ export function Footer() {
                         >
                             Blogs
                         </Link>
-                    </nav>
+                    </nav> */}
                 </div>
             </div>
         </footer>

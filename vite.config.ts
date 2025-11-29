@@ -29,11 +29,8 @@ export default defineConfig({
       rehypePlugins: [
         rehypeSlug,
         () => rehypePrettyCode({
-          // Use light theme by default, will be styled with CSS for dark mode
-          theme: 'dark-plus',
-          // Keep background for better contrast
+          theme: 'light-plus',
           keepBackground: true,
-          // Transformers for better code block styling
           transformers: [],
         }),
       ],

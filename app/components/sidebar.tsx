@@ -11,7 +11,6 @@ const navItems = [
     // { to: "/about", label: "About", icon: User },
     // { to: "/projects", label: "Projects", icon: Briefcase },
 ];
-
 export function Sidebar() {
     const location = useLocation();
     const rootData = useRouteLoaderData<typeof rootLoader>("root");

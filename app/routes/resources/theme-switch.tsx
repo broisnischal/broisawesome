@@ -58,11 +58,24 @@ export function ThemeSwitch({
         system: <Monitor size={size} />,
     }
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        // Apply theme immediately to prevent flicker
+        if (typeof window !== 'undefined') {
+            applyThemeImmediately(nextMode)
+        }
+
+        // Submit the form
+        fetcher.submit(e.currentTarget, { method: 'POST' })
+    }
+
     return (
         <fetcher.Form
             method="POST"
             action="/resources/theme-switch"
             className="aspect-square h-[20px]"
+            onSubmit={handleSubmit}
         >
             <ServerOnly>
                 {() => (
@@ -79,6 +92,25 @@ export function ThemeSwitch({
             </button>
         </fetcher.Form>
     )
+}
+
+// Helper function to apply theme immediately to DOM (prevents flicker)
+function applyThemeImmediately(theme: 'light' | 'dark' | 'system') {
+    if (typeof window === 'undefined') return
+
+    const root = document.documentElement
+    const hints = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    const resolvedTheme = theme === 'system' ? hints : theme
+
+    root.classList.remove('light', 'dark')
+    root.classList.add(resolvedTheme)
+    root.setAttribute('data-theme', resolvedTheme)
+
+    // Update meta tag
+    const meta = document.querySelector('meta[name="color-scheme"]')
+    if (meta) {
+        meta.setAttribute('content', resolvedTheme === 'light' ? 'light' : 'dark')
+    }
 }
 
 /**
@@ -106,13 +138,24 @@ export function useTheme() {
 export function useOptimisticThemeMode() {
     const fetchers = useFetchers()
     const themeFetcher = fetchers.find(
-        (f) => f.formAction === '/resources/theme-switch',
+        (f) => f.formAction === '/resources/theme-switch'
     )
 
+    // Use optimistic mode when the fetcher is actively submitting or loading
+    // Also use it when the fetcher has completed successfully (idle with data)
+    // This prevents flickering during navigation
     if (themeFetcher && themeFetcher.formData) {
         const theme = themeFetcher.formData.get('theme')
         if (isValidTheme(theme)) {
-            return theme
+            // Use optimistic mode during submission/loading OR after successful completion
+            // This ensures smooth transitions without flickering
+            const state = themeFetcher.state
+            const hasData = 'data' in themeFetcher && themeFetcher.data
+            if (state === 'submitting' ||
+                state === 'loading' ||
+                (state === 'idle' && hasData)) {
+                return theme as ValidTheme
+            }
         }
     }
 

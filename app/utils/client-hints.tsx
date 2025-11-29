@@ -4,8 +4,8 @@
  */
 import { getHintUtils } from "@epic-web/client-hints";
 import {
-    clientHint as colourSchemeHint,
-    subscribeToSchemeChange,
+  clientHint as colourSchemeHint,
+  subscribeToSchemeChange,
 } from "@epic-web/client-hints/color-scheme";
 import { clientHint as timeZoneHint } from "@epic-web/client-hints/time-zone";
 
@@ -14,8 +14,8 @@ import { useRevalidator } from "react-router";
 import { useRequestInfo } from "./request-info";
 
 const hintsUtils = getHintUtils({
-    theme: colourSchemeHint,
-    timeZone: timeZoneHint,
+  theme: colourSchemeHint,
+  timeZone: timeZoneHint,
 });
 
 /**
@@ -24,16 +24,31 @@ const hintsUtils = getHintUtils({
  * inaccurate value.
  */
 export function ClientHintCheck({ nonce }: { nonce: string }) {
-    const { revalidate } = useRevalidator();
-    useEffect(() => subscribeToSchemeChange(() => revalidate()), [revalidate]);
+  const { revalidate } = useRevalidator();
+  const requestInfo = useRequestInfo();
 
-    return (
-        <script
-      nonce= { nonce }
-    dangerouslySetInnerHTML = {{
+  useEffect(() => {
+    // Only subscribe to system theme changes if user preference is 'system' or null
+    // This prevents unwanted theme switches when user has manually set a theme
+    const userPref = requestInfo?.userPrefs?.theme;
+
+    if (userPref === 'system' || !userPref) {
+      // User wants to follow system theme, so subscribe to changes
+      return subscribeToSchemeChange(() => revalidate());
+    }
+
+    // User has manual theme preference, don't subscribe to system changes
+    // This prevents the theme from switching when system theme changes
+    return () => { };
+  }, [revalidate, requestInfo?.userPrefs?.theme]);
+
+  return (
+    <script
+      nonce={nonce}
+      dangerouslySetInnerHTML={{
         __html: hintsUtils.getClientHintCheckScript(),
       }
-}
+      }
     />
   );
 }
@@ -42,8 +57,8 @@ export function ClientHintCheck({ nonce }: { nonce: string }) {
  * @returns an object with the client hints and their values
  */
 export function useHints() {
-    const requestInfo = useRequestInfo();
-    return requestInfo.hints;
+  const requestInfo = useRequestInfo();
+  return requestInfo.hints;
 }
 
 export const { getHints, getClientHintCheckScript } = hintsUtils;
