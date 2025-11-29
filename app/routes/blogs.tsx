@@ -1,14 +1,13 @@
 import { Link, data } from "react-router";
-import type { Route } from "./+types/route";
 import { Newsletter } from "~/components/newsletter";
-import { getBlogs, type BlogListItem } from "~/.server/all-content";
+import { getBlogs, type BlogListItem } from "~/lib/blog-content";
+import type { Route } from "./+types/blogs";
 
 export const handle = {
-  breadcrumb: () => <Link to="/blogs">Blogs</Link>,
+  breadcrumb: () => <Link to="/blog">Blogs</Link>,
 };
 
-
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   const blogs = getBlogs();
 
   const serializable = blogs.map((b) => ({
@@ -39,6 +38,14 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
         </p>
       </div>
       <Newsletter />
+
+      <ul>
+        {loaderData.blogs.map((blog) => (
+          <li key={blog.slug}>
+            <Link to={`/blog/${blog.slug}`}>{blog.title}</Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

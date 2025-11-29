@@ -1,7 +1,7 @@
-import { data } from "react-router";
+import { data, Link } from "react-router";
 import { useMemo } from "react";
 import type { Route } from "./+types/blogs.$slug";
-import { getBlogBySlug, getBlogs } from "~/.server/all-content";
+import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
 
 export async function loader({ params }: Route.LoaderArgs) {
     const { slug } = params;
@@ -27,16 +27,18 @@ export async function loader({ params }: Route.LoaderArgs) {
     });
 }
 
-export function meta({ data }: Route.MetaArgs) {
-    if (!data) {
-        return [{ title: "Blog Post Not Found" }];
-    }
-
-    return [
-        { title: data.blog?.title },
-        { name: "description", content: data.blog?.excerpt || data.blog?.frontmatter.description },
-    ];
+export async function headers() {
+    return {
+        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    } as HeadersInit;
 }
+export const handle = {
+    breadcrumb: ({ loaderData }: Route.ComponentProps) => (
+        <Link to={`/blog/${loaderData.blog?.slug}`}>
+            {loaderData.blog?.title || loaderData.blog?.slug}
+        </Link>
+    ),
+};
 
 export default function BlogPost({ loaderData }: Route.ComponentProps) {
     const { blog, slug } = loaderData;

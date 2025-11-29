@@ -145,7 +145,7 @@ body {
   /* Target MDX content within blog routes */
   [data-blog-content],
   .blog-content {
-    @apply max-w-4xl px-4 py-8
+    @apply w-full px-4 py-8
   }
 
   [data-blog-content] h1,
@@ -219,7 +219,7 @@ body {
   }
   
   /* Code blocks should not have inline code styling */
-  [data-blog-content] pre code,
+  /* [data-blog-content] pre code,
   .blog-content pre code {
     @apply bg-transparent p-0;
     @apply before:content-none after:content-none;
@@ -229,8 +229,7 @@ body {
   .blog-content pre {
     @apply bg-muted/90 text-foreground p-4 rounded-lg overflow-x-auto mb-4 border border-border shadow-md;
     @apply relative;
-  }
-
+  } 
   [data-blog-content] pre code,
   .blog-content pre code {
     @apply bg-transparent p-0 text-foreground;
@@ -239,7 +238,7 @@ body {
     width: 100%;
     overflow-x: auto;
   }
-  
+   */
   /* rehype-pretty-code specific styling */
   [data-blog-content] pre[data-theme],
   .blog-content pre[data-theme] {
@@ -264,11 +263,11 @@ body {
     @apply bg-primary/20;
   }
   
-  [data-blog-content] pre code .line.highlighted-line,
+  /* [data-blog-content] pre code .line.highlighted-line,
   .blog-content pre code .line.highlighted-line {
     @apply bg-primary/10 border-l-4 border-primary;
     @apply pl-4 -ml-4 pr-4;
-  }
+  } */
 
   [data-blog-content] a,
   .blog-content a {
@@ -304,7 +303,7 @@ body {
 
   /* Also style direct MDX content */
   article {
-    @apply max-w-4xl mx-auto px-4 py-8;
+    @apply w-full px-4 py-8;
   }
 
   article h1 {
@@ -328,7 +327,7 @@ body {
   }
 
   article pre {
-    @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto mb-4 border border-border;
+    @apply bg-muted text-foreground p-4 rounded-lg overflow-x-auto mb-4;
   }
 
   article pre code {

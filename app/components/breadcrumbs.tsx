@@ -1,19 +1,40 @@
-import { useMatches, Link } from "react-router";
+import { useMatches, Link, useRouteLoaderData } from "react-router";
 import { ChevronRight, Home } from "lucide-react";
+import { ThemeSwitch } from "~/routes/resources/theme-switch";
+import type { loader as rootLoader } from "~/root";
 
 export function Breadcrumbs() {
     const matches = useMatches();
+    const rootData = useRouteLoaderData<typeof rootLoader>("root");
+    const userPreference = rootData?.requestInfo.userPrefs.theme ?? null;
 
-    const breadcrumbs = matches
+    // Get breadcrumbs from route matches
+    const routeBreadcrumbs = matches
         .filter((match) => match.handle && (match.handle as any).breadcrumb)
         .map((match) => ({
             breadcrumb: (match.handle as any).breadcrumb(match),
             pathname: match.pathname,
         }));
 
+    // Check if we're on a blog post page
+    const currentPath = matches[matches.length - 1]?.pathname || '';
+    const isBlogPost = currentPath.startsWith('/blog/') && currentPath !== '/blog';
 
-    if (breadcrumbs.length === 0) {
-        return null;
+    // Check if "Blogs" breadcrumb already exists
+    const hasBlogsBreadcrumb = routeBreadcrumbs.some(
+        crumb => crumb.pathname === '/blog' || crumb.pathname.startsWith('/blog/')
+    );
+
+    // Build final breadcrumbs array
+    const breadcrumbs = [...routeBreadcrumbs];
+
+    // If we're on a blog post but don't have "Blogs" breadcrumb, add it
+    if (isBlogPost && !hasBlogsBreadcrumb) {
+        // Insert "Blogs" breadcrumb before the blog post breadcrumb
+        breadcrumbs.splice(-1, 0, {
+            breadcrumb: <Link to="/blog">Blogs</Link>,
+            pathname: '/blog',
+        });
     }
 
     return (
@@ -32,6 +53,11 @@ export function Breadcrumbs() {
                     </span>
                 </div>
             ))}
+            <div className="ml-auto">
+                <ThemeSwitch
+                    userPreference={userPreference}
+                />
+            </div>
         </nav>
     );
 }

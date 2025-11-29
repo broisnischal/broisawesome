@@ -2,8 +2,6 @@
 export const routeFileList = [
   "routes/_/_landing._index/route.tsx",
   "routes/_/test/route.tsx",
-  "routes/_blog/layout.tsx",
-  "routes/_blog/route.tsx",
   "routes/_utils/[robots.txt].tsx",
   "routes/_utils/blogs.[rss].ts",
   "routes/_utils/feed[.]json.tsx",
@@ -13,6 +11,7 @@ export const routeFileList = [
   "routes/auth/login.tsx",
   "routes/auth/signup.tsx",
   "routes/blogs.$slug.tsx",
+  "routes/blogs.tsx",
   "routes/layout.tsx",
   "routes/resources/newsletter.tsx",
   "routes/resources/theme-switch.tsx",

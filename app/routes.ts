@@ -10,16 +10,13 @@ export default [
     //     layout("./projects/project-layout.tsx", [
     //         route(":pid", "./projects/project.tsx"),
     //         route(":pid/edit", "./projects/edit-project.tsx"),
-    //     ]), 
+    //     ]),  
     // ]),
 
     layout(typedFilePath("routes/layout.tsx"), [
-        ...prefix("blogs", [
-            layout(typedFilePath("routes/_blog/layout.tsx"), [
-                index(typedFilePath("routes/_blog/route.tsx")),
-                route(':slug', typedFilePath("routes/blogs.$slug.tsx")),
-            ]),
-
+        ...prefix("blog", [
+            index(typedFilePath("routes/blogs.tsx")),
+            route(':slug', typedFilePath("routes/blogs.$slug.tsx")),
         ]),
         ...(await flatRoutes({
             rootDirectory: "routes/_",
