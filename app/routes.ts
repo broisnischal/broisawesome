@@ -1,5 +1,5 @@
 import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
-import { typedFilePath, typedRoute } from "./utils/typedRoute";
+import { typedFilePath } from "./utils/typedRoute";
 import { flatRoutes } from "@react-router/fs-routes"
 
 
@@ -33,5 +33,7 @@ export default [
     ...(await flatRoutes({
         rootDirectory: "routes/_utils",
     })),
+
+    route("resources/theme-switch", typedFilePath("routes/resources/theme-switch.tsx")),
 
 ] satisfies RouteConfig;

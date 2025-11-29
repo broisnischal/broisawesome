@@ -36,6 +36,9 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html");
+  responseHeaders.set("Cache-Control", "public, max-age=0, s-maxage=3600"); // 1 hour cache for CDN
+  
+  
   return new Response(body, {
     headers: responseHeaders,
     status: responseStatusCode,
