@@ -1,17 +1,17 @@
 import { Outlet } from "react-router";
+import { ThemeSwitch } from "./resources/theme-switch";
 
 // main layout
 export default function Page() {
     return (
         <div className="p-20">
-            <Sidebar/>
-            <Outlet/>
-            <Footer/>
+            <Sidebar />
+            <ThemeSwitch />
+            <Outlet />
+            <Footer />
         </div>
-    ) 
+    )
 }
-
-
 
 function Sidebar() {
     return (

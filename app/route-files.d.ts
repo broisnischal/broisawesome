@@ -23,6 +23,7 @@ export const routeFileList = [
   "routes/auth/login.tsx",
   "routes/auth/signup.tsx",
   "routes/layout.tsx",
+  "routes/resources/theme-switch.tsx",
 ] as const;
 
 export type RouteFilePath = typeof routeFileList[number];
