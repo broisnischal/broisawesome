@@ -6,7 +6,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
   useNavigation,
 } from "react-router";
 
@@ -15,6 +14,7 @@ import "./app.css";
 import { GlobalSpinner } from "./components/global-pending";
 import { ClientHintCheck, getHints } from "./utils/client-hints";
 import { getTheme } from "./utils/theme-server";
+import { useTheme } from "./routes/resources/theme-switch";
 import clsx from "clsx";
 
 export const links: Route.LinksFunction = () => [
@@ -44,28 +44,29 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  const navigation = useNavigation();
-  const isNavigating = Boolean(navigation.location);
-  const { requestInfo } = useLoaderData<typeof loader>();
-
+function Document({
+  children,
+  theme,
+  loaderData,
+}: {
+  children: React.ReactNode;
+  loaderData: Route.ComponentProps['loaderData'];
+  theme: ReturnType<typeof useTheme>;
+}) {
   return (
-    <html lang="en" className={clsx(requestInfo.userPrefs.theme === 'light' ? 'light' : 'dark')} data-theme={requestInfo.userPrefs.theme}>
+    <html lang="en" className={clsx({ dark: theme === 'dark' }, theme)} data-theme={theme}>
       <head>
         <ClientHintCheck nonce={new Date().toString()} />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="color-scheme"
-          content={requestInfo.userPrefs.theme === 'light' ? 'light' : 'dark'}
+          content={theme === 'light' ? 'light' : 'dark'}
         />
         <Meta />
         <Links />
       </head>
-      <body >
-        {isNavigating && <GlobalSpinner />}
-
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -74,8 +75,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+  const navigation = useNavigation();
+  const isNavigating = Boolean(navigation.location);
+  const theme = useTheme();
+
+  return (
+    <Document loaderData={loaderData} theme={theme}>
+      {isNavigating && <GlobalSpinner />}
+      <Outlet />
+    </Document>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

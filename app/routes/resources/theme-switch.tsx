@@ -47,8 +47,9 @@ export function ThemeSwitch({
     const optimisticMode = useOptimisticThemeMode()
     const mode = optimisticMode ?? userPreference ?? 'system'
 
+    // Cycle through: system -> light -> dark -> system
     const nextMode =
-        mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'light'
+        mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system'
 
     const size = 16
     const modeLabel: Record<ValidTheme | Theme, ReactElement> = {
@@ -69,32 +70,36 @@ export function ThemeSwitch({
                 )}
             </ServerOnly>
             <input type="hidden" name="theme" value={nextMode} />
-            <div>
-                <button
-                    className="cursor-pointer"
-                    disabled={fetcher.state !== 'idle'}
-                    type="submit"
-                >
-                    {modeLabel[mode as ValidTheme]}
-                </button>
-            </div>
-            <div className='text-red-500 dark:text-blue-50'>test</div>
+            <button
+                className="cursor-pointer"
+                disabled={fetcher.state !== 'idle'}
+                type="submit"
+            >
+                {modeLabel[mode as ValidTheme]}
+            </button>
         </fetcher.Form>
     )
 }
 
 /**
  * @returns the user's theme preference, or the client hint theme if the user
- * has not set a preference.
+ * has not set a preference. Always returns 'light' or 'dark', never 'system'.
  */
 export function useTheme() {
     const hints = useHints()
     const requestInfo = useRequestInfo()
     const optimisticMode = useOptimisticThemeMode()
+
     if (optimisticMode) {
+        // If optimistic mode is 'system', resolve to hints.theme
+        // Otherwise return the optimistic mode (light or dark)
         return optimisticMode === 'system' ? hints.theme : optimisticMode
     }
-    return requestInfo.userPrefs.theme ?? hints.theme
+
+    const userPref = requestInfo.userPrefs.theme
+    // If user preference is 'system' or null, use hints.theme
+    // Otherwise return the user preference (light or dark)
+    return userPref === 'system' || !userPref ? hints.theme : userPref
 }
 
 
