@@ -1,9 +1,9 @@
 import type { Route } from "./+types/[robots.txt]";
 
-export const loader = ({ request }: Route.LoaderArgs ) => {
+export const loader = ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
 
-  let host = url.host; 
+  let host = url.host;
 
   const robotText = `User-agent: *
 Allow: /

@@ -10,7 +10,16 @@ export const handle = {
 export async function loader() {
   const blogs = getBlogs();
 
-  const serializable = blogs.map((b) => ({
+  // Sort by date (most recent first)
+  const sortedBlogs = blogs
+    .filter(blog => blog.date || blog.frontmatter?.published)
+    .sort((a, b) => {
+      const dateA = new Date(a.date || a.frontmatter?.published || 0).getTime();
+      const dateB = new Date(b.date || b.frontmatter?.published || 0).getTime();
+      return dateB - dateA;
+    });
+
+  const serializable = sortedBlogs.map((b) => ({
     title: b.title,
     slug: b.slug,
     date: b.date,
@@ -37,12 +46,45 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
           focusing on practical solutions and lessons learned from building production applications.
         </p>
       </div>
+      <Blogs data={loaderData.blogs} url="/blog" />
+      <br />
       <Newsletter />
 
-      <ul>
-        {loaderData.blogs.map((blog) => (
-          <li key={blog.slug}>
-            <Link to={`/blog/${blog.slug}`}>{blog.title}</Link>
+
+    </div>
+  );
+}
+
+
+
+function Blogs({
+  data,
+  url,
+}: {
+  data: (BlogListItem & { slug: string })[];
+  url: string;
+}) {
+  return (
+    <div>
+      <p className="text-zinc-700 dark:text-zinc-50 mb-2">
+        Subscribe to my articles using{' '}
+        <a className="underline" href={url + 'rss'}>
+          RSS
+        </a>
+        .
+      </p>
+      <ul className=" md:list-inside md:list-disc flex flex-col gap-2">
+        {data.map((blog) => (
+          <li className="" key={blog.slug}>
+            <Link
+              // viewTransition
+              state={{ back: url }}
+              prefetch="intent"
+              className=" visited:text-zinc-500! dark:visited:text-zinc-300! text-blue-600 dark:text-blue-400! hover:underline hover:text-black dark:hover:text-white"
+              to={`/blog/${blog.slug}`}
+            >
+              {blog.title}
+            </Link>
           </li>
         ))}
       </ul>

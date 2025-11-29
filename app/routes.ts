@@ -18,13 +18,14 @@ export default [
             index(typedFilePath("routes/blogs.tsx")),
             route(':slug', typedFilePath("routes/blogs.$slug.tsx")),
         ]),
+        route("*", typedFilePath("routes/$.tsx")),
         ...(await flatRoutes({
             rootDirectory: "routes/_",
         })),
     ]),
-    // ...(await flatRoutes({
-    //     rootDirectory: "routes/_utils",
-    // })),
+    ...(await flatRoutes({
+        rootDirectory: "routes/_utils",
+    })),
     route("resources/theme-switch", typedFilePath("routes/resources/theme-switch.tsx")),
     route("resources/newsletter", typedFilePath("routes/resources/newsletter.tsx")),
 
