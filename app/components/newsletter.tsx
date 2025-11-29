@@ -5,7 +5,7 @@ export function Newsletter() {
     const fetcher = useFetcher();
 
     return (
-        <div className="p-6 rounded-lg border border-border bg-card/50 text-card-foreground">
+        <div className="mt-8 bg-card/50 text-card-foreground">
             <div className="flex items-center gap-3 mb-4">
                 <Mail size={18} className="text-muted-foreground" />
                 <h3 className="text-base font-medium text-foreground">
@@ -30,8 +30,8 @@ export function Newsletter() {
             </fetcher.Form>
             {fetcher.data && (
                 <p className={`text-sm mt-3 ${fetcher.data.success
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-destructive'
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-destructive'
                     }`}>
                     {fetcher.data.message}
                 </p>
