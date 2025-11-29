@@ -2,16 +2,6 @@
 export const routeFileList = [
   "routes/_/_landing._index/route.tsx",
   "routes/_/test/route.tsx",
-  "routes/_blog/_contents/bookmark-parser/route.mdx",
-  "routes/_blog/_contents/bun-elysia-app-wildcard-domain/route.mdx",
-  "routes/_blog/_contents/dockerizing-remix-app/route.mdx",
-  "routes/_blog/_contents/esewa-payment-gateway/route.mdx",
-  "routes/_blog/_contents/google-tag-manager-remix/route.mdx",
-  "routes/_blog/_contents/hosting-mordern-application/route.mdx",
-  "routes/_blog/_contents/khalti-payment-gateway/route.mdx",
-  "routes/_blog/_contents/strongly-typed-env/route.mdx",
-  "routes/_blog/_contents/test.mdx",
-  "routes/_blog/_contents/theme-inconsistency-ssr/route.mdx",
   "routes/_blog/layout.tsx",
   "routes/_blog/route.tsx",
   "routes/_utils/[robots.txt].tsx",
@@ -22,7 +12,9 @@ export const routeFileList = [
   "routes/auth/layout.tsx",
   "routes/auth/login.tsx",
   "routes/auth/signup.tsx",
+  "routes/blogs.$slug.tsx",
   "routes/layout.tsx",
+  "routes/resources/newsletter.tsx",
   "routes/resources/theme-switch.tsx",
 ] as const;
 

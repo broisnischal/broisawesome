@@ -36,9 +36,15 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html");
-  responseHeaders.set("Cache-Control", "public, max-age=0, s-maxage=3600"); // 1 hour cache for CDN
-  
-  
+
+  // Only set default cache if not already set by route headers function
+  // Routes should export their own headers() function for proper caching
+  // if (!responseHeaders.has("Cache-Control")) {
+  // Default: aggressive caching for all pages once visited
+  // 1 hour browser cache, 24 hour CDN cache, 7 days stale-while-revalidate
+  //responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+  // s}
+
   return new Response(body, {
     headers: responseHeaders,
     status: responseStatusCode,

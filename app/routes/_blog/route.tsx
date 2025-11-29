@@ -1,46 +1,14 @@
-import { Link } from "react-router";
+import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
+import { Newsletter } from "~/components/newsletter";
+import { getBlogs, type BlogListItem } from "~/.server/all-content";
 
-export type BlogFrontmatter = {
-  title: string;
-  slug?: string;
-  date?: string;
-  excerpt?: string;
+export const handle = {
+  breadcrumb: () => <Link to="/blogs">Blogs</Link>,
 };
 
-export type BlogListItem = {
-  title: string;
-  slug: string;
-  date?: string; 
-  excerpt?: string;
-};
 
-export function getBlogs() {
-  // recursive glob: match files in _contents and any nested subfolders
-  const modules = import.meta.glob("./_contents/**/*.mdx", { eager: true }) as Record<string, any>;
-
-  return Object.entries(modules).map(([path, mod]) => {
-    // path looks like "./_contents/<maybe-subdir>/filename.mdx" 
-    const relative = path.replace(/^\.\/_contents\//, "");
-    // preserve nested segments in slug (e.g. "category/post") so URLs can be nested
-
-    const slug = relative.replace(/\.mdx$/, "").replace(/route/, "");
-    const fm = (mod.frontmatter ?? mod.attributes ?? {}) as BlogFrontmatter;
-    const title = fm.title ?? slug.replace(/-/g, " ");
-    const link = `/blogs/${slug}`;
-    return {
-      title,
-      slug,
-      link,
-      date: fm.date,
-      excerpt: fm.excerpt,
-      component: mod.default,
-      frontmatter: fm,
-    } as const;
-  });
-}
-
-export async function loader(_: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const blogs = getBlogs();
 
   const serializable = blogs.map((b) => ({
@@ -50,30 +18,27 @@ export async function loader(_: Route.LoaderArgs) {
     excerpt: b.excerpt,
   })) as BlogListItem[];
 
-  return { blogs: serializable };
+  return data({ blogs: serializable });
 }
 
 export default function BlogLayout({ loaderData }: Route.ComponentProps) {
-  const blogs: BlogListItem[] = loaderData?.blogs ?? [];
-
   return (
-    <div>
-      <h1>List of the blogs are available here</h1>
-      <ul className=" rounded-md space-y-4">
-        {blogs.length === 0 && <li>No posts found</li>}
 
-        {blogs.map((blog) => (
-          <Link to={blog.slug} key={blog.slug} className="text-inherit ">  
-            <li key={blog.slug} className="bg-black/5 p-4 rounded-md hover:bg-black/10 transition">
-              <strong>{blog.title}</strong>
-              {blog.date && (
-                <div style={{ color: "#666", fontSize: 12 }}>{new Date(blog.date).toLocaleDateString()}</div>
-              )}
-              {blog.excerpt && <p>{blog.excerpt}</p>}
-            </li>
-          </Link>
-        ))}
-      </ul>
+    <div className=" border-border">
+      <div className="max-w-2xl mb-8">
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          I write about <strong className="text-foreground">modern web development</strong>,
+          <strong className="text-foreground"> serverless architecture</strong>,
+          <strong className="text-foreground"> React Router</strong>, and
+          <strong className="text-foreground"> best practices</strong>.
+          Each post shares knowledge and insights from real-world projects and experiences.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          I typically publish <strong className="text-foreground">1-2 articles per month</strong>,
+          focusing on practical solutions and lessons learned from building production applications.
+        </p>
+      </div>
+      <Newsletter />
     </div>
   );
 }
