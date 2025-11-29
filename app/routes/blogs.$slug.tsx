@@ -35,7 +35,7 @@ export async function headers() {
 export const handle = {
     breadcrumb: ({ loaderData }: Route.ComponentProps) => (
         <Link to={`/blog/${loaderData.blog?.slug}`}>
-            {loaderData.blog?.title || loaderData.blog?.slug}
+            {loaderData.blog?.slug}
         </Link>
     ),
 };
