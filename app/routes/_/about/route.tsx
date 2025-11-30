@@ -1,9 +1,23 @@
 import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/about">About</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "About",
+        description: "Learn more about Nischal Dahal - a software developer passionate about technology, serverless architecture, and building great user experiences.",
+        path: "/about",
+        keywords: ["Nischal Dahal", "about", "software developer", "developer profile", "broisnischal"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
     return data({});

@@ -2,10 +2,24 @@ import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
 import { Kbd } from "~/components/kbd";
 import { StickyNote, Settings, BookOpen, Briefcase, Link2, User } from "lucide-react";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/">Home</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Home",
+        description: "Nischal Dahal - Self-started software developer focusing on serverless architecture, Android development, user experience, and product development. Portfolio, blog, projects, and more.",
+        path: "/",
+        keywords: ["Nischal Dahal", "broisnischal", "software developer", "portfolio", "web development", "React", "TypeScript", "serverless", "Android development"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
     const verbs = ['eccentric', 'inquisitive', 'enthusiastic', 'explorer', 'hustler', 'insurgent', 'maverick', 'renegade'];

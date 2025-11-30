@@ -42,7 +42,7 @@ export default async function handleRequest(
   // if (!responseHeaders.has("Cache-Control")) {
   // Default: aggressive caching for all pages once visited
   // 1 hour browser cache, 24 hour CDN cache, 7 days stale-while-revalidate
-  // responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+  responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
   // s} 
 
   return new Response(body, {

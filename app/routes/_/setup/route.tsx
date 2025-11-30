@@ -1,5 +1,21 @@
 import { Link } from "react-router";
 import { Kbd } from "~/components/kbd";
+import type { Route } from "./+types/route";
+import { createMetaTags, createHeaders } from "~/lib/meta";
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Setup",
+        description: "Tools, hardware, and software used by Nischal Dahal on a daily basis. Development setup, workspace equipment, peripherals, and essential tools for software development.",
+        path: "/setup",
+        keywords: ["Nischal Dahal", "setup", "developer setup", "tools", "hardware", "software", "workspace", "development environment", "broisnischal"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
+
 export default function Page() {
     return (
         <div>

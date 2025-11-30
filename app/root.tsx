@@ -11,11 +11,40 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { GlobalSpinner } from "./components/global-pending";
 import { ClientHintCheck, getHints } from "./utils/client-hints";
 import { getTheme } from "./utils/theme-server";
 import { useTheme } from "./routes/resources/theme-switch";
 import clsx from "clsx";
+import { ScriptDangerously } from "./lib";
+import ProgessBar from "./components/global-pending";
+
+
+export const meta: Route.MetaFunction = ({ loaderData, matches }) => {
+  const path = loaderData?.requestInfo?.path;
+
+  return [
+    { title: "Nischal Dahal - aka broisnischal" },
+    {
+      name: "description",
+      content: "self-started software developer focusing on serverless architecture, android development, user experience, and product development. I am not Stack biased and always open to learning new technologies, list of articles wrote by @broisnees.",
+    },
+    {
+      "script:ld+json": JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: "Nischal Dahal",
+        sameAs: [
+          "https://github.com/broisnischal",
+          "https://twitter.com/broisnees",
+          "https://www.linkedin.com/in/nischalxdahal/",
+          "https://t.me/broisnees",
+          "https://instagram.com/broisnischal",
+        ],
+      })
+    }
+  ];
+};
+
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -64,25 +93,11 @@ function Document({
       <head>
         <ClientHintCheck nonce={new Date().toString()} />
         {/* Apply theme immediately to prevent flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const theme = ${JSON.stringify(resolvedTheme)};
-                const root = document.documentElement;
-                const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                root.classList.remove('light', 'dark');
-                root.classList.add(isDark ? 'dark' : 'light');
-                root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-                const meta = document.querySelector('meta[name="color-scheme"]') || document.createElement('meta');
-                if (!meta.hasAttribute('name')) {
-                  meta.setAttribute('name', 'color-scheme');
-                  document.head.appendChild(meta);
-                }
-                meta.setAttribute('content', isDark ? 'dark' : 'light');
-              })();
-            `,
-          }}
+        <ScriptDangerously html={`window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-8W9712L3LK');`}
         />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -90,13 +105,23 @@ function Document({
           name="color-scheme"
           content={theme === 'light' ? 'light' : 'dark'}
         />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="pagename" content="Nischal Dahal" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="google-site-verification" content="SAicmvgme7yZ8Zn1YN8znyRQdE6jRbPQ3pz7-aQSjig" />
+        <ScriptDangerously html={`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8W9712L3LK"></script>`} />
+
         <Meta />
         <Links />
       </head>
       <body>
         {children}
-        <ScrollRestoration />
         <Scripts />
+        <ScrollRestoration
+          getKey={(location) => {
+            return location.pathname;
+          }}
+        />
       </body>
     </html>
   );
@@ -109,7 +134,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
   return (
     <Document loaderData={loaderData} theme={theme}>
-      {isNavigating && <GlobalSpinner />}
+      <ProgessBar />
       <Outlet />
     </Document>
   );

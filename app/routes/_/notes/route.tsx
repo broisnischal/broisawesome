@@ -1,10 +1,24 @@
 import { Link, data, useSearchParams } from "react-router";
 import type { Route } from "./+types/route";
 import { useState, useMemo } from "react";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/notes">Notes</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Notes",
+        description: "Personal notes, glossary terms, and bookmarks collected by Nischal Dahal. Technical notes, definitions, and useful resources for developers.",
+        path: "/notes",
+        keywords: ["Nischal Dahal", "notes", "glossary", "bookmarks", "technical notes", "developer resources", "programming notes", "broisnischal"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 export type ReferenceLink = {
     url: string;
