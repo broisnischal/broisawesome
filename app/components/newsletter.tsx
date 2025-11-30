@@ -5,20 +5,20 @@ export function Newsletter() {
     const fetcher = useFetcher();
 
     return (
-        <div className="mt-8 bg-card/50 text-card-foreground">
+        <div className="mt-8 text-card-foreground w-full px-4 md:px-0">
             <div className="flex items-center gap-3 mb-4">
                 <Mail size={18} className="text-muted-foreground" />
                 <h3 className="text-base font-medium text-foreground">
                     Subscribe to my newsletter
                 </h3>
             </div>
-            <fetcher.Form method="post" action="/resources/newsletter" className="flex gap-2">
+            <fetcher.Form method="post" action="/resources/newsletter" className="flex gap-2 w-full">
                 <input
                     type="email"
                     name="email"
                     placeholder="your@email.com"
                     required
-                    className="flex-1 px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+                    className="flex-1 w-[200px] md:w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
                 />
                 <button
                     type="submit"

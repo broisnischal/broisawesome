@@ -48,7 +48,7 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
       </div>
       <Blogs data={loaderData.blogs} url="/blog" />
       <br />
-      <Newsletter />
+      {/* <Newsletter /> */}
 
 
     </div>
