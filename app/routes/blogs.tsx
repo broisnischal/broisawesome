@@ -2,10 +2,24 @@ import { Link, data } from "react-router";
 import { Newsletter } from "~/components/newsletter";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import type { Route } from "./+types/blogs";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
   breadcrumb: () => <Link to="/blog">Blogs</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+  return createMetaTags({
+    title: "Blog",
+    description: "Articles and thoughts on modern web development, serverless architecture, React Router, and best practices by Nischal Dahal. Practical solutions and lessons learned from building production applications.",
+    path: "/blog",
+    keywords: ["Nischal Dahal", "blog", "articles", "web development", "serverless architecture", "React Router", "software development", "programming", "tutorials", "broisnischal"],
+  });
+};
+
+export function headers() {
+  return createHeaders();
+}
 
 export async function loader() {
   const blogs = getBlogs();
