@@ -26,6 +26,7 @@ export default [
     ...(await flatRoutes({
         rootDirectory: "routes/_utils",
     })),
+    route("l/:code", typedFilePath("routes/_utils/l.$code.tsx")),
     route("resources/theme-switch", typedFilePath("routes/resources/theme-switch.tsx")),
     route("resources/newsletter", typedFilePath("routes/resources/newsletter.tsx")),
 
