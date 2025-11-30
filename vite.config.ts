@@ -29,8 +29,9 @@ export default defineConfig({
       rehypePlugins: [
         rehypeSlug,
         () => rehypePrettyCode({
-          theme: 'light-plus',
+          theme: 'andromeeda',
           keepBackground: true,
+          bypassInlineCode: true,
           transformers: [],
         }),
       ],

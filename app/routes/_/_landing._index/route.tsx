@@ -1,7 +1,7 @@
 import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
 import { Kbd } from "~/components/kbd";
-import { StickyNote, Settings, BookOpen, Briefcase, Mail, User } from "lucide-react";
+import { StickyNote, Settings, BookOpen, Briefcase, Link2, User } from "lucide-react";
 
 export const handle = {
     breadcrumb: () => <Link to="/">Home</Link>,
@@ -42,9 +42,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
             <div className="flex gap-2 mt-8 text-sm text-muted-foreground">
                 <Link target="_blank" className="underline" to="/llms.txt">LLM</Link>
-                <Link target="_blank" className="underline" to="/robots.txt">Robots</Link>
-                <Link target="_blank" className="underline" to="/sitemap.xml">Sitemap</Link>
+                <Link target="_blank" className="underline" to="/blogs.rss">RSS</Link>
                 <Link target="_blank" className="underline" to="/feed.json">Feed</Link>
+                <Link target="_blank" className="underline" to="/resume.pdf">Resume</Link>
             </div>
         </div>
     );
@@ -78,10 +78,10 @@ function NavigationCards() {
             icon: Briefcase,
         },
         {
-            to: "/contact",
-            title: "Contact",
-            description: "Get in touch with me",
-            icon: Mail,
+            to: "/links",
+            title: "Links",
+            description: "Quicklinks to my social platforms and contacts",
+            icon: Link2,
         },
         {
             to: "/about",
