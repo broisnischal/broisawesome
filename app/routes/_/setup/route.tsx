@@ -6,9 +6,9 @@ import { createMetaTags, createHeaders } from "~/lib/meta";
 export const meta: Route.MetaFunction = () => {
     return createMetaTags({
         title: "Setup",
-        description: "Tools, hardware, and software used by Nischal Dahal on a daily basis. Development setup, workspace equipment, peripherals, and essential tools for software development.",
+        description: "Nischal Dahal's development setup - Tools, hardware, and software used daily. Workspace equipment, peripherals, and essential dev tools.",
         path: "/setup",
-        keywords: ["Nischal Dahal", "setup", "developer setup", "tools", "hardware", "software", "workspace", "development environment", "broisnischal"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "setup", "developer setup", "tools", "hardware", "software", "workspace", "development environment"],
     });
 };
 
@@ -19,7 +19,7 @@ export function headers() {
 export default function Page() {
     return (
         <div>
-            <h1 className="text-2xl font-bold text-primary mb-2">Setup</h1>
+            <h1 className="text-2xl font-bold text-primary mb-2">Setup by Nischal Dahal</h1>
             <Setup />
         </div>
     );

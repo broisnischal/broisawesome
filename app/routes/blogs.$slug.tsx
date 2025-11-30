@@ -2,7 +2,7 @@ import { data, Link } from "react-router";
 import { useMemo } from "react";
 import type { Route } from "./+types/blogs.$slug";
 import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
-import { createMetaTags, createHeaders } from "~/lib/meta";
+import { createMetaTags, createHeaders, createArticleSchema, createSchemaMetaTag } from "~/lib/meta";
 
 export async function loader({ params }: Route.LoaderArgs) {
     const { slug } = params;
@@ -30,7 +30,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export const meta: Route.MetaFunction = ({ loaderData }) => {
     const { blog } = loaderData;
-    
+
     if (!blog) {
         return createMetaTags({
             title: "Blog Post Not Found",
@@ -40,36 +40,58 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     }
 
     // Format dates for article meta tags
-    const publishedTime = blog.date 
-        ? new Date(blog.date).toISOString() 
-        : blog.frontmatter?.published 
-            ? new Date(blog.frontmatter.published).toISOString() 
+    const publishedTime = blog.date
+        ? new Date(blog.date).toISOString()
+        : blog.frontmatter?.published
+            ? new Date(blog.frontmatter.published).toISOString()
             : undefined;
 
     // Use excerpt or description from frontmatter, or create a default
-    const description = blog.excerpt || 
-        blog.frontmatter?.description || 
+    let description = blog.excerpt ||
+        blog.frontmatter?.description ||
         blog.frontmatter?.excerpt ||
-        `Read ${blog.title} by Nischal Dahal. ${blog.excerpt || "A blog post about technology, development, and software engineering."}`;
+        `Read ${blog.title} by Nischal Dahal. A blog post about technology, development, and software engineering.`;
+
+    // Ensure description includes keywords and is optimized
+    if (!description.toLowerCase().includes("nischal dahal") && !description.toLowerCase().includes("broisnischal")) {
+        description = `${description} by Nischal Dahal`;
+    }
 
     // Extract keywords from title and slug
     const keywords = [
         "Nischal Dahal",
+        "Nischal",
+        "broisnischal",
         "blog",
         "software development",
         ...blog.title.toLowerCase().split(/\s+/).filter(word => word.length > 3),
         ...blog.slug.split("-").filter(word => word.length > 2),
     ];
 
-    return createMetaTags({
+    const metaTags = createMetaTags({
         title: blog.title,
         description,
         path: `/blog/${blog.slug}`,
         keywords,
         ogType: "article",
         publishedTime,
-        modifiedTime: publishedTime, // Can be updated if you track modified dates
+        modifiedTime: publishedTime,
     });
+
+    // Add Article schema if we have published time
+    if (publishedTime) {
+        const schema = createArticleSchema({
+            title: blog.title,
+            description,
+            url: `https://nischal-dahal.com.np/blog/${blog.slug}`,
+            publishedTime,
+            modifiedTime: publishedTime,
+            image: blog.frontmatter?.image,
+        });
+        return [...metaTags, createSchemaMetaTag(schema)];
+    }
+
+    return metaTags;
 };
 
 export async function headers() {

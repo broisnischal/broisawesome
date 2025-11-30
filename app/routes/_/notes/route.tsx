@@ -10,9 +10,9 @@ export const handle = {
 export const meta: Route.MetaFunction = () => {
     return createMetaTags({
         title: "Notes",
-        description: "Personal notes, glossary terms, and bookmarks collected by Nischal Dahal. Technical notes, definitions, and useful resources for developers.",
+        description: "Notes by Nischal Dahal - Personal notes, glossary terms, and bookmarks. Technical definitions and useful resources for developers.",
         path: "/notes",
-        keywords: ["Nischal Dahal", "notes", "glossary", "bookmarks", "technical notes", "developer resources", "programming notes", "broisnischal"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "notes", "glossary", "bookmarks", "technical notes", "developer resources", "programming notes"],
     });
 };
 
@@ -222,7 +222,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return (
         <div className="max-w-4xl">
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-foreground mb-2">Notes</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-2">Notes by Nischal Dahal</h1>
                 <p className="text-sm text-muted-foreground">
                     Personal notes, glossary terms, and bookmarks I've collected.
                 </p>

@@ -24,9 +24,9 @@ export const handle = {
 export const meta: Route.MetaFunction = () => {
     return createMetaTags({
         title: "Links",
-        description: "Quicklinks to Nischal Dahal's social platforms, GitHub, LinkedIn, Twitter, and other online profiles. Connect with me on various platforms.",
+        description: "Nischal Dahal's social links - Connect with broisnischal on GitHub, LinkedIn, Twitter, and other platforms. Quick access to all profiles.",
         path: "/links",
-        keywords: ["Nischal Dahal", "links", "social media", "GitHub", "LinkedIn", "Twitter", "contact", "broisnischal"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "links", "social media", "GitHub", "LinkedIn", "Twitter", "contact"],
     });
 };
 
@@ -173,7 +173,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="max-w-4xl">
             <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                    Links
+                    Links - Nischal Dahal
                 </h1>
                 <p className="text-muted-foreground">
                     Quicklinks to my social platforms and contacts.

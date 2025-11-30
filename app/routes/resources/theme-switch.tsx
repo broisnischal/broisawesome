@@ -7,6 +7,20 @@ import { data, redirect, useFetcher, useFetchers } from 'react-router'
 import { ServerOnly } from 'remix-utils/server-only'
 import type { Route } from './+types/theme-switch'
 import type { ReactElement } from 'react'
+import { createMetaTags, createHeaders } from "~/lib/meta";
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Theme Switch",
+        description: "Theme switcher for Nischal Dahal's portfolio. Switch between light, dark, and system theme preferences.",
+        path: "/resources/theme-switch",
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "theme", "dark mode", "light mode"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 const VALID_THEMES = ['system', 'light', 'dark'] as const
 type ValidTheme = typeof VALID_THEMES[number]
