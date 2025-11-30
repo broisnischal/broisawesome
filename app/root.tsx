@@ -92,13 +92,6 @@ function Document({
     <html lang="en" className={clsx({ dark: theme === 'dark' }, theme)} data-theme={theme}>
       <head>
         <ClientHintCheck nonce={new Date().toString()} />
-        {/* Apply theme immediately to prevent flash */}
-        <ScriptDangerously html={`window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', 'G-8W9712L3LK');`}
-        />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
@@ -108,8 +101,29 @@ function Document({
         <meta name="MobileOptimized" content="320" />
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="google-site-verification" content="SAicmvgme7yZ8Zn1YN8znyRQdE6jRbPQ3pz7-aQSjig" />
-        <ScriptDangerously html={`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8W9712L3LK"></script>`} />
+
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="edGz_5Jr5VsLbGpxvQ3AZBAKtuEyNBgc_qtdthOPJKU" />
+
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6430477215422762"
+          crossOrigin="anonymous"
+        />
+
+        {/* Google Analytics - GTM Script (load first) */}
+        {/* <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-L2HXER3J9C"
+        /> */}
+
+        {/* Google Analytics - Data Layer and Config (load after GTM script) */}
+        <ScriptDangerously html={`window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-L2HXER3J9C');`}
+        />
 
         <Meta />
         <Links />

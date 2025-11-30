@@ -3,7 +3,11 @@
   "name": "portfolio",
   "compatibility_date": "2025-04-04",
   "main": "./workers/app.ts",
-  "route": "nischal-dahal.com.np/*",
+  "routes": [
+    "nischal-dahal.com.np/*",
+    "www.nischal-dahal.com.np/*",
+    "nischal-dahal.com.np",
+  ],
   "preview_urls": true,
   "vars": { 
     "VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
