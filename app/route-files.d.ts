@@ -11,6 +11,7 @@ export const routeFileList = [
   "routes/_utils/[robots.txt].tsx",
   "routes/_utils/blogs[.]rss.ts",
   "routes/_utils/feed[.]json.tsx",
+  "routes/_utils/l.$code.tsx",
   "routes/_utils/llms[.]txt.tsx",
   "routes/_utils/resume[.]pdf.tsx",
   "routes/_utils/route.tsx",

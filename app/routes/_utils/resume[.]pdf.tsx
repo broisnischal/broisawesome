@@ -1,11 +1,11 @@
 import type { Route } from "./+types/resume[.]pdf";
-import resumeUrl from "~/assets/pdf/resume.pdf";
+
 import { http } from "~/lib/http-client";
 
 export async function loader({ request }: Route.LoaderArgs) {
     try {
         const url = new URL(request.url);
-
+        const resumeUrl = "/pdfs/resume.pdf";
         // In Vite, asset imports return a URL path (e.g., "/assets/resume-abc123.pdf")
         // We need to construct the full URL to fetch it
         let assetUrl: string;
