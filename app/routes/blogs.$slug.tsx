@@ -2,6 +2,7 @@ import { data, Link } from "react-router";
 import { useMemo } from "react";
 import type { Route } from "./+types/blogs.$slug";
 import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export async function loader({ params }: Route.LoaderArgs) {
     const { slug } = params;
@@ -27,10 +28,52 @@ export async function loader({ params }: Route.LoaderArgs) {
     });
 }
 
+export const meta: Route.MetaFunction = ({ loaderData }) => {
+    const { blog } = loaderData;
+    
+    if (!blog) {
+        return createMetaTags({
+            title: "Blog Post Not Found",
+            description: "The requested blog post could not be found.",
+            path: "/blog",
+        });
+    }
+
+    // Format dates for article meta tags
+    const publishedTime = blog.date 
+        ? new Date(blog.date).toISOString() 
+        : blog.frontmatter?.published 
+            ? new Date(blog.frontmatter.published).toISOString() 
+            : undefined;
+
+    // Use excerpt or description from frontmatter, or create a default
+    const description = blog.excerpt || 
+        blog.frontmatter?.description || 
+        blog.frontmatter?.excerpt ||
+        `Read ${blog.title} by Nischal Dahal. ${blog.excerpt || "A blog post about technology, development, and software engineering."}`;
+
+    // Extract keywords from title and slug
+    const keywords = [
+        "Nischal Dahal",
+        "blog",
+        "software development",
+        ...blog.title.toLowerCase().split(/\s+/).filter(word => word.length > 3),
+        ...blog.slug.split("-").filter(word => word.length > 2),
+    ];
+
+    return createMetaTags({
+        title: blog.title,
+        description,
+        path: `/blog/${blog.slug}`,
+        keywords,
+        ogType: "article",
+        publishedTime,
+        modifiedTime: publishedTime, // Can be updated if you track modified dates
+    });
+};
+
 export async function headers() {
-    return {
-        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
-    } as HeadersInit;
+    return createHeaders();
 }
 export const handle = {
     breadcrumb: ({ loaderData }: Route.ComponentProps) => (
