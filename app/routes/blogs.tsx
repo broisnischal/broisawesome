@@ -2,19 +2,26 @@ import { Link, data } from "react-router";
 import { Newsletter } from "~/components/newsletter";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import type { Route } from "./+types/blogs";
-import { createMetaTags, createHeaders } from "~/lib/meta";
+import { createMetaTags, createHeaders, createPersonSchema, createSchemaMetaTag } from "~/lib/meta";
 
 export const handle = {
   breadcrumb: () => <Link to="/blog">Blogs</Link>,
 };
 
 export const meta: Route.MetaFunction = () => {
-  return createMetaTags({
+  const metaTags = createMetaTags({
     title: "Blog",
-    description: "Articles and thoughts on modern web development, serverless architecture, React Router, and best practices by Nischal Dahal. Practical solutions and lessons learned from building production applications.",
+    description: "Blog articles by Nischal Dahal on web development, serverless architecture, React Router, and best practices. Practical solutions from real-world projects.",
     path: "/blog",
-    keywords: ["Nischal Dahal", "blog", "articles", "web development", "serverless architecture", "React Router", "software development", "programming", "tutorials", "broisnischal"],
+    keywords: ["Nischal Dahal", "Nischal", "broisnischal", "blog", "articles", "web development", "serverless architecture", "React Router", "software development", "programming", "tutorials"],
   });
+
+  // Add Person schema
+  const schema = createPersonSchema({
+    description: "Software developer and technical writer sharing insights on modern web development.",
+  });
+
+  return [...metaTags, createSchemaMetaTag(schema)];
 };
 
 export function headers() {
@@ -47,6 +54,7 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
   return (
 
     <div className=" border-border">
+      <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Blog by Nischal Dahal</h1>
       <div className="max-w-2xl mb-8">
         <p className="text-muted-foreground leading-relaxed mb-4">
           I write about <strong className="text-foreground">modern web development</strong>,

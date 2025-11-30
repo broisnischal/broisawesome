@@ -1,18 +1,25 @@
 import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
-import { createMetaTags, createHeaders } from "~/lib/meta";
+import { createMetaTags, createHeaders, createPersonSchema, createSchemaMetaTag } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/about">About</Link>,
 };
 
 export const meta: Route.MetaFunction = () => {
-    return createMetaTags({
+    const metaTags = createMetaTags({
         title: "About",
-        description: "Learn more about Nischal Dahal - a software developer passionate about technology, serverless architecture, and building great user experiences.",
+        description: "About Nischal Dahal - Software developer passionate about technology, serverless architecture, and building great user experiences. Learn more about my journey.",
         path: "/about",
-        keywords: ["Nischal Dahal", "about", "software developer", "developer profile", "broisnischal"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "about", "software developer", "developer profile"],
     });
+
+    // Add Person schema
+    const schema = createPersonSchema({
+        description: "Software developer passionate about technology, serverless architecture, and building great user experiences.",
+    });
+
+    return [...metaTags, createSchemaMetaTag(schema)];
 };
 
 export function headers() {
@@ -28,7 +35,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="max-w-4xl">
             <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                    About
+                    About Nischal Dahal
                 </h1>
                 <p className="text-muted-foreground">
                     Learn more about me and my journey.

@@ -2,19 +2,24 @@ import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
 import { Kbd } from "~/components/kbd";
 import { StickyNote, Settings, BookOpen, Briefcase, Link2, User } from "lucide-react";
-import { createMetaTags, createHeaders } from "~/lib/meta";
+import { createMetaTags, createHeaders, createPersonSchema, createSchemaMetaTag } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/">Home</Link>,
 };
 
 export const meta: Route.MetaFunction = () => {
-    return createMetaTags({
-        title: "Home",
-        description: "Nischal Dahal - Self-started software developer focusing on serverless architecture, Android development, user experience, and product development. Portfolio, blog, projects, and more.",
+    const metaTags = createMetaTags({
+        title: "Nischal Dahal - Software Developer",
+        description: "Nischal Dahal (broisnischal) - Software developer specializing in serverless architecture, Android development, and modern web technologies. Portfolio, blog, and projects.",
         path: "/",
-        keywords: ["Nischal Dahal", "broisnischal", "software developer", "portfolio", "web development", "React", "TypeScript", "serverless", "Android development"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "software developer", "portfolio", "web development", "React", "TypeScript", "serverless", "Android development"],
     });
+
+    // Add Person schema
+    const schema = createPersonSchema();
+
+    return [...metaTags, createSchemaMetaTag(schema)];
 };
 
 export function headers() {
@@ -50,6 +55,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     return (
         <div className="max-w-4xl">
+            <h1 className="sr-only">Nischal Dahal - Software Developer and Creator</h1>
             <Header verb={verb} />
 
             <NavigationCards />

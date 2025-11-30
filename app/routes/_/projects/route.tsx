@@ -11,9 +11,9 @@ export const handle = {
 export const meta: Route.MetaFunction = () => {
     return createMetaTags({
         title: "Projects",
-        description: "A collection of projects built by Nischal Dahal. View open-source projects, web applications, Chrome extensions, and development tools including zap, switch-tab, figma-organizer, and more.",
+        description: "Projects by Nischal Dahal (broisnischal) - Open-source projects, web apps, Chrome extensions, and development tools. View my work on GitHub.",
         path: "/projects",
-        keywords: ["Nischal Dahal", "projects", "portfolio", "open source", "GitHub projects", "web development", "Chrome extensions", "software projects", "broisnischal"],
+        keywords: ["Nischal Dahal", "Nischal", "broisnischal", "projects", "portfolio", "open source", "GitHub projects", "web development", "Chrome extensions", "software projects"],
     });
 };
 
@@ -353,7 +353,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="max-w-7xl w-full">
             <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                    Projects
+                    Projects by Nischal Dahal
                 </h1>
                 <p className="text-muted-foreground">
                     A collection of projects I've built and worked on. View-only board showcasing my work.

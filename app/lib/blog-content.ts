@@ -5,6 +5,7 @@ export type BlogFrontmatter = {
     published?: string;
     excerpt?: string;
     description?: string;
+    image?: string;
 };
 
 export type BlogListItem = {
