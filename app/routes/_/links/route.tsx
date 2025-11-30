@@ -15,10 +15,24 @@ import {
     ExternalLink,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/links">Links</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Links",
+        description: "Quicklinks to Nischal Dahal's social platforms, GitHub, LinkedIn, Twitter, and other online profiles. Connect with me on various platforms.",
+        path: "/links",
+        keywords: ["Nischal Dahal", "links", "social media", "GitHub", "LinkedIn", "Twitter", "contact", "broisnischal"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 interface SocialLink {
     id: string;

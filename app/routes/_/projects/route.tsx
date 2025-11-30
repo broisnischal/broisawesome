@@ -2,10 +2,24 @@ import { Link, data } from "react-router";
 import type { Route } from "./+types/route";
 import { Github, ExternalLink } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { createMetaTags, createHeaders } from "~/lib/meta";
 
 export const handle = {
     breadcrumb: () => <Link to="/projects">Projects</Link>,
 };
+
+export const meta: Route.MetaFunction = () => {
+    return createMetaTags({
+        title: "Projects",
+        description: "A collection of projects built by Nischal Dahal. View open-source projects, web applications, Chrome extensions, and development tools including zap, switch-tab, figma-organizer, and more.",
+        path: "/projects",
+        keywords: ["Nischal Dahal", "projects", "portfolio", "open source", "GitHub projects", "web development", "Chrome extensions", "software projects", "broisnischal"],
+    });
+};
+
+export function headers() {
+    return createHeaders();
+}
 
 // Project status type
 type ProjectStatus = "todo" | "doing" | "completed";
