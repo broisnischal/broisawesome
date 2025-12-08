@@ -6,27 +6,25 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useNavigation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import ProgessBar from "./components/global-pending";
+import { ScriptDangerously } from "./lib";
+import { useTheme } from "./routes/resources/theme-switch";
 import { ClientHintCheck, getHints } from "./utils/client-hints";
 import { getTheme } from "./utils/theme-server";
-import { useTheme } from "./routes/resources/theme-switch";
-import clsx from "clsx";
-import { ScriptDangerously } from "./lib";
-import ProgessBar from "./components/global-pending";
 
-
-export const meta: Route.MetaFunction = ({ loaderData, matches }) => {
-  const path = loaderData?.requestInfo?.path;
+export const meta: Route.MetaFunction = ({}) => {
+  // const path = loaderData?.requestInfo?.path;
 
   return [
     { title: "Nischal Dahal - aka broisnischal" },
     {
       name: "description",
-      content: "self-started software developer focusing on serverless architecture, android development, user experience, and product development. I am not Stack biased and always open to learning new technologies, list of articles wrote by @broisnees.",
+      content:
+        "self-started software developer focusing on serverless architecture, android development, user experience, and product development. I am not Stack biased and always open to learning new technologies, list of articles wrote by @broisnees.",
     },
     {
       "script:ld+json": JSON.stringify({
@@ -40,11 +38,10 @@ export const meta: Route.MetaFunction = ({ loaderData, matches }) => {
           "https://t.me/broisnees",
           "https://instagram.com/broisnischal",
         ],
-      })
-    }
+      }),
+    },
   ];
 };
-
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -72,38 +69,37 @@ export async function loader({ request }: Route.LoaderArgs) {
   });
 }
 
-
 function Document({
   children,
   theme,
-  loaderData,
 }: {
   children: React.ReactNode;
-  loaderData: Route.ComponentProps['loaderData'];
+  loaderData: Route.ComponentProps["loaderData"];
   theme: ReturnType<typeof useTheme>;
 }) {
-  // Get theme from cookie to apply immediately (prevents flash)
-  const cookieTheme = loaderData?.requestInfo?.userPrefs?.theme
-  const resolvedTheme = cookieTheme === 'system' || !cookieTheme
-    ? (loaderData?.requestInfo?.hints?.theme || 'light')
-    : cookieTheme
-
   return (
-    <html lang="en" className={clsx({ dark: theme === 'dark' }, theme)} data-theme={theme}>
+    <html
+      lang="en"
+      // className={clsx({ dark: theme === "dark" }, theme)}
+      data-theme={theme}
+    >
       <head>
         <ClientHintCheck nonce={new Date().toString()} />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="color-scheme"
-          content={theme === 'light' ? 'light' : 'dark'}
+          content={theme === "light" ? "light" : "dark"}
         />
         <meta name="MobileOptimized" content="320" />
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* Google Site Verification */}
-        <meta name="google-site-verification" content="edGz_5Jr5VsLbGpxvQ3AZBAKtuEyNBgc_qtdthOPJKU" />
+        <meta
+          name="google-site-verification"
+          content="edGz_5Jr5VsLbGpxvQ3AZBAKtuEyNBgc_qtdthOPJKU"
+        />
 
         {/* Google AdSense */}
         <script
@@ -119,7 +115,8 @@ function Document({
         /> */}
 
         {/* Google Analytics - Data Layer and Config (load after GTM script) */}
-        <ScriptDangerously html={`window.dataLayer = window.dataLayer || [];
+        <ScriptDangerously
+          html={`window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-L2HXER3J9C');`}
@@ -142,8 +139,6 @@ function Document({
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
-  const navigation = useNavigation();
-  const isNavigating = Boolean(navigation.location);
   const theme = useTheme();
 
   return (

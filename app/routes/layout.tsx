@@ -3,16 +3,15 @@ import { Outlet } from "react-router";
 import { Breadcrumbs } from "../components/breadcrumbs";
 
 export default function Page() {
-
-    return (
-        <main className={`flex-1 transition-all duration-200 `}>
-            <div className="min-h-screen flex flex-col bg-background">
-                <div className="flex-1 p-4 md:p-6 lg:p-8 xl:p-12 max-w-7xl w-full mx-auto">
-                    <Breadcrumbs />
-                    <Outlet />
-                </div>
-            </div>
-            {/* <Footer /> */}
-        </main>
-    );
+  return (
+    <main className={`flex-1`}>
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex-1 p-4 md:p-6 lg:p-8 xl:p-12 max-w-5xl w-full mx-auto">
+          <Breadcrumbs />
+          <Outlet />
+        </div>
+      </div>
+      {/* <Footer /> */}
+    </main>
+  );
 }
