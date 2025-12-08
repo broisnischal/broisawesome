@@ -238,7 +238,7 @@ body {
   .blog-content li code,
   .blog-content td code,
   .blog-content th code {
-    @apply bg-muted/80 text-foreground px-1.5 py-0.5 rounded text-sm font-mono;
+    @apply text-foreground px-1.5 py-0.5 rounded text-sm font-mono;
     @apply before:content-[''] after:content-[''];
   }
 

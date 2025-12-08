@@ -27,8 +27,8 @@ export default defineConfig({
         rehypeSlug,
         () =>
           rehypePrettyCode({
-            theme: "andromeeda",
-            keepBackground: true,
+            theme: "min-light",
+            keepBackground: false,
             bypassInlineCode: true,
             transformers: [],
           }),

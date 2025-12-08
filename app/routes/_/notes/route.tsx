@@ -2,6 +2,8 @@ import { Link, data, useSearchParams } from "react-router";
 import type { Route } from "./+types/route";
 import { useState, useMemo } from "react";
 import { createMetaTags, createHeaders } from "~/lib/meta";
+import { XIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export const handle = {
   breadcrumb: () => <Link to="/notes">Notes</Link>,
@@ -41,7 +43,7 @@ export type NoteItem = {
   id: string;
   title: string;
   content?: string;
-  category: "note" | "glossary" | "bookmark";
+  category: "note" | "glossary" | "bookmark" | "watch later";
   tags?: string[];
   url?: string;
   date?: string;
@@ -58,6 +60,15 @@ const notesData: NoteItem[] = [
     content:
       "RSC allows rendering components on the server, reducing client-side JavaScript.",
     category: "note",
+    tags: ["react", "server-components", "nextjs"],
+    date: "2024-01-15",
+  },
+  {
+    id: "2",
+    title: "Youtube watch later video",
+    content:
+      "RSC allows rendering components on the server, reducing client-side JavaScript.",
+    category: "watch later",
     tags: ["react", "server-components", "nextjs"],
     date: "2024-01-15",
   },
@@ -136,7 +147,7 @@ export async function loader() {
   return data({ notes: notesData });
 }
 
-type Category = "all" | "note" | "glossary" | "bookmark";
+type Category = "all" | "note" | "glossary" | "bookmark" | "watch later";
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { notes } = loaderData;
@@ -150,8 +161,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Get all unique tags from notes
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
-    notes.forEach(note => {
-      note.tags?.forEach(tag => tagSet.add(tag));
+    notes.forEach((note) => {
+      note.tags?.forEach((tag) => tagSet.add(tag));
     });
     return Array.from(tagSet).sort();
   }, [notes]);
@@ -161,31 +172,31 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(note => note.category === selectedCategory);
+      filtered = filtered.filter((note) => note.category === selectedCategory);
     }
 
     // Filter by tags
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(note => {
-        return selectedTags.some(tag => note.tags?.includes(tag));
+      filtered = filtered.filter((note) => {
+        return selectedTags.some((tag) => note.tags?.includes(tag));
       });
     }
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(note => {
+      filtered = filtered.filter((note) => {
         const matchesTitle = note.title.toLowerCase().includes(query);
         const matchesContent = note.content?.toLowerCase().includes(query);
         const matchesTerm = note.term?.toLowerCase().includes(query);
         const matchesDefinition = note.definition
           ?.toLowerCase()
           .includes(query);
-        const matchesTags = note.tags?.some(tag =>
+        const matchesTags = note.tags?.some((tag) =>
           tag.toLowerCase().includes(query),
         );
         const matchesReferences = note.references?.some(
-          ref =>
+          (ref) =>
             ref.description.toLowerCase().includes(query) ||
             ref.title?.toLowerCase().includes(query),
         );
@@ -222,12 +233,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   const toggleTag = (tag: string) => {
+    if (tag === "all") {
+      setSearchParams(new URLSearchParams(), { replace: true });
+      return;
+    }
     const newSearchParams = new URLSearchParams(searchParams);
     const currentTags =
       newSearchParams.get("tags")?.split(",").filter(Boolean) || [];
 
     if (currentTags.includes(tag)) {
-      const updatedTags = currentTags.filter(t => t !== tag);
+      const updatedTags = currentTags.filter((t) => t !== tag);
       if (updatedTags.length > 0) {
         newSearchParams.set("tags", updatedTags.join(","));
       } else {
@@ -245,17 +260,22 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     {
       value: "note",
       label: "Notes",
-      count: notes.filter(n => n.category === "note").length,
+      count: notes.filter((n) => n.category === "note").length,
     },
     {
       value: "glossary",
       label: "Glossary",
-      count: notes.filter(n => n.category === "glossary").length,
+      count: notes.filter((n) => n.category === "glossary").length,
     },
     {
       value: "bookmark",
       label: "Bookmarks",
-      count: notes.filter(n => n.category === "bookmark").length,
+      count: notes.filter((n) => n.category === "bookmark").length,
+    },
+    {
+      value: "watch later",
+      label: "Watch Later",
+      count: notes.filter((n) => n.category === "watch later").length,
     },
   ];
 
@@ -264,7 +284,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-2">Notes</h1>
         <p className="text-sm text-muted-foreground">
-          Personal notes, glossary terms, and bookmarks I've collected.
+          Personal notes, glossary terms, and bookmarks I&apos;ve collected.
         </p>
       </div>
 
@@ -288,46 +308,38 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             type="text"
             placeholder="Search notes, terms, or bookmarks..."
             value={searchQuery}
-            onChange={e => handleSearchChange(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
       </div>
 
-      {/* Category Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {categories.map(category => (
-          <button
-            key={category.value}
-            onClick={() => setSelectedCategory(category.value)}
-            className={`
-                            px-3 py-1.5 text-sm font-medium rounded-md whitespace-nowrap transition-all
-                            ${
-                              selectedCategory === category.value
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground hover:bg-muted/80"
-                            }
-                        `}
-          >
-            {category.label}
-            <span className="ml-1.5 opacity-70">({category.count})</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Tags Filter */}
-      {allTags.length > 0 && (
-        <div className="mb-6">
-          <p className="text-xs text-muted-foreground mb-2">Filter by tags:</p>
-          <div className="flex flex-wrap gap-2">
-            {allTags.map(tag => {
-              const isSelected = selectedTags.includes(tag);
-              const isYouTube = tag === "youtube";
-              return (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={`
+      <Tabs
+        value={selectedCategory}
+        onValueChange={(value) => setSelectedCategory(value as Category)}
+      >
+        <TabsList className="mb-4">
+          {categories.map((category) => (
+            <TabsTrigger key={category.value} value={category.value}>
+              {category.label}
+              <span className="opacity-70">({category.count})</span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {allTags.length > 0 && (
+          <div className="mb-6">
+            <p className="text-xs text-muted-foreground mb-2">
+              Filter by tags:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {allTags.map((tag) => {
+                const isSelected = selectedTags.includes(tag);
+                const isYouTube = tag === "youtube";
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={` cursor-pointer
                                         px-3 py-1 text-xs font-medium rounded-full transition-all
                                         ${
                                           isSelected
@@ -337,14 +349,38 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                                             : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
                                         }
                                     `}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+              {selectedTags.length > 0 && (
+                <button
+                  onClick={() =>
+                    setSearchParams(new URLSearchParams(), { replace: true })
+                  }
+                  className="cursor-pointer px-3 py-1 text-xs font-medium rounded-full transition-all bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
                 >
-                  {tag}
+                  <XIcon className="w-4 h-4" />
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {categories.map((category) => (
+          <TabsContent key={category.value} value={category.value}>
+            <div className="space-y-8">
+              {filteredNotes
+                .filter((note) => note.category === category.value)
+                .map((note) => (
+                  <NoteItem key={note.id} note={note} />
+                ))}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      {/* Tags Filter */}
 
       {/* Notes List */}
       <div className="space-y-8">
@@ -353,7 +389,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <p>No items found. Try adjusting your search or filters.</p>
           </div>
         ) : (
-          filteredNotes.map(note => <NoteItem key={note.id} note={note} />)
+          filteredNotes.map((note) => <NoteItem key={note.id} note={note} />)
         )}
       </div>
     </div>
@@ -417,10 +453,6 @@ function NoteItem({ note }: { note: NoteItem }) {
                 References
               </p>
               {note.references.map((ref, index) => {
-                const isRefYouTube = isYouTubeUrl(ref.url);
-                const refVideoId = isRefYouTube
-                  ? getYouTubeVideoId(ref.url)
-                  : null;
                 return (
                   <div key={index} className="flex items-start gap-3 group">
                     <div className="flex-1 min-w-0">

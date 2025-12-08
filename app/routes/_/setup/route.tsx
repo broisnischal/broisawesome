@@ -3,11 +3,9 @@ import { Kbd } from "~/components/kbd";
 import type { Route } from "./+types/route";
 import { createMetaTags, createHeaders } from "~/lib/meta";
 
-export function handle() {
-  return {
-    breadcrumb: () => <Link to="/setup">Setup</Link>,
-  };
-}
+export const handle = {
+  breadcrumb: () => <Link to="/setup">Setup</Link>,
+};
 
 export const meta: Route.MetaFunction = () => {
   return createMetaTags({
@@ -35,12 +33,7 @@ export function headers() {
 }
 
 export default function Page() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-primary mb-2">My Setup</h1>
-      <Setup />
-    </div>
-  );
+  return <Setup />;
 }
 
 export function Setup() {
@@ -203,7 +196,7 @@ export function Setup() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-base text-muted-foreground">
         As a developer and cool guy in general, I use a lot of physical and
         digital stuff on a daily basis. These things serve many purposes. They
         bring me enjoyment, connect me to other people, and serve as tools that
