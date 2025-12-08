@@ -1,8 +1,18 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 // import { BlogSidebar } from "../components/blog-sidebar";
 import { Breadcrumbs } from "../components/breadcrumbs";
+import { Screensaver } from "../components/screensaver";
 
 export default function Page() {
+  const location = useLocation();
+
+  // Check if current route is blog or notes
+  const isBlogRoute = location.pathname.startsWith("/blog");
+  const isNotesRoute = location.pathname === "/notes";
+
+  // Enable screensaver only if NOT on blog or notes routes
+  const screensaverEnabled = !isBlogRoute && !isNotesRoute;
+
   return (
     <main className={`flex-1`}>
       <div className="min-h-screen flex flex-col bg-background">
@@ -12,6 +22,7 @@ export default function Page() {
         </div>
       </div>
       {/* <Footer /> */}
+      <Screensaver enabled={screensaverEnabled} />
     </main>
   );
 }
