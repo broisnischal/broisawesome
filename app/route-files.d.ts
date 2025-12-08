@@ -7,6 +7,7 @@ export const routeFileList = [
   "routes/_/notes/route.tsx",
   "routes/_/projects/route.tsx",
   "routes/_/setup/route.tsx",
+  "routes/_/stack/route.tsx",
   "routes/_/test/route.tsx",
   "routes/_utils/[robots.txt].tsx",
   "routes/_utils/blogs[.]rss.ts",

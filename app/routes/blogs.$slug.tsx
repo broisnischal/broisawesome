@@ -1,23 +1,23 @@
-import { data, Link } from "react-router"
-import { useMemo } from "react"
-import type { Route } from "./+types/blogs.$slug"
-import { getBlogBySlug, getBlogs } from "~/lib/blog-content"
+import { data, Link } from "react-router";
+import { useMemo } from "react";
+import type { Route } from "./+types/blogs.$slug";
+import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
 import {
   createMetaTags,
   createHeaders,
   createArticleSchema,
   createSchemaMetaTag,
-} from "~/lib/meta"
+} from "~/lib/meta";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const { slug } = params
-  const blog = getBlogBySlug(slug)
+  const { slug } = params;
+  const blog = getBlogBySlug(slug);
 
   if (!blog) {
     throw new Response(`Blog post with slug "${slug}" not found`, {
       status: 404,
       statusText: "Not Found",
-    })
+    });
   }
 
   // Only serialize the data, not the component (functions can't be serialized)
@@ -30,18 +30,18 @@ export async function loader({ params }: Route.LoaderArgs) {
       frontmatter: blog.frontmatter,
     },
     slug, // Pass slug so we can fetch the component in the component
-  })
+  });
 }
 
 export const meta: Route.MetaFunction = ({ loaderData }) => {
-  const { blog } = loaderData
+  const { blog } = loaderData;
 
   if (!blog) {
     return createMetaTags({
       title: "Blog Post Not Found",
       description: "The requested blog post could not be found.",
       path: "/blog",
-    })
+    });
   }
 
   // Format dates for article meta tags
@@ -49,21 +49,21 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     ? new Date(blog.date).toISOString()
     : blog.frontmatter?.published
       ? new Date(blog.frontmatter.published).toISOString()
-      : undefined
+      : undefined;
 
   // Use excerpt or description from frontmatter, or create a default
   let description =
     blog.excerpt ||
     blog.frontmatter?.description ||
     blog.frontmatter?.excerpt ||
-    `Read ${blog.title} by Nischal Dahal. A blog post about technology, development, and software engineering.`
+    `Read ${blog.title} by Nischal Dahal. A blog post about technology, development, and software engineering.`;
 
   // Ensure description includes keywords and is optimized
   if (
     !description.toLowerCase().includes("nischal dahal") &&
     !description.toLowerCase().includes("broisnischal")
   ) {
-    description = `${description} by Nischal Dahal`
+    description = `${description} by Nischal Dahal`;
   }
 
   // Extract keywords from title and slug
@@ -76,9 +76,9 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     ...blog.title
       .toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 3),
-    ...blog.slug.split("-").filter(word => word.length > 2),
-  ]
+      .filter((word) => word.length > 3),
+    ...blog.slug.split("-").filter((word) => word.length > 2),
+  ];
 
   const metaTags = createMetaTags({
     title: blog.title,
@@ -88,7 +88,7 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     ogType: "article",
     publishedTime,
     modifiedTime: publishedTime,
-  })
+  });
 
   // Add Article schema if we have published time
   if (publishedTime) {
@@ -99,31 +99,31 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
       publishedTime,
       modifiedTime: publishedTime,
       image: blog.frontmatter?.image,
-    })
-    return [...metaTags, createSchemaMetaTag(schema)]
+    });
+    return [...metaTags, createSchemaMetaTag(schema)];
   }
 
-  return metaTags
-}
+  return metaTags;
+};
 
 export async function headers() {
-  return createHeaders()
+  return createHeaders();
 }
 export const handle = {
   breadcrumb: ({ loaderData }: Route.ComponentProps) => (
     <Link to={`/blog/${loaderData.blog?.slug}`}>{loaderData.blog?.slug}</Link>
   ),
-}
+};
 
 export default function BlogPost({ loaderData }: Route.ComponentProps) {
-  const { blog, slug } = loaderData
+  const { blog, slug } = loaderData;
 
   if (!blog) {
     return (
       <div>
         <h1>Blog post not found</h1>
       </div>
-    )
+    );
   }
 
   // Get the full blog object again to access the component
@@ -132,11 +132,11 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   const fullBlog = useMemo(() => {
     // Get all blogs and find the one we need
     // This works because modules are eagerly loaded
-    const blogs = getBlogs()
-    return blogs.find(b => b.slug === slug)
-  }, [slug])
+    const blogs = getBlogs();
+    return blogs.find((b) => b.slug === slug);
+  }, [slug]);
 
-  const BlogComponent = fullBlog?.component
+  const BlogComponent = fullBlog?.component;
 
   if (!BlogComponent) {
     return (
@@ -157,13 +157,13 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
           </pre>
         )}
       </div>
-    )
+    );
   }
 
   return (
     <article className="blog-content">
       <header className="mb-8 pb-6 border-b border-border">
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+        <h1 className="text-4xl font-bold leading-tight text-foreground mb-4">
           {blog.title}
         </h1>
         {blog.date && (
@@ -185,5 +185,5 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
         <BlogComponent />
       </div>
     </article>
-  )
+  );
 }
