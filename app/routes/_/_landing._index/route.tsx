@@ -4,6 +4,7 @@ import {
   Code,
   Link2,
   Settings,
+  Settings2,
   StickyNote,
   User,
 } from "lucide-react";
@@ -84,7 +85,7 @@ export async function loader({}: Route.LoaderArgs) {
 
 function Header({ verb, colorCode }: { verb?: string; colorCode?: string }) {
   return (
-    <div className="flex flex-col gap-2 mb-12">
+    <div className="flex flex-col gap-2 mb-8">
       <div className="relative w-fit selection:enabled:bg-transparent">
         <img
           src="https://avatars.githubusercontent.com/u/98168009?v=4"
@@ -115,7 +116,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         Nischal Dahal - Software Developer and Creator
       </h1>
 
-      <div className="flex gap-2">
+      <div className="flex gap-4">
         <Header verb={verb} colorCode={colorCode} />
         <div className="flex-1 text-sm text-justify  flex flex-col gap-2">
           <p className="">
@@ -125,7 +126,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </p>
           <p>Well i have a very driven knowledge base of variety of things,</p>
 
-          <p>I am a system architect.</p>
+          <p>
+            I am a system architect, love to scale the system knows devops and
+            cloud. Also, love to build things with modern technologies and
+            frameworks, creating tool and services is mine go to and most loved
+            part.
+          </p>
         </div>
       </div>
 
@@ -143,6 +149,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </Link>
         <Link target="_blank" className="underline" to="/resume.pdf">
           Resume
+        </Link>
+        <Link target="_blank" className="underline" to="/terms-of-service">
+          Terms of Service
         </Link>
       </div>
     </div>
@@ -194,10 +203,16 @@ function NavigationCards() {
       description: "My stacks and tools",
       icon: Code,
     },
+    {
+      to: "/config",
+      title: "Config",
+      description: "My configurations, keymaps and more",
+      icon: Settings2,
+    },
   ];
 
   return (
-    <div className="flex flex-col gap-3 w-full flex-wrap">
+    <div className="flex flex-col gap-3 w-fit flex-wrap">
       {navItems.map((item) => {
         const Icon = item.icon;
         return (
@@ -211,9 +226,16 @@ function NavigationCards() {
               "w-fit",
             )}
           >
-            <Icon size={18} className="text-accent-foreground" />
             <div className="">
-              <h3 className="text-sm font-semibold">{item.title}</h3>
+              <div className="flex items-center justify-center gap-1">
+                <Icon
+                  size={14}
+                  className="group-hover:text-accent-foreground"
+                />
+                <h3 className="text-sm font-semibold group-hover:text-accent-foreground">
+                  {item.title.toLowerCase()}
+                </h3>
+              </div>
               {/* <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                 {item.description}
               </p> */}
