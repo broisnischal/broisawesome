@@ -1,8 +1,12 @@
 import { Link, data } from "react-router";
-import { Newsletter } from "~/components/newsletter";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
+import {
+  createHeaders,
+  createMetaTags,
+  createPersonSchema,
+  createSchemaMetaTag,
+} from "~/lib/meta";
 import type { Route } from "./+types/blogs";
-import { createMetaTags, createHeaders, createPersonSchema, createSchemaMetaTag } from "~/lib/meta";
 
 export const handle = {
   breadcrumb: () => <Link to="/blog">Blogs</Link>,
@@ -11,14 +15,28 @@ export const handle = {
 export const meta: Route.MetaFunction = () => {
   const metaTags = createMetaTags({
     title: "Blog",
-    description: "Blog articles by Nischal Dahal on web development, serverless architecture, React Router, and best practices. Practical solutions from real-world projects.",
+    description:
+      "Blog articles by Nischal Dahal on web development, serverless architecture, React Router, and best practices. Practical solutions from real-world projects.",
     path: "/blog",
-    keywords: ["Nischal Dahal", "Nischal", "broisnischal", "blog", "articles", "web development", "serverless architecture", "React Router", "software development", "programming", "tutorials"],
+    keywords: [
+      "Nischal Dahal",
+      "Nischal",
+      "broisnischal",
+      "blog",
+      "articles",
+      "web development",
+      "serverless architecture",
+      "React Router",
+      "software development",
+      "programming",
+      "tutorials",
+    ],
   });
 
   // Add Person schema
   const schema = createPersonSchema({
-    description: "Software developer and technical writer sharing insights on modern web development.",
+    description:
+      "Software developer and technical writer sharing insights on modern web development.",
   });
 
   return [...metaTags, createSchemaMetaTag(schema)];
@@ -33,7 +51,7 @@ export async function loader() {
 
   // Sort by date (most recent first)
   const sortedBlogs = blogs
-    .filter(blog => blog.date || blog.frontmatter?.published)
+    .filter((blog) => blog.date || blog.frontmatter?.published)
     .sort((a, b) => {
       const dateA = new Date(a.date || a.frontmatter?.published || 0).getTime();
       const dateB = new Date(b.date || b.frontmatter?.published || 0).getTime();
@@ -52,32 +70,30 @@ export async function loader() {
 
 export default function BlogLayout({ loaderData }: Route.ComponentProps) {
   return (
-
     <div className=" border-border">
-      <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Blog by Nischal Dahal</h1>
       <div className="max-w-2xl mb-8">
         <p className="text-muted-foreground leading-relaxed mb-4">
-          I write about <strong className="text-foreground">modern web development</strong>,
+          I write about{" "}
+          <strong className="text-foreground">modern web development</strong>,
           <strong className="text-foreground"> serverless architecture</strong>,
           <strong className="text-foreground"> React Router</strong>, and
-          <strong className="text-foreground"> best practices</strong>.
-          Each post shares knowledge and insights from real-world projects and experiences.
+          <strong className="text-foreground"> best practices</strong>. Each
+          post shares knowledge and insights from real-world projects and
+          experiences.
         </p>
         <p className="text-sm text-muted-foreground">
-          I typically publish <strong className="text-foreground">1-2 articles per month</strong>,
-          focusing on practical solutions and lessons learned from building production applications.
+          I typically publish{" "}
+          <strong className="text-foreground">1-2 articles per month</strong>,
+          focusing on practical solutions and lessons learned from building
+          production applications.
         </p>
       </div>
       <Blogs data={loaderData.blogs} url="/blog" />
       <br />
       {/* <Newsletter /> */}
-
-
     </div>
   );
 }
-
-
 
 function Blogs({
   data,
@@ -89,8 +105,8 @@ function Blogs({
   return (
     <div>
       <p className="text-zinc-700 dark:text-zinc-50 mb-2">
-        Subscribe to my articles using{' '}
-        <a className="underline" href={url + 'rss'}>
+        Subscribe to my articles using{" "}
+        <a className="underline" href={url + "rss"}>
           RSS
         </a>
         .
