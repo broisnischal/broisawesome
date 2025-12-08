@@ -1,11 +1,11 @@
-import { useMatches, Link, useRouteLoaderData } from 'react-router';
-import { ChevronRight, Home } from 'lucide-react';
-import { ThemeSwitch } from '~/routes/resources/theme-switch';
-import type { loader as rootLoader } from '~/root';
+import { useMatches, Link, useRouteLoaderData } from "react-router";
+import { ChevronRight, Home } from "lucide-react";
+import { ThemeSwitch } from "~/routes/resources/theme-switch";
+import type { loader as rootLoader } from "~/root";
 
 export function Breadcrumbs() {
   const matches = useMatches();
-  const rootData = useRouteLoaderData<typeof rootLoader>('root');
+  const rootData = useRouteLoaderData<typeof rootLoader>("root");
   const userPreference = rootData?.requestInfo.userPrefs.theme ?? null;
 
   // Get breadcrumbs from route matches
@@ -19,7 +19,7 @@ export function Breadcrumbs() {
           pathname: match.pathname,
         };
       } catch (error) {
-        console.error('Error rendering breadcrumb for', match.pathname, error);
+        console.error("Error rendering breadcrumb for", match.pathname, error);
         return null;
       }
     })
@@ -31,12 +31,12 @@ export function Breadcrumbs() {
   // Check if we're on a blog post page
   const currentMatch = matches[matches.length - 1];
   const isBlogPost =
-    currentMatch?.pathname?.startsWith('/blog/') &&
-    currentMatch.pathname !== '/blog';
+    currentMatch?.pathname?.startsWith("/blog/") &&
+    currentMatch.pathname !== "/blog";
 
   // Check if "Blogs" breadcrumb is already present
   const hasBlogsBreadcrumb = routeBreadcrumbs.some(
-    (crumb) => crumb.pathname === '/blog' || crumb.pathname === '/blogs',
+    (crumb) => crumb.pathname === "/blog" || crumb.pathname === "/blogs",
   );
 
   // Build final breadcrumbs array
@@ -46,7 +46,7 @@ export function Breadcrumbs() {
   if (isBlogPost && !hasBlogsBreadcrumb && breadcrumbs.length > 0) {
     breadcrumbs.splice(-1, 0, {
       breadcrumb: <Link to="/blog">Blogs</Link>,
-      pathname: '/blog',
+      pathname: "/blog",
     });
   }
 
@@ -67,17 +67,17 @@ export function Breadcrumbs() {
           <span
             className={
               index === breadcrumbs.length - 1
-                ? 'text-foreground font-medium'
-                : ''
+                ? "text-foreground font-medium"
+                : ""
             }
           >
             {crumb.breadcrumb}
           </span>
         </div>
       ))}
-      <div className="ml-auto">
+      {/* <div className="ml-auto">
         <ThemeSwitch userPreference={userPreference} />
-      </div>
+      </div> */}
     </nav>
   );
 }
