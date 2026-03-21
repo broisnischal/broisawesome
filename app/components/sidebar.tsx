@@ -1,8 +1,5 @@
 import { Link, useLocation } from "react-router";
 import { Home, BookOpen, User, Briefcase } from "lucide-react";
-import { ThemeSwitch } from "../routes/resources/theme-switch";
-import type { loader as rootLoader } from "../root";
-import { useRouteLoaderData } from "react-router";
 
 const navItems = [
     { to: "/", label: "Home", icon: Home },
@@ -13,8 +10,6 @@ const navItems = [
 ];
 export function Sidebar() {
     const location = useLocation();
-    const rootData = useRouteLoaderData<typeof rootLoader>("root");
-    const userPreference = rootData?.requestInfo.userPrefs.theme ?? null;
     const isBlogRoute = location.pathname.startsWith("/blogs");
 
     return (
@@ -49,13 +44,6 @@ export function Sidebar() {
                     })}
                 </ul>
             </nav>
-
-            <div className="p-4 border-t border-border">
-                <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Theme</span>
-                    <ThemeSwitch userPreference={userPreference} />
-                </div>
-            </div>
         </aside>
     );
 }
