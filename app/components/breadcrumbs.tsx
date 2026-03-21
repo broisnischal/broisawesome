@@ -1,14 +1,9 @@
-import { useMatches, Link, useRouteLoaderData } from "react-router";
 import { ChevronRight, Home } from "lucide-react";
-import { ThemeSwitch } from "~/routes/resources/theme-switch";
-import type { loader as rootLoader } from "~/root";
+import { Link, useMatches } from "react-router";
 
 export function Breadcrumbs() {
   const matches = useMatches();
-  const rootData = useRouteLoaderData<typeof rootLoader>("root");
-  const userPreference = rootData?.requestInfo.userPrefs.theme ?? null;
 
-  // Get breadcrumbs from route matches
   const routeBreadcrumbs = matches
     .filter((match) => match.handle && (match.handle as any).breadcrumb)
     .map((match) => {
@@ -28,21 +23,17 @@ export function Breadcrumbs() {
         crumb !== null,
     );
 
-  // Check if we're on a blog post page
   const currentMatch = matches[matches.length - 1];
   const isBlogPost =
     currentMatch?.pathname?.startsWith("/blog/") &&
     currentMatch.pathname !== "/blog";
 
-  // Check if "Blogs" breadcrumb is already present
   const hasBlogsBreadcrumb = routeBreadcrumbs.some(
     (crumb) => crumb.pathname === "/blog" || crumb.pathname === "/blogs",
   );
 
-  // Build final breadcrumbs array
   const breadcrumbs = [...routeBreadcrumbs];
 
-  // If we're on a blog post but don't have "Blogs" breadcrumb, insert it before the last breadcrumb
   if (isBlogPost && !hasBlogsBreadcrumb && breadcrumbs.length > 0) {
     breadcrumbs.splice(-1, 0, {
       breadcrumb: <Link to="/blog">Blogs</Link>,
@@ -75,9 +66,6 @@ export function Breadcrumbs() {
           </span>
         </div>
       ))}
-      {/* <div className="ml-auto">
-        <ThemeSwitch userPreference={userPreference} />
-      </div> */}
     </nav>
   );
 }

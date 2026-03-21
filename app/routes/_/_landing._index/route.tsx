@@ -15,8 +15,8 @@ import {
   createPersonSchema,
   createSchemaMetaTag,
 } from "~/lib/meta";
-import type { Route } from "./+types/route";
 import { cn } from "~/lib/utils";
+import type { Route } from "./+types/route";
 
 export const handle = {
   breadcrumb: () => <Link to="/">Home</Link>,
@@ -116,25 +116,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         Nischal Dahal - Software Developer and Creator
       </h1>
 
-      <div className="flex gap-4">
-        <Header verb={verb} colorCode={colorCode} />
-        <div className="flex-1 text-sm text-justify  flex flex-col gap-2">
-          <p className="">
-            I am a curious and passionate developer who loves to learn and share
-            my knowledge with others. I am a Full Stack Developer and mostly
-            work with Typescript, Rust, Bun.
-          </p>
-          <p>Well i have a very driven knowledge base of variety of things,</p>
-
-          <p>
-            I am a system architect, love to scale the system knows devops and
-            cloud. Also, love to build things with modern technologies and
-            frameworks, creating tool and services is mine go to and most loved
-            part.
-          </p>
-        </div>
-      </div>
-
       <NavigationCards />
 
       <div className="flex gap-2 mt-8 text-sm text-muted-foreground">
@@ -226,20 +207,7 @@ function NavigationCards() {
               "w-fit",
             )}
           >
-            <div className="">
-              <div className="flex items-center justify-center gap-1">
-                <Icon
-                  size={14}
-                  className="group-hover:text-accent-foreground"
-                />
-                <h3 className="text-sm font-semibold group-hover:text-accent-foreground">
-                  {item.title.toLowerCase()}
-                </h3>
-              </div>
-              {/* <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                {item.description}
-              </p> */}
-            </div>
+            <div className="">{item.title.toLowerCase()}</div>
           </NavLink>
         );
       })}

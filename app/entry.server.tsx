@@ -1,14 +1,14 @@
-import type { AppLoadContext, EntryContext } from "react-router";
-import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
+import type { AppLoadContext, EntryContext } from "react-router";
+import { ServerRouter } from "react-router";
 
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  _loadContext: AppLoadContext
+  _loadContext: AppLoadContext,
 ) {
   let shellRendered = false;
   const userAgent = request.headers.get("user-agent");
@@ -25,7 +25,7 @@ export default async function handleRequest(
           console.error(error);
         }
       },
-    }
+    },
   );
   shellRendered = true;
 
@@ -37,13 +37,12 @@ export default async function handleRequest(
 
   responseHeaders.set("Content-Type", "text/html");
 
-  // Only set default cache if not already set by route headers function
-  // Routes should export their own headers() function for proper caching
-  // if (!responseHeaders.has("Cache-Control")) {
-  // Default: aggressive caching for all pages once visited
-  // 1 hour browser cache, 24 hour CDN cache, 7 days stale-while-revalidate
-  responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
-  // s} 
+  // Do not cache the document by default: the shell is personalized (e.g. theme
+  // cookie), so public caching would serve the wrong or stale theme. Routes that
+  // want caching can set Cache-Control in their headers().
+  if (!responseHeaders.has("Cache-Control")) {
+    responseHeaders.set("Cache-Control", "private, max-age=0, must-revalidate");
+  }
 
   return new Response(body, {
     headers: responseHeaders,

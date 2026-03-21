@@ -25,7 +25,7 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.ico`;
  */
 function optimizeDescription(description: string, keywords: string[]): string {
   // Check if keywords are already in description
-  const hasKeywords = keywords.some(keyword =>
+  const hasKeywords = keywords.some((keyword) =>
     description.toLowerCase().includes(keyword.toLowerCase()),
   );
 
@@ -247,7 +247,9 @@ export function createHeaders(options?: {
   } = options || {};
 
   const headers: HeadersInit = {
-    "Cache-Control": cacheControl,
+    ...(options?.cacheControl !== undefined && {
+      "Cache-Control": options.cacheControl,
+    }),
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block",

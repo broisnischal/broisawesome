@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import clsx from "clsx";
 import type { Route } from "./+types/root";
 import "./app.css";
 import ProgessBar from "./components/global-pending";
@@ -17,8 +18,6 @@ import { ClientHintCheck, getHints } from "./utils/client-hints";
 import { getTheme } from "./utils/theme-server";
 
 export const meta: Route.MetaFunction = ({}) => {
-  // const path = loaderData?.requestInfo?.path;
-
   return [
     { title: "Nischal Dahal - aka broisnischal" },
     {
@@ -80,7 +79,7 @@ function Document({
   return (
     <html
       lang="en"
-      // className={clsx({ dark: theme === "dark" }, theme)}
+      className={clsx({ dark: theme === "dark" }, theme)}
       data-theme={theme}
     >
       <head>
