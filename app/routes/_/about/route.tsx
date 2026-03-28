@@ -60,7 +60,7 @@ const SOCIAL: { label: string; href: string; Icon: LucideIcon }[] = [
   { label: "Telegram", href: "https://t.me/broisnees", Icon: Send },
   {
     label: "Instagram",
-    href: "https://instagram.com/broisnischal",
+    href: "https://instagram.com/broisnees",
     Icon: Instagram,
   },
   { label: "RSS", href: `${CANONICAL_SITE_URL}/blogs.rss`, Icon: Rss },

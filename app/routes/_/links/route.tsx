@@ -100,7 +100,7 @@ const socialLinks: SocialLink[] = [
   {
     id: "ko-fi",
     name: "Ko-fi",
-    url: "https://ko-fi.com/broisnees",
+    url: "https://ko-fi.com/nischal-dahal",
     iconName: "ko-fi",
   },
   {
@@ -112,7 +112,7 @@ const socialLinks: SocialLink[] = [
   {
     id: "dartpub",
     name: "Dart Pub",
-    url: "https://pub.dev/publishers/broisnees.dev/packages",
+    url: "https://pub.dev/publishers/nischal-dahal.com.np/packages",
     iconName: "dartpub",
   },
   {
@@ -132,6 +132,18 @@ const socialLinks: SocialLink[] = [
     name: "RSS",
     url: "/blogs.rss",
     iconName: "rss",
+  },
+  {
+    id: "gallery",
+    name: "Gallery",
+    url: "https://photos.app.goo.gl/2RHWh9PyAGyRCZAP9",
+    iconName: "image",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    url: "https://instagram.com/broisnees",
+    iconName: "instagram",
   },
 ];
 
