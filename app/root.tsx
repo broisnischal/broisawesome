@@ -8,8 +8,10 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
 import { ScriptDangerously } from "./lib";
 import { useTheme } from "./routes/resources/theme-switch";
@@ -18,25 +20,11 @@ import { getTheme } from "./utils/theme-server";
 
 export const meta: Route.MetaFunction = ({}) => {
   return [
-    { title: "Nischal Dahal - aka broisnischal" },
+    { title: "Nischal Dahal — broisnischal" },
     {
       name: "description",
       content:
-        "self-started software developer focusing on serverless architecture, android development, user experience, and product development. I am not Stack biased and always open to learning new technologies, list of articles wrote by @broisnees.",
-    },
-    {
-      "script:ld+json": JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Person",
-        name: "Nischal Dahal",
-        sameAs: [
-          "https://github.com/broisnischal",
-          "https://twitter.com/broisnees",
-          "https://www.linkedin.com/in/nischalxdahal/",
-          "https://t.me/broisnees",
-          "https://instagram.com/broisnischal",
-        ],
-      }),
+        "Nischal Dahal (broisnischal, @broisnees) — software developer on serverless, Android, UX, and web. Portfolio, blog, GitHub activity, and projects.",
     },
   ];
 };
@@ -51,6 +39,18 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  {
+    rel: "alternate",
+    type: "application/rss+xml",
+    title: "Blog by Nischal Dahal (RSS)",
+    href: `${CANONICAL_SITE_URL}/blogs.rss`,
+  },
+  {
+    rel: "alternate",
+    type: "application/feed+json",
+    title: "Blog by Nischal Dahal (JSON Feed)",
+    href: `${CANONICAL_SITE_URL}/feed.json`,
   },
 ];
 
@@ -130,12 +130,15 @@ function Document({
 export default function App({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
 
-  console.log(theme);
-
   return (
     <Document loaderData={loaderData} theme={theme}>
-      <ProgessBar />
-      <Outlet />
+      <div className="flex min-h-screen flex-col">
+        <ProgessBar />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <Outlet />
+          <Footer />
+        </div>
+      </div>
     </Document>
   );
 }

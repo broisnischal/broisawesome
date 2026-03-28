@@ -15,9 +15,20 @@ export interface MetaConfig {
   modifiedTime?: string;
 }
 
-const SITE_URL = "https://nischal-dahal.com.np";
+/** Canonical origin — use for sitemaps, canonical tags, and JSON-LD URLs. */
+export const CANONICAL_SITE_URL = "https://nischal-dahal.com.np";
+
+const SITE_URL = CANONICAL_SITE_URL;
 const DEFAULT_AUTHOR = "Nischal Dahal";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.ico`;
+const PUBLISHER_LOGO =
+  "https://avatars.githubusercontent.com/u/98168009?v=4";
+
+export function absoluteUrl(path: string): string {
+  if (!path) return SITE_URL;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
 /**
  * Truncates description to optimal SEO length (120-160 chars)
@@ -81,8 +92,15 @@ export function createMetaTags(config: MetaConfig) {
     modifiedTime,
   } = config;
 
-  // Ensure keywords include target keywords
-  const targetKeywords = ["Nischal Dahal", "Nischal", "broisnischal"];
+  // Ensure keywords include target keywords (name variants + common search phrases)
+  const targetKeywords = [
+    "Nischal Dahal",
+    "Nischal",
+    "broisnischal",
+    "blog by Nischal",
+    "Nischal blog",
+    "articles by Nischal Dahal",
+  ];
   const allKeywords = [
     ...new Set([
       ...targetKeywords,
@@ -150,9 +168,6 @@ export function createMetaTags(config: MetaConfig) {
   return metaTags;
 }
 
-/**
- * Creates JSON-LD schema markup for Person/Organization
- */
 export function createPersonSchema(options?: {
   url?: string;
   jobTitle?: string;
@@ -168,7 +183,7 @@ export function createPersonSchema(options?: {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Nischal Dahal",
-    alternateName: "broisnischal",
+    alternateName: ["broisnischal", "broisnees", "Nischal"],
     url,
     jobTitle,
     description,
@@ -179,6 +194,126 @@ export function createPersonSchema(options?: {
       "https://t.me/broisnees",
       "https://instagram.com/broisnischal",
     ],
+  };
+}
+
+/**
+ * WebSite + Person for the homepage (helps sitelinks and brand queries).
+ */
+export function createWebSiteSchema(options?: { description?: string }) {
+  const description =
+    options?.description ??
+    "Portfolio, blog, and GitHub activity by Nischal Dahal (broisnischal): software engineering, serverless, Android, and web development.";
+
+  const personDescription =
+    "Self-started software developer focusing on serverless architecture, Android development, user experience, and product development.";
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: "Nischal Dahal",
+        alternateName: [
+          "broisnischal",
+          "blog by Nischal",
+          "Nischal Dahal portfolio",
+          "Nischal blog",
+        ],
+        url: SITE_URL,
+        description,
+        inLanguage: "en",
+        publisher: { "@id": `${SITE_URL}/#person` },
+      },
+      {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#person`,
+        name: "Nischal Dahal",
+        alternateName: ["broisnischal", "broisnees", "Nischal"],
+        url: SITE_URL,
+        jobTitle: "Software Engineer",
+        description: personDescription,
+        sameAs: [
+          "https://github.com/broisnischal",
+          "https://twitter.com/broisnees",
+          "https://www.linkedin.com/in/nischalxdahal/",
+          "https://t.me/broisnees",
+          "https://instagram.com/broisnischal",
+        ],
+      },
+    ],
+  };
+}
+
+export type BlogIndexPost = {
+  title: string;
+  slug: string;
+  date?: string;
+};
+
+/**
+ * Blog listing schema — ties posts to author for queries like "blog by Nischal".
+ */
+export function createBlogIndexSchema(posts: BlogIndexPost[]) {
+  const blogUrl = `${SITE_URL}/blog`;
+  const blogPost = posts.map((p) => {
+    const date = p.date ? new Date(p.date).toISOString() : undefined;
+    return {
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: `${SITE_URL}/blog/${p.slug}`,
+      ...(date ? { datePublished: date } : {}),
+      author: {
+        "@type": "Person",
+        name: DEFAULT_AUTHOR,
+        url: SITE_URL,
+      },
+    };
+  });
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Blog by Nischal Dahal",
+    alternateName: "Nischal Dahal blog",
+    description:
+      "Technical articles and tutorials by Nischal Dahal on web development, serverless architecture, React Router, and software engineering.",
+    url: blogUrl,
+    author: {
+      "@type": "Person",
+      name: DEFAULT_AUTHOR,
+      url: SITE_URL,
+      sameAs: [
+        "https://github.com/broisnischal",
+        "https://twitter.com/broisnees",
+      ],
+    },
+    publisher: {
+      "@type": "Organization",
+      name: DEFAULT_AUTHOR,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: PUBLISHER_LOGO,
+      },
+    },
+    blogPost,
+  };
+}
+
+export function createBreadcrumbListSchema(
+  items: { name: string; path: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
   };
 }
 
@@ -204,23 +339,39 @@ export function createArticleSchema(options: {
     image,
   } = options;
 
+  const imageUrl = image ? absoluteUrl(image) : undefined;
+
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: title,
     description,
     url,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
     author: {
       "@type": "Person",
       name: author,
+      url: SITE_URL,
+      sameAs: [
+        "https://github.com/broisnischal",
+        "https://twitter.com/broisnees",
+      ],
     },
     publisher: {
-      "@type": "Person",
-      name: "Nischal Dahal",
+      "@type": "Organization",
+      name: DEFAULT_AUTHOR,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: PUBLISHER_LOGO,
+      },
     },
     datePublished: publishedTime,
     ...(modifiedTime && { dateModified: modifiedTime }),
-    ...(image && { image }),
+    ...(imageUrl && { image: imageUrl }),
   };
 }
 

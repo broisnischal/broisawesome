@@ -1,14 +1,11 @@
+import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/[robots.txt]";
 
-export const loader = ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-
-  let host = url.host;
-
+export const loader = ({}: Route.LoaderArgs) => {
   const robotText = `User-agent: *
 Allow: /
 Disallow: /dashboard
-Sitemap: https://${host}/sitemap.xml`;
+Sitemap: ${CANONICAL_SITE_URL}/sitemap.xml`;
 
   return new Response(robotText, {
     status: 200,

@@ -39,6 +39,8 @@ This portfolio website contains the following sections:
 
 ### Blog
 
+Blog by Nischal Dahal (broisnischal): long-form technical articles and tutorials. Public URL path: /blog (RSS: /blogs.rss, JSON Feed: /feed.json).
+
 Articles and thoughts on technology covering topics such as:
 - Deploying Bun & Elysia applications with wildcard domains on Fly.io
 - Dockerizing Remix applications

@@ -1,10 +1,10 @@
 import { getBlogs } from "~/.server/all-content";
+import { CANONICAL_SITE_URL } from "~/lib/meta";
 import { data } from "react-router";
 import type { Route } from "./+types/feed[.]json";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  const baseUrl = `https://${url.host}`;
+export async function loader({}: Route.LoaderArgs) {
+  const baseUrl = CANONICAL_SITE_URL;
 
   const posts = getBlogs()
     .filter((blog) => blog.date || blog.frontmatter?.published)
@@ -24,11 +24,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   return data({
     version: "https://jsonfeed.org/version/1",
-    title: "nischal-dahal.com.np",
+    title: "Blog by Nischal Dahal",
     home_page_url: baseUrl,
     feed_url: `${baseUrl}/feed.json`,
     description:
-      "Nischal Dahal is a full-stack developer and a founder of nischal-dahal.com.np",
+      "JSON Feed of posts by Nischal Dahal (broisnischal): software engineering, serverless, React, and web development — the blog by Nischal.",
     icon: "https://avatars.githubusercontent.com/u/98168009?v=4",
     author: {
       name: "Nischal Dahal",

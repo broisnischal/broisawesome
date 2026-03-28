@@ -1,9 +1,10 @@
 import { Link, data } from "react-router";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import {
+  CANONICAL_SITE_URL,
+  createBlogIndexSchema,
   createHeaders,
   createMetaTags,
-  createPersonSchema,
   createSchemaMetaTag,
 } from "~/lib/meta";
 import type { Route } from "./+types/blogs";
@@ -12,13 +13,32 @@ export const handle = {
   breadcrumb: () => <Link to="/blog">Blogs</Link>,
 };
 
-export const meta: Route.MetaFunction = () => {
+export const links: Route.LinksFunction = () => [
+  {
+    rel: "alternate",
+    type: "application/rss+xml",
+    title: "Blog by Nischal Dahal (RSS)",
+    href: `${CANONICAL_SITE_URL}/blogs.rss`,
+  },
+  {
+    rel: "alternate",
+    type: "application/feed+json",
+    title: "Blog by Nischal Dahal (JSON Feed)",
+    href: `${CANONICAL_SITE_URL}/feed.json`,
+  },
+];
+
+export const meta: Route.MetaFunction = ({ loaderData }) => {
+  const posts = loaderData?.blogs ?? [];
+
   const metaTags = createMetaTags({
-    title: "Blog",
+    title: "Blog by Nischal Dahal — articles & tutorials",
     description:
-      "Blog articles by Nischal Dahal on web development, serverless architecture, React Router, and best practices. Practical solutions from real-world projects.",
+      "Blog by Nischal Dahal (broisnischal): articles on web development, serverless architecture, React Router, TypeScript, and software engineering — practical posts from real projects.",
     path: "/blog",
     keywords: [
+      "blog by Nischal",
+      "Nischal Dahal blog",
       "Nischal Dahal",
       "Nischal",
       "broisnischal",
@@ -33,13 +53,15 @@ export const meta: Route.MetaFunction = () => {
     ],
   });
 
-  // Add Person schema
-  const schema = createPersonSchema({
-    description:
-      "Software developer and technical writer sharing insights on modern web development.",
-  });
+  const blogSchema = createBlogIndexSchema(
+    posts.map((b) => ({
+      title: b.title,
+      slug: b.slug,
+      date: b.date,
+    })),
+  );
 
-  return [...metaTags, createSchemaMetaTag(schema)];
+  return [...metaTags, createSchemaMetaTag(blogSchema)];
 };
 
 export function headers() {
@@ -106,7 +128,7 @@ function Blogs({
     <div>
       <p className="text-zinc-700 dark:text-zinc-50 mb-2">
         Subscribe to my articles using{" "}
-        <a className="underline" href={url + "rss"}>
+        <a className="underline" href="/blogs.rss">
           RSS
         </a>
         .

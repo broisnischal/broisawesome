@@ -1,4 +1,5 @@
 import type { AppLoadContext } from "react-router";
+import { withMemoryCache } from "~/.server/memory-cache";
 import type {
   ClashBattleRow,
   ClashProfileSummary,
@@ -23,6 +24,16 @@ type GameLogEnv = {
 };
 
 const CLASH_DEFAULT_API_BASE = "https://proxy.royaleapi.dev";
+
+/** Lichess + Clash round-trips are slow; cache within each runtime isolate. */
+const GAME_LOGS_CACHE_MS = 2 * 60 * 1000;
+
+function gameLogsCacheKey(env: GameLogEnv | undefined): string {
+  const lichess = env?.LICHESS_USERNAME?.trim() || "";
+  const clashTag = env?.CLASH_ROYALE_PLAYER_TAG?.trim() || "";
+  const hasClashToken = Boolean(env?.CLASH_ROYALE_API_TOKEN?.trim());
+  return `game-logs:v1:${lichess}:${clashTag}:${hasClashToken ? "1" : "0"}`;
+}
 
 function clashApiBase(env: GameLogEnv | undefined): string {
   const raw = env?.CLASH_ROYALE_API_BASE?.trim();
@@ -413,10 +424,15 @@ export async function loadGameLogs(
 ): Promise<GamesLoaderData> {
   const env = context.cloudflare?.env as GameLogEnv | undefined;
 
-  const [lichess, clash] = await Promise.all([
-    fetchLichess(env),
-    fetchClash(env),
-  ]);
-
-  return { lichess, clash };
+  return withMemoryCache(
+    gameLogsCacheKey(env),
+    GAME_LOGS_CACHE_MS,
+    async () => {
+      const [lichess, clash] = await Promise.all([
+        fetchLichess(env),
+        fetchClash(env),
+      ]);
+      return { lichess, clash };
+    },
+  );
 }

@@ -30,8 +30,8 @@ mail but it is **987654**.
 now your secret key is,
 
 ```tsx
-const khalti_secret = 'key 67c1dcfe1c0a4b8db531c3f09a019cb3';
-const live_public_key = 'key ded7fb10531e48ceb9c279d8a3761f01';
+const khalti_secret = "key 67c1dcfe1c0a4b8db531c3f09a019cb3";
+const live_public_key = "key ded7fb10531e48ceb9c279d8a3761f01";
 ```
 
 ### Khalti Test Credential
@@ -54,14 +54,14 @@ Here is the step by step how to integrate khalti payment, we will start via
 importing the required dependencies.
 
 ```tsx
-import { Hono } from 'hono';
-import { Context } from '../context';
-import axios from 'axios';
-import { requireUser } from '../middlewares/auth/require_user';
-import Layout from '../components/layout';
-import Khalti from '../pages/khalti';
-import { drizzle } from 'drizzle-orm/d1';
-import schema from '../drizzle';
+import { Hono } from "hono";
+import { Context } from "../context";
+import axios from "axios";
+import { requireUser } from "../middlewares/auth/require_user";
+import Layout from "../components/layout";
+import Khalti from "../pages/khalti";
+import { drizzle } from "drizzle-orm/d1";
+import schema from "../drizzle";
 ```
 
 I also have create some interface for you if you are a typescript lover, make
@@ -70,12 +70,12 @@ future.
 
 ```tsx
 type KhaltiStatus =
-  | 'Completed'
-  | 'Pending'
-  | 'Initiated'
-  | 'Refunded'
-  | 'Expired'
-  | 'User canceled';
+  | "Completed"
+  | "Pending"
+  | "Initiated"
+  | "Refunded"
+  | "Expired"
+  | "User canceled";
 
 export interface KhaltiPaymentResponse {
   pidx: string;
@@ -107,7 +107,7 @@ export interface KhaltiPaymentLookupResponse {
 Import your actual merchant secret key!
 
 ```tsx
-const secret_key = 'Key 05bf95cc57244045b8df5fad06748dab';
+const secret_key = "Key 05bf95cc57244045b8df5fad06748dab";
 ```
 
 I have initiated the payment before user clicks the pay button, you can do the
@@ -116,29 +116,29 @@ opposite as well!
 ```tsx
 const khalti = new Hono();
 
-khalti.get('/', async (c) => {
-  const url = 'https://api.nischal-dahal.com.np';
+khalti.get("/", async (c) => {
+  const url = "https://api.nischal-dahal.com.np";
   const db = drizzle(c.env.DB);
   const [p1] = await db.select().from(schema.products);
   const amount_in_paisa = p1.price * 100;
 
   const options = {
-    method: 'POST',
-    url: 'https://a.khalti.com/api/v2/epayment/initiate/',
+    method: "POST",
+    url: "https://a.khalti.com/api/v2/epayment/initiate/",
     headers: {
       Authorization: secret_key,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     data: {
       return_url: `${url}/khalti/verify`,
       website_url: url,
       amount: amount_in_paisa,
-      purchase_order_id: 'Order01',
+      purchase_order_id: "Order01",
       purchase_order_name: p1.name,
       customer_info: {
-        name: 'Nischal Dahal',
-        email: 'ping@nischal.pro',
-        phone: '9800000001',
+        name: "Nischal Dahal",
+        email: "nischaldahal01395@gmail.com",
+        phone: "9800000001",
       },
     },
   };
@@ -163,13 +163,13 @@ Now, we have imported all the required components.
 
 ```tsx
 // Webhook route for payment verification
-khalti.post('/webhook', async (c) => {
+khalti.post("/webhook", async (c) => {
   // Handle the webhook when Khalti payment completes
-  return c.json({ result: 'Payment done' });
+  return c.json({ result: "Payment done" });
 });
 
 // Handle payment failure
-khalti.get('/failure', (c) =>
+khalti.get("/failure", (c) =>
   c.html(
     <Layout>
       <h1>Payment Failed</h1>
@@ -184,34 +184,34 @@ others thing that you like.
 
 ```tsx
 // Payment verification route
-khalti.get('/verify', async (c) => {
-  const pidx = c.req.query('pidx');
+khalti.get("/verify", async (c) => {
+  const pidx = c.req.query("pidx");
 
-  const transaction_id = c.req.query('transaction_id');
-  const tidx = c.req.query('tidx');
-  const amount = c.req.query('amount');
-  const total_amount = c.req.query('total_amount');
-  const mobile = c.req.query('mobile');
-  const status = c.req.query('status');
-  const purchase_order_id = c.req.query('purchase_order_id');
+  const transaction_id = c.req.query("transaction_id");
+  const tidx = c.req.query("tidx");
+  const amount = c.req.query("amount");
+  const total_amount = c.req.query("total_amount");
+  const mobile = c.req.query("mobile");
+  const status = c.req.query("status");
+  const purchase_order_id = c.req.query("purchase_order_id");
 
   // demo for getting all useful parameter so that you can save in db
 
   const lookup = await axios.post<KhaltiPaymentResponse>(
-    'https://a.khalti.com/api/v2/epayment/lookup/',
+    "https://a.khalti.com/api/v2/epayment/lookup/",
     {
       pidx: pidx,
     },
     {
       headers: {
         Authorization: secret_key,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     },
   );
 
-  if (lookup.data.status != 'Completed') {
-    return c.json({ result: 'Payment not completed' });
+  if (lookup.data.status != "Completed") {
+    return c.json({ result: "Payment not completed" });
   }
 
   // create a payment record, save data, update status
@@ -250,20 +250,20 @@ After a callback is received, You can use the pidx provided earlier, to lookup
 and reassure the payment status.
 
 ```tsx
-khalti.get('/lookup', async (c) => {
-  const token = c.req.query('token');
+khalti.get("/lookup", async (c) => {
+  const token = c.req.query("token");
 
   if (!token) {
-    return c.json({ result: 'Missing token' });
+    return c.json({ result: "Missing token" });
   }
 
   const response = await axios
     .post<KhaltiPaymentLookupResponse>(
-      'https://a.khalti.com/api/v2/epayment/lookup/',
+      "https://a.khalti.com/api/v2/epayment/lookup/",
       { pidx: token },
       {
         headers: { Authorization: secret_key },
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     )
     .then((response) => {
@@ -271,8 +271,8 @@ khalti.get('/lookup', async (c) => {
       return response.data;
     })
     .catch((error) => {
-      console.error('Error in Khalti lookup:', error);
-      return c.json({ result: 'you suck!' });
+      console.error("Error in Khalti lookup:", error);
+      return c.json({ result: "you suck!" });
     });
 
   return c.json({ result: response });
@@ -332,14 +332,14 @@ information.
 // client
 
 export default function Khalti({ data }: { data: KhaltiPaymentInitResponse }) {
-  const url = 'https://api.nischal-dahal.com.np';
+  const url = "https://api.nischal-dahal.com.np";
 
   return (
     <Layout>
       <div>
         <h1 className="mb-6 font-bold">Hello, Khalti Web Checkout!</h1>
         <a href={data.go_link}>
-          <button class={'rounded border bg-purple-800 px-3 py-2 text-white'}>
+          <button class={"rounded border bg-purple-800 px-3 py-2 text-white"}>
             Pay via khalti
           </button>
         </a>
@@ -349,12 +349,12 @@ export default function Khalti({ data }: { data: KhaltiPaymentInitResponse }) {
               return_url: `${url}/khalti/verify`,
               website_url: url,
               amount: 1000,
-              purchase_order_id: 'order1',
-              purchase_order_name: 'Macbook',
+              purchase_order_id: "order1",
+              purchase_order_name: "Macbook",
               customer_info: {
-                name: 'Nischal Dahal',
-                email: 'ping@nischal.pro',
-                phone: '9800000001',
+                name: "Nischal Dahal",
+                email: "nischaldahal01395@gmail.com",
+                phone: "9800000001",
               },
             },
             null,

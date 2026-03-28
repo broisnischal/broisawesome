@@ -3,6 +3,7 @@ export const routeFileList = [
   "routes/$.tsx",
   "routes/_/_landing._index/route.tsx",
   "routes/_/about/route.tsx",
+  "routes/_/activity/route.tsx",
   "routes/_/config/route.tsx",
   "routes/_/gallery/route.tsx",
   "routes/_/links/route.tsx",

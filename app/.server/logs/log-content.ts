@@ -1,8 +1,12 @@
+import { withConditionalMemoryCache } from "~/.server/memory-cache";
 import { blogLogs, bookLogs, movieLogs } from "~/lib/logs/static";
 import type { BlogLog, BookLog, LogStatus, MovieLog } from "~/lib/logs/types";
 
+/** Remote JSON refetch interval (GitHub raw CDN is slow; cache cuts repeat latency). */
+const LOG_JSON_CACHE_MS = 5 * 60 * 1000;
+
 /**
- * GET `LOG_JSON_URL` each request. Easiest hosts (no backend):
+ * GET `LOG_JSON_URL` with a short in-memory TTL between refetches. Easiest hosts (no backend):
  * - GitHub: commit `public/log-content.json`, then use raw URL, e.g.
  *   `https://raw.githubusercontent.com/<user>/<repo>/<branch>/public/log-content.json`
  * - Gist: paste the same JSON, click Raw, copy that URL.
@@ -105,48 +109,57 @@ export async function loadLogJsonContent(
     return { ...fb, fromRemote: false, remoteError: null };
   }
 
-  try {
-    const res = await fetch(url, {
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(12_000),
-    });
+  const cacheKey = `log-json:${url}`;
 
-    if (!res.ok) {
-      return {
-        ...fb,
-        fromRemote: false,
-        remoteError: `LOG_JSON_URL HTTP ${res.status}`,
-      };
-    }
+  return withConditionalMemoryCache(
+    cacheKey,
+    LOG_JSON_CACHE_MS,
+    async () => {
+      try {
+        const res = await fetch(url, {
+          headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(12_000),
+        });
 
-    const data = (await res.json()) as LogJsonRoot;
-    const booksRaw = Array.isArray(data.books) ? data.books : [];
-    const moviesRaw = Array.isArray(data.movies) ? data.movies : [];
-    const blogsRaw = Array.isArray(data.blogs) ? data.blogs : [];
+        if (!res.ok) {
+          return {
+            ...fb,
+            fromRemote: false,
+            remoteError: `LOG_JSON_URL HTTP ${res.status}`,
+          } satisfies LogJsonContentResult;
+        }
 
-    const bookLogsOut = booksRaw
-      .map(normalizeBook)
-      .filter((x): x is BookLog => x != null);
-    const movieLogsOut = moviesRaw
-      .map(normalizeMovie)
-      .filter((x): x is MovieLog => x != null);
-    const blogLogsOut = blogsRaw
-      .map(normalizeBlog)
-      .filter((x): x is BlogLog => x != null);
+        const data = (await res.json()) as LogJsonRoot;
+        const booksRaw = Array.isArray(data.books) ? data.books : [];
+        const moviesRaw = Array.isArray(data.movies) ? data.movies : [];
+        const blogsRaw = Array.isArray(data.blogs) ? data.blogs : [];
 
-    return {
-      bookLogs: bookLogsOut,
-      movieLogs: movieLogsOut,
-      blogLogs: blogLogsOut,
-      fromRemote: true,
-      remoteError: null,
-    };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "request failed";
-    return {
-      ...fb,
-      fromRemote: false,
-      remoteError: msg,
-    };
-  }
+        const bookLogsOut = booksRaw
+          .map(normalizeBook)
+          .filter((x): x is BookLog => x != null);
+        const movieLogsOut = moviesRaw
+          .map(normalizeMovie)
+          .filter((x): x is MovieLog => x != null);
+        const blogLogsOut = blogsRaw
+          .map(normalizeBlog)
+          .filter((x): x is BlogLog => x != null);
+
+        return {
+          bookLogs: bookLogsOut,
+          movieLogs: movieLogsOut,
+          blogLogs: blogLogsOut,
+          fromRemote: true,
+          remoteError: null,
+        } satisfies LogJsonContentResult;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "request failed";
+        return {
+          ...fb,
+          fromRemote: false,
+          remoteError: msg,
+        } satisfies LogJsonContentResult;
+      }
+    },
+    (r) => r.fromRemote === true && r.remoteError == null,
+  );
 }

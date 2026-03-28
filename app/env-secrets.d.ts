@@ -17,5 +17,17 @@ declare namespace Cloudflare {
     GOOGLE_PHOTOS_ALBUM_ID?: string;
     /** Optional; scope `photoslibrary.readonly.appcreateddata`. Else `YOUTUBE_REFRESH_TOKEN` if same client includes both scopes. */
     GOOGLE_PHOTOS_REFRESH_TOKEN?: string;
+    /**
+     * GitHub PAT — used for GraphQL (pinned repos on /projects) and optional higher limits elsewhere.
+     * Public repo metadata: classic token with no scopes, or fine-grained “Contents” read on public repos.
+     */
+    GITHUB_TOKEN?: string;
+    /** Public events username (default `broisnischal`). */
+    GITHUB_USERNAME?: string;
+    /**
+     * npm **login** username for maintainer search (registry.npmjs.org).
+     * May differ from your npm profile URL; if the npm section is empty, set this to the account that publishes your packages.
+     */
+    NPM_USERNAME?: string;
   }
 }

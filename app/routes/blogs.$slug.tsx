@@ -3,9 +3,12 @@ import { useMemo } from "react";
 import type { Route } from "./+types/blogs.$slug";
 import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
 import {
-  createMetaTags,
-  createHeaders,
+  absoluteUrl,
+  CANONICAL_SITE_URL,
   createArticleSchema,
+  createBreadcrumbListSchema,
+  createHeaders,
+  createMetaTags,
   createSchemaMetaTag,
 } from "~/lib/meta";
 
@@ -70,6 +73,7 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
   const keywords = [
     "Nischal Dahal",
     "Nischal",
+    "blog by Nischal",
     "broisnischal",
     "blog",
     "software development",
@@ -80,6 +84,10 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     ...blog.slug.split("-").filter((word) => word.length > 2),
   ];
 
+  const ogImage = blog.frontmatter?.image
+    ? absoluteUrl(blog.frontmatter.image)
+    : undefined;
+
   const metaTags = createMetaTags({
     title: blog.title,
     description,
@@ -88,23 +96,55 @@ export const meta: Route.MetaFunction = ({ loaderData }) => {
     ogType: "article",
     publishedTime,
     modifiedTime: publishedTime,
+    ...(ogImage ? { ogImage } : {}),
   });
 
-  // Add Article schema if we have published time
+  const postUrl = `${CANONICAL_SITE_URL}/blog/${blog.slug}`;
+  const breadcrumb = createBreadcrumbListSchema([
+    { name: "Home", path: "/" },
+    { name: "Blog by Nischal", path: "/blog" },
+    { name: blog.title, path: `/blog/${blog.slug}` },
+  ]);
+
   if (publishedTime) {
-    const schema = createArticleSchema({
+    const articleDoc = createArticleSchema({
       title: blog.title,
       description,
-      url: `https://nischal-dahal.com.np/blog/${blog.slug}`,
+      url: postUrl,
       publishedTime,
       modifiedTime: publishedTime,
       image: blog.frontmatter?.image,
     });
-    return [...metaTags, createSchemaMetaTag(schema)];
+    const articleNode = { ...articleDoc };
+    delete (articleNode as Record<string, unknown>)["@context"];
+    const crumbNode = { ...breadcrumb };
+    delete (crumbNode as Record<string, unknown>)["@context"];
+    return [
+      ...metaTags,
+      createSchemaMetaTag({
+        "@context": "https://schema.org",
+        "@graph": [articleNode, crumbNode],
+      }),
+    ];
   }
 
-  return metaTags;
+  return [...metaTags, createSchemaMetaTag(breadcrumb)];
 };
+
+export const links: Route.LinksFunction = () => [
+  {
+    rel: "alternate",
+    type: "application/rss+xml",
+    title: "Blog by Nischal Dahal (RSS)",
+    href: `${CANONICAL_SITE_URL}/blogs.rss`,
+  },
+  {
+    rel: "alternate",
+    type: "application/feed+json",
+    title: "Blog by Nischal Dahal (JSON Feed)",
+    href: `${CANONICAL_SITE_URL}/feed.json`,
+  },
+];
 
 export async function headers() {
   return createHeaders();

@@ -36,8 +36,18 @@ export const meta: Route.MetaFunction = () => {
   });
 };
 
+export const links: Route.LinksFunction = () => [
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap",
+  },
+];
+
 export function headers() {
-  return createHeaders();
+  return createHeaders({
+    cacheControl:
+      "public, max-age=120, s-maxage=180, stale-while-revalidate=600",
+  });
 }
 
 export async function loader({ request, context }: Route.LoaderArgs) {
@@ -67,14 +77,16 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   };
 }
 
+const displaySerif = "[font-family:Newsreader,Georgia,serif]";
+
 const tabListClass =
-  "bg-transparent h-auto p-0 flex flex-wrap rounded-none w-full justify-start border-0";
+  "bg-muted/30 h-auto p-1 flex flex-wrap gap-1 rounded-xl w-full justify-start border border-border/60";
 
 const tabTriggerClass = cn(
-  "rounded-none px-3 py-2 text-sm font-mono lowercase tracking-tight border-0 shadow-none",
-  "bg-transparent text-foreground",
-  "data-[state=active]:bg-foreground data-[state=active]:text-background",
-  "data-[state=inactive]:hover:bg-muted/50",
+  "rounded-lg px-3.5 py-2 text-sm font-medium tracking-tight border-0 shadow-none",
+  "text-muted-foreground",
+  "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+  "data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-background/60",
   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
 );
 
@@ -127,12 +139,12 @@ function SplitRow({
   href?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 py-3 border-b border-border/70 last:border-b-0 text-sm">
-      <div className="min-w-0 flex flex-col gap-0.5">
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 py-3.5 border-b border-border/50 last:border-b-0 text-sm">
+      <div className="min-w-0 flex flex-col gap-1">
         {href ? (
           <OutLink
             href={href}
-            className="inline-flex items-center gap-1 font-medium text-foreground hover:text-primary transition-colors group w-fit"
+            className="inline-flex items-center gap-1 font-medium text-foreground hover:text-primary transition-colors group w-fit leading-snug"
           >
             {left}
             <ArrowUpRightIcon
@@ -158,11 +170,13 @@ function SplitRow({
 
 function StatGrid({ rows }: { rows: { label: string; value: ReactNode }[] }) {
   return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-xs font-mono m-0">
+    <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-xs m-0">
       {rows.map(({ label, value }) => (
         <div key={label} className="contents">
-          <dt className="text-muted-foreground">{label}</dt>
-          <dd className="m-0 text-foreground tabular-nums">{value}</dd>
+          <dt className="text-muted-foreground font-medium">{label}</dt>
+          <dd className="m-0 text-foreground tabular-nums font-mono">
+            {value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -176,16 +190,20 @@ function ClashProfileBlock({ p }: { p: ClashProfileSummary }) {
       : "—";
 
   return (
-    <div className="mb-8 border border-border/80 p-4 space-y-3">
+    <div className="mb-8 rounded-xl border border-border/60 bg-muted/15 p-5 space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-base font-medium tracking-tight">{p.name}</span>
+          <span
+            className={cn("text-lg font-semibold tracking-tight", displaySerif)}
+          >
+            {p.name}
+          </span>
           <span className="text-xs font-mono text-muted-foreground">
             {p.tag}
           </span>
         </div>
         {p.clanName ? (
-          <span className="text-xs text-muted-foreground text-right max-w-[12rem] truncate">
+          <span className="text-xs text-muted-foreground text-right max-w-48 truncate">
             {p.clanName}
             {p.clanTag ? (
               <span className="font-mono opacity-80"> {p.clanTag}</span>
@@ -220,11 +238,14 @@ function LichessProfileBlock({ p }: { p: LichessProfileSummary }) {
   ].filter(Boolean);
 
   return (
-    <div className="mb-8 border border-border/80 p-4 space-y-3">
+    <div className="mb-8 rounded-xl border border-border/60 bg-muted/15 p-5 space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <OutLink
           href={p.profileHref}
-          className="inline-flex items-center gap-1 text-base font-medium tracking-tight hover:text-primary transition-colors group"
+          className={cn(
+            "inline-flex items-center gap-1 text-lg font-semibold tracking-tight hover:text-primary transition-colors group",
+            displaySerif,
+          )}
         >
           @{p.username}
           {p.title ? (
@@ -373,9 +394,12 @@ function MyTubeStubSection() {
     <section aria-labelledby="mytube-stub-heading">
       <h2
         id="mytube-stub-heading"
-        className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground m-0 mb-3"
+        className={cn(
+          "text-lg font-semibold text-foreground m-0 mb-3 tracking-tight",
+          displaySerif,
+        )}
       >
-        mytube
+        MyTube
       </h2>
       <p className="text-sm text-muted-foreground m-0 leading-relaxed">
         Stub only. Book, movie, and blog rows come from{" "}
@@ -406,13 +430,13 @@ function LogDataSourceNote({
   }
   if (fromRemote) {
     return (
-      <p className="text-xs text-muted-foreground m-0 font-mono">
-        book · movie · blog sourced from remote JSON
+      <p className="text-xs text-muted-foreground m-0">
+        Book, movie, and blog lists are loaded from remote JSON.
       </p>
     );
   }
   return (
-    <div className="text-xs text-muted-foreground font-mono space-y-1.5 m-0 leading-relaxed">
+    <div className="text-xs text-muted-foreground space-y-1.5 m-0 leading-relaxed">
       <p className="m-0">
         Set <span className="font-mono">LOG_JSON_URL</span> to public HTTPS JSON
         (template <span className="font-mono">public/log-content.json</span> in
@@ -509,9 +533,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-col gap-10 max-w-2xl text-left w-full">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Log</h1>
-        <p className="text-sm text-muted-foreground leading-relaxed m-0 font-mono">
+      <header className="flex flex-col gap-4 border-b border-border/60 pb-8">
+        <h1
+          className={cn(
+            "text-4xl sm:text-[2.75rem] font-semibold tracking-tight text-foreground m-0 leading-[1.1]",
+            displaySerif,
+          )}
+        >
+          Log
+        </h1>
+        <p className="text-sm text-muted-foreground leading-relaxed m-0 max-w-prose">
           Media and games worth tracking — loaded on the server, no client fetch
           loops.
         </p>
@@ -521,7 +552,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         />
       </header>
 
-      <Tabs value={tab} onValueChange={setTab} className="w-full gap-4 ">
+      <Tabs value={tab} onValueChange={setTab} className="w-full gap-6">
         <TabsList className={tabListClass}>
           <TabsTrigger value="book" className={tabTriggerClass}>
             book
@@ -624,7 +655,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <section aria-labelledby="clash-heading">
             <h2
               id="clash-heading"
-              className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground mb-4"
+              className={cn(
+                "text-lg font-semibold text-foreground mb-4 tracking-tight",
+                displaySerif,
+              )}
             >
               Clash Royale
             </h2>
@@ -645,7 +679,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <section aria-labelledby="lichess-heading">
             <h2
               id="lichess-heading"
-              className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground mb-4"
+              className={cn(
+                "text-lg font-semibold text-foreground mb-4 tracking-tight",
+                displaySerif,
+              )}
             >
               Lichess
             </h2>

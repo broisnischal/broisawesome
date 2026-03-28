@@ -1,22 +1,20 @@
-import { Link, data } from "react-router";
-import type { Route } from "./+types/route";
-import React from "react";
 import {
-  Github,
-  Twitter,
-  Linkedin,
-  Youtube,
-  MessageCircle,
+  Code,
   Coffee,
   FileText,
-  Code,
+  Github,
+  Linkedin,
+  MessageCircle,
   Package,
   Rss,
-  ExternalLink,
+  Twitter,
+  Youtube,
   type LucideProps,
 } from "lucide-react";
-import { cn } from "~/lib/utils";
-import { createMetaTags, createHeaders } from "~/lib/meta";
+import type { ComponentType } from "react";
+import { Link, data } from "react-router";
+import { createHeaders, createMetaTags } from "~/lib/meta";
+import type { Route } from "./+types/route";
 
 export const handle = {
   breadcrumb: () => <Link to="/links">Links</Link>,
@@ -51,10 +49,9 @@ interface SocialLink {
   name: string;
   url: string;
   iconName: string;
-  color?: string;
 }
 
-const iconMap: Record<string, React.ComponentType<LucideProps>> = {
+const iconMap: Record<string, ComponentType<LucideProps>> = {
   github: Github,
   twitter: Twitter,
   linkedin: Linkedin,
@@ -72,34 +69,34 @@ const iconMap: Record<string, React.ComponentType<LucideProps>> = {
 const socialLinks: SocialLink[] = [
   {
     id: "github",
-    name: "Github",
+    name: "GitHub",
     url: "https://github.com/broisnischal",
     iconName: "github",
   },
   {
     id: "twitter",
-    name: "Twitter",
+    name: "X",
     url: "https://twitter.com/broisnees",
     iconName: "twitter",
   },
   {
     id: "linkedin",
     name: "LinkedIn",
-    url: "https://linkedin.com/in/broisnischal",
+    url: "https://linkedin.com/in/nischalxdahal",
     iconName: "linkedin",
   },
-  // {
-  //     id: "discord",
-  //     name: "Discord",
-  //     url: "https://discord.com/users/broisnees",
-  //     iconName: "discord",
-  // },
-  // {
-  //     id: "youtube",
-  //     name: "Youtube",
-  //     url: "https://youtube.com/@broisnees",
-  //     iconName: "youtube",
-  // },
+  {
+    id: "discord",
+    name: "Discord",
+    url: "https://discord.com/users/broisnees",
+    iconName: "discord",
+  },
+  {
+    id: "youtube",
+    name: "Youtube",
+    url: "https://youtube.com/@broisnees",
+    iconName: "youtube",
+  },
   {
     id: "ko-fi",
     name: "Ko-fi",
@@ -144,8 +141,8 @@ export async function loader({}: Route.LoaderArgs) {
   });
 }
 
-function LinkCard({ link }: { link: SocialLink }) {
-  const Icon = iconMap[link.iconName] || Code;
+function SocialAnchor({ link }: { link: SocialLink }) {
+  const Icon = iconMap[link.iconName] ?? Code;
   const isExternal = link.url.startsWith("http") || link.url.startsWith("//");
 
   return (
@@ -153,25 +150,10 @@ function LinkCard({ link }: { link: SocialLink }) {
       href={link.url}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
-      className={cn(
-        "relative",
-        "group flex items-center p-5 border border-border rounded-lg",
-        "bg-card hover:bg-accent/50 hover:border-primary/50 transition-all duration-200",
-      )}
+      className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
     >
-      <Icon size={20} />
-
-      {isExternal && (
-        <ExternalLink
-          size={14}
-          className={cn(
-            "absolute right-1 top-1",
-            "text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0",
-            isExternal ? "text-muted-foreground " : "text-primary",
-            "group-hover:text-primary",
-          )}
-        />
-      )}
+      <Icon className="size-4.5 shrink-0" strokeWidth={1.75} aria-hidden />
+      <span className="text-sm underline underline-offset-4">{link.name}</span>
     </a>
   );
 }
@@ -180,21 +162,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { links } = loaderData;
 
   return (
-    <div className="max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-          Links
+    <div className="max-w-4xl h-1/2 ">
+      <section
+        className="flex flex-col gap-4"
+        aria-labelledby="links-find-heading"
+      >
+        <h1
+          id="links-find-heading"
+          className="font-mono text-xs font-normal uppercase tracking-widest text-muted-foreground"
+        >
+          Elsewhere
         </h1>
-        <p className="text-muted-foreground">
-          Quicklinks to my social platforms and contacts.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        {links.map((link) => (
-          <LinkCard key={link.id} link={link} />
-        ))}
-      </div>
+        <nav
+          className="flex flex-wrap items-center gap-x-6 gap-y-2"
+          aria-label="Social and profile links"
+        >
+          {links.map((link) => (
+            <SocialAnchor key={link.id} link={link} />
+          ))}
+        </nav>
+      </section>
     </div>
   );
 }

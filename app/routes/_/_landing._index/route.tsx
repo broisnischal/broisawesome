@@ -1,21 +1,28 @@
+import type { LucideIcon } from "lucide-react";
 import {
+  Activity,
   BookOpen,
   Briefcase,
-  Calendar,
   Code,
+  Github,
+  Globe,
   Link2,
+  Rss,
   ScrollText,
   Server,
   StickyNote,
+  Twitter,
   User,
   Wrench,
 } from "lucide-react";
 import { Link, NavLink, data } from "react-router";
+import { fetchGitHubActivity } from "~/.server/github-activity";
 import {
+  CANONICAL_SITE_URL,
   createHeaders,
   createMetaTags,
-  createPersonSchema,
   createSchemaMetaTag,
+  createWebSiteSchema,
 } from "~/lib/meta";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/route";
@@ -28,7 +35,7 @@ export const meta: Route.MetaFunction = () => {
   const metaTags = createMetaTags({
     title: "Nischal Dahal - Software Developer",
     description:
-      "Nischal Dahal (broisnischal) - Software developer specializing in serverless architecture, Android development, and modern web technologies. Portfolio, blog, and projects.",
+      "Nischal Dahal (broisnischal) — software developer building serverless systems, Android apps, and modern web experiences. Portfolio, blog, projects, and latest GitHub activity.",
     path: "/",
     keywords: [
       "Nischal Dahal",
@@ -41,108 +48,133 @@ export const meta: Route.MetaFunction = () => {
       "TypeScript",
       "serverless",
       "Android development",
+      "Nepal",
     ],
   });
 
-  // Add Person schema
-  const schema = createPersonSchema();
+  const website = createWebSiteSchema({
+    description:
+      "Official portfolio of Nischal Dahal: writing, projects, tools, gallery, and open-source activity.",
+  });
 
-  return [...metaTags, createSchemaMetaTag(schema)];
+  return [...metaTags, createSchemaMetaTag(website)];
 };
 
 export function headers() {
-  return createHeaders();
-}
-
-export async function loader({}: Route.LoaderArgs) {
-  const verbs = [
-    "eccentric",
-    "inquisitive",
-    "enthusiastic",
-    "explorer",
-    "hustler",
-    "insurgent",
-    "maverick",
-    "renegade",
-  ];
-
-  const colorCodes = [
-    "bg-blue-300",
-    "bg-green-300",
-    "bg-red-300",
-    "bg-yellow-300",
-    "bg-purple-300",
-    "bg-pink-300",
-    "bg-orange-300",
-  ];
-
-  const verb = verbs[Math.floor(Math.random() * verbs.length)];
-  const colorCode = colorCodes[Math.floor(Math.random() * colorCodes.length)];
-
-  return data({
-    verb,
-    colorCode,
+  return createHeaders({
+    cacheControl:
+      "public, max-age=300, s-maxage=600, stale-while-revalidate=86400",
   });
 }
 
-function Header({ verb, colorCode }: { verb?: string; colorCode?: string }) {
-  return (
-    <div className="flex flex-col gap-2 mb-8">
-      <div className="relative w-fit selection:enabled:bg-transparent">
-        <img
-          src="https://avatars.githubusercontent.com/u/98168009?v=4"
-          alt=""
-          className="w-36 h-36 object-cover rounded-lg border border-border"
-          loading="lazy"
-        />
-        <div
-          className={`text-xs transform rotate-10 absolute top-[-10px] right-[-5px] bg-background/10 backdrop-blur-sm p-1 border-b border-l ${colorCode} px-2 rounded-lg  `}
-        >
-          {verb || "indefinite person"}
-        </div>
-      </div>
+export async function loader({ context }: Route.LoaderArgs) {
+  const env = context.cloudflare?.env;
+  const gh = await fetchGitHubActivity(env, { perPage: 20 });
 
-      <h4 className="text-sm leading-none font-medium text-foreground">
-        🚀 a.k.a broisnees
-      </h4>
-    </div>
-  );
+  return data({
+    activityPreview: gh.items.slice(0, 5),
+    activityUsername: gh.username,
+    activityError: gh.error,
+  });
 }
 
+const SOCIAL_LINKS = [
+  {
+    label: "X (Twitter)",
+    href: "https://twitter.com/broisnees",
+    Icon: Twitter,
+  },
+  {
+    label: "GitHub",
+    href: "https://github.com/broisnischal",
+    Icon: Github,
+  },
+  {
+    label: "Website",
+    href: CANONICAL_SITE_URL,
+    Icon: Globe,
+  },
+  {
+    label: "RSS feed",
+    href: `${CANONICAL_SITE_URL}/blogs.rss`,
+    Icon: Rss,
+  },
+] as const;
+
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { verb, colorCode } = loaderData;
+  const { activityPreview, activityUsername, activityError } = loaderData;
 
   return (
     <div className="max-w-4xl">
-      <h1 className="sr-only">
-        Nischal Dahal - Software Developer and Creator
-      </h1>
+      <section className="mb-14 max-w-md" aria-label="Profile">
+        <img
+          src="https://lh3.googleusercontent.com/a/ACg8ocIfOkkApycqNKsCPiAgwPeqiYI6WxM_2Tzbro5EuFBj42vok1B3vA=s96-c"
+          alt="Nischal Dahal"
+          className="h-18 w-18 rounded-full object-cover ring-1 ring-border"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
+          Nischal Dahal
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">@broisnees</p>
+        <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+          building cool stuffs on web
+        </p>
+        <ul className="mt-6 flex flex-wrap items-center gap-5">
+          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+            <li key={label}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={label}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <NavigationCards />
+      {activityError && activityPreview.length === 0 && (
+        <p className="mb-8 text-sm text-muted-foreground" role="status">
+          GitHub preview unavailable ({activityError}). Full timeline on{" "}
+          <Link to="/activity" className="underline underline-offset-4">
+            /activity
+          </Link>
+          .
+        </p>
+      )}
 
-      <div className="flex gap-2 mt-8 text-sm text-muted-foreground">
-        <Link target="_blank" className="underline" to="/llms.txt">
-          LLM
-        </Link>
-        <Link target="_blank" className="underline" to="/blogs.rss">
-          RSS
-        </Link>
-        <Link target="_blank" className="underline" to="/feed.json">
-          Feed
-        </Link>
-        <Link target="_blank" className="underline" to="/resume.pdf">
-          Resume
-        </Link>
-        <Link target="_blank" className="underline" to="/terms-of-service">
-          Terms of Service
-        </Link>
-      </div>
+      <section aria-labelledby="nav-heading">
+        <h2 id="nav-heading" className="sr-only">
+          Site sections
+        </h2>
+        <NavigationCards />
+      </section>
     </div>
   );
 }
 
+type NavItem = {
+  to: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  /** Temporarily hidden from navigation (faded, not clickable). */
+  disabled?: boolean;
+};
+
 function NavigationCards() {
-  const navItems = [
+  const navItems: NavItem[] = [
+    {
+      to: "/activity",
+      title: "Activity",
+      description: "Commits, repos, stars, and PRs from GitHub",
+      icon: Activity,
+    },
     {
       to: "/blog",
       title: "Blog",
@@ -152,44 +184,44 @@ function NavigationCards() {
     {
       to: "/notes",
       title: "Notes",
-      description: "Personal notes, glossary terms, and bookmarks",
+      description: "Glossary, bookmarks, and short notes",
       icon: StickyNote,
+      disabled: true,
     },
-
     {
       to: "/projects",
       title: "Projects",
-      description: "Things I've built and worked on",
+      description: "Things I've built and shipped",
       icon: Briefcase,
     },
     {
       to: "/links",
       title: "Links",
-      description: "Quicklinks to my social platforms and contacts",
+      description: "Socials and contact",
       icon: Link2,
     },
     {
       to: "/log",
       title: "Log",
-      description: "Books, media, games, listening (WIP)",
+      description: "Books, media, games, listening",
       icon: ScrollText,
     },
     {
       to: "/use",
       title: "Use",
-      description: "Things I use daily",
+      description: "Hardware and software I use",
       icon: Wrench,
     },
     {
       to: "/about",
       title: "About",
-      description: "Learn more about me",
+      description: "Background and interests",
       icon: User,
     },
     {
       to: "/stack",
       title: "Stack",
-      description: "My stacks and tools",
+      description: "Languages, frameworks, and tools",
       icon: Code,
     },
     {
@@ -197,37 +229,72 @@ function NavigationCards() {
       title: "Gallery",
       description: "Photos from Google Photos",
       icon: Server,
-    },
-    {
-      title: "Last Updated",
-      description: "Last updated on 2026-03-28",
-      icon: Calendar,
-      to: "/last-updated",
+      disabled: true,
     },
   ];
 
-  // display the last created github repo, action, and activites,
-
   return (
-    <div className="flex flex-col gap-3 w-fit flex-wrap">
+    <ul className="grid gap-3 sm:grid-cols-2 ">
       {navItems.map((item) => {
         const Icon = item.icon;
+        const inner = (
+          <>
+            <span
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/80",
+                item.disabled ? "text-muted-foreground" : "text-foreground",
+              )}
+            >
+              <Icon className="h-5 w-5" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span
+                className={cn(
+                  "block text-sm font-medium",
+                  item.disabled ? "text-muted-foreground" : "text-foreground",
+                )}
+              >
+                {item.title}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground leading-snug">
+                {item.description}
+              </span>
+            </span>
+          </>
+        );
+
+        if (item.disabled) {
+          return (
+            <li key={item.to}>
+              <div
+                className="flex gap-3 rounded-xl border border-transparent p-3 opacity-45 pointer-events-none cursor-not-allowed select-none"
+                aria-disabled="true"
+              >
+                {inner}
+              </div>
+            </li>
+          );
+        }
+
         return (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end
-            className={cn(
-              "group flex items-center justify-center gap-2 align-middle text-accent-foreground",
-              "hover:text-accent-foreground",
-              "w-fit",
-            )}
-          >
-            <div className="">{item.title.toLowerCase()}</div>
-          </NavLink>
+          <li key={item.to}>
+            <NavLink
+              to={item.to}
+              end
+              className={({ isActive }) =>
+                cn(
+                  "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
+                  "hover:border-border hover:bg-muted/40",
+                  isActive && "border-border bg-muted/30",
+                )
+              }
+            >
+              {inner}
+            </NavLink>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }
 
