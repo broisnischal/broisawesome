@@ -39,4 +39,8 @@ export default [
     "resources/newsletter",
     typedFilePath("routes/resources/newsletter.tsx"),
   ),
+  route(
+    "resources/gallery-image",
+    typedFilePath("routes/resources/gallery-image.tsx"),
+  ),
 ] satisfies RouteConfig;

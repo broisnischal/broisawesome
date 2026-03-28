@@ -8,7 +8,6 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import clsx from "clsx";
 import type { Route } from "./+types/root";
 import "./app.css";
 import ProgessBar from "./components/global-pending";
@@ -79,8 +78,8 @@ function Document({
   return (
     <html
       lang="en"
-      className={clsx({ dark: theme === "dark" }, theme)}
-      data-theme={theme}
+      // className={clsx({ dark: theme === "dark" }, theme)}
+      // data-theme={theme}
     >
       <head>
         <ClientHintCheck nonce={new Date().toString()} />
@@ -94,26 +93,17 @@ function Document({
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        {/* Google Site Verification */}
         <meta
           name="google-site-verification"
           content="edGz_5Jr5VsLbGpxvQ3AZBAKtuEyNBgc_qtdthOPJKU"
         />
 
-        {/* Google AdSense */}
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6430477215422762"
           crossOrigin="anonymous"
         />
 
-        {/* Google Analytics - GTM Script (load first) */}
-        {/* <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-L2HXER3J9C"
-        /> */}
-
-        {/* Google Analytics - Data Layer and Config (load after GTM script) */}
         <ScriptDangerously
           html={`window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
@@ -139,6 +129,8 @@ function Document({
 
 export default function App({ loaderData }: Route.ComponentProps) {
   const theme = useTheme();
+
+  console.log(theme);
 
   return (
     <Document loaderData={loaderData} theme={theme}>

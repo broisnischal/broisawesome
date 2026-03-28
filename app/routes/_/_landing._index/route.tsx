@@ -1,12 +1,14 @@
 import {
   BookOpen,
   Briefcase,
+  Calendar,
   Code,
   Link2,
-  Settings,
-  Settings2,
+  ScrollText,
+  Server,
   StickyNote,
   User,
+  Wrench,
 } from "lucide-react";
 import { Link, NavLink, data } from "react-router";
 import {
@@ -153,12 +155,6 @@ function NavigationCards() {
       description: "Personal notes, glossary terms, and bookmarks",
       icon: StickyNote,
     },
-    {
-      to: "/setup",
-      title: "Setup",
-      description: "Tools, hardware, and software I use daily",
-      icon: Settings,
-    },
 
     {
       to: "/projects",
@@ -173,6 +169,18 @@ function NavigationCards() {
       icon: Link2,
     },
     {
+      to: "/log",
+      title: "Log",
+      description: "Books, media, games, listening (WIP)",
+      icon: ScrollText,
+    },
+    {
+      to: "/use",
+      title: "Use",
+      description: "Things I use daily",
+      icon: Wrench,
+    },
+    {
       to: "/about",
       title: "About",
       description: "Learn more about me",
@@ -185,12 +193,20 @@ function NavigationCards() {
       icon: Code,
     },
     {
-      to: "/config",
-      title: "Config",
-      description: "My configurations, keymaps and more",
-      icon: Settings2,
+      to: "/gallery",
+      title: "Gallery",
+      description: "Photos from Google Photos",
+      icon: Server,
+    },
+    {
+      title: "Last Updated",
+      description: "Last updated on 2026-03-28",
+      icon: Calendar,
+      to: "/last-updated",
     },
   ];
+
+  // display the last created github repo, action, and activites,
 
   return (
     <div className="flex flex-col gap-3 w-fit flex-wrap">

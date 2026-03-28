@@ -7,11 +7,9 @@
     "nischal-dahal.com.np/*",
     "www.nischal-dahal.com.np/*",
     "nischal-dahal.com.np"
-  ], 
+  ],
   "preview_urls": true,
-  "vars": { 
-    "VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
-  },
+  "vars": {},
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_als"

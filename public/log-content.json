@@ -1,0 +1,62 @@
+{
+  "books": [
+    {
+      "title": "The Design of Everyday Things",
+      "author": "Don Norman",
+      "status": "active",
+      "note": "Re-read for UI instincts.",
+      "url": "https://www.goodreads.com/book/show/840.The_Design_of_Everyday_Things"
+    },
+    {
+      "title": "Designing Data-Intensive Applications",
+      "author": "Martin Kleppmann",
+      "status": "paused",
+      "note": "Chapter on stream processing.",
+      "url": "https://dataintensive.net/"
+    },
+    {
+      "title": "Atomic Habits",
+      "author": "James Clear",
+      "status": "done",
+      "note": "Quick reread of the compounding chapter."
+    }
+  ],
+  "movies": [
+    {
+      "title": "Past Lives",
+      "year": 2023,
+      "status": "done",
+      "note": "Theatrical — quiet and devastating."
+    },
+    {
+      "title": "Dune: Part Two",
+      "year": 2024,
+      "status": "active",
+      "url": "https://www.imdb.com/title/tt15239678/"
+    },
+    {
+      "title": "Aftersun",
+      "year": 2022,
+      "status": "paused"
+    }
+  ],
+  "blogs": [
+    {
+      "title": "Local-first software",
+      "url": "https://www.inkandswitch.com/local-first/",
+      "status": "active",
+      "note": "You own your data; sync is optional."
+    },
+    {
+      "title": "HTTP 103 Early Hints",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/103",
+      "status": "done"
+    },
+    {
+      "title": "Notes on distributed systems",
+      "url": "https://www.hpcs.cs.tsukuba.ac.jp/~tatebe/lecture/h23/dsys/dsyssyllabus.html",
+      "status": "paused",
+      "note": "Syllabus-style overview."
+    }
+  ]
+}
