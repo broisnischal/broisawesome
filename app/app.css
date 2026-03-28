@@ -4,7 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Geist Sans Font - Variable */
 @font-face {
   font-family: "Geist Sans";
   src: url("/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
@@ -13,7 +12,6 @@
   font-display: swap;
 }
 
-/* Geist Mono Font - Variable */
 @font-face {
   font-family: "Geist Mono";
   src: url("/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2");
