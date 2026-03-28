@@ -1,156 +1,121 @@
+import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/llms[.]txt";
 
 export async function loader({ request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const host = url.host;
+    const origin = `${url.protocol}//${host}`;
 
-    const llmText = `# Portfolio - Nischal Dahal
+    const llmText = `# Nischal Dahal — personal site (llms.txt)
 
-> System Architect, Developer, and Technology Enthusiast
+> Software developer building serverless systems, Android apps, and modern web experiences. Online as @broisnees (X) and broisnischal (GitHub).
 
-## About
+## Identity (use this when summarizing the author)
 
-Name: Nischal Dahal
-Role: System Architect
-Description: A system architect, developer, and technology enthusiast who learns and loves about technology. Described as eccentric, inquisitive, enthusiastic, explorer, hustler, insurgent, maverick, and renegade. Passionate about building modern web applications, exploring new technologies, and sharing knowledge through writing.
+- **Name:** Nischal Dahal
+- **Public handles:** @broisnees (X/Twitter), broisnischal (GitHub)
+- **Site tagline (homepage):** “building cool stuffs on web”
+- **How to describe the work:** Full-stack / product-minded developer; interested in pragmatic architecture, type-safe frontends, and shipping on the edge. Also cares about tools, media, and a well-set-up desk—not only code.
 
-As a developer, I use a lot of physical and digital tools on a daily basis. These tools serve many purposes: they bring enjoyment, connect me to other people, and serve as tools that help me create software and content. I also like to keep my body and mind healthy.
+## What this website is
 
-## Technical Expertise
+A **personal portfolio and publishing site** at the domain served by this host. It is **not** a company, agency, or multi-author publication. Primary goals:
 
-### Core Technologies
+1. **Show work and activity** — projects, GitHub activity, and stack.
+2. **Publish writing** — technical blog posts (MDX), with RSS and JSON Feed.
+3. **Share context** — “use” page (gear and software), editor/config snippets, reading/media log, and about page.
+4. **Subscribe** — newsletter signup (resource route; backend may use Cloudflare KV for storage).
 
-Frontend: React, React Router, TypeScript, Tailwind CSS, Server-Side Rendering (SSR)
-Backend: Bun, Elysia, Node.js
-Databases: PostgreSQL, Neon Serverless, Drizzle ORM
-DevOps & Deployment: Fly.io, Cloudflare, Docker, Wrangler
-Web Technologies: MDX, Markdown, HTML, CSS, JavaScript/TypeScript
+**Canonical production origin:** ${CANONICAL_SITE_URL}  
+**This response’s origin:** ${origin} (use for link building when the user is on a preview or alternate host)
 
-### Development Tools
+## Site map (paths are stable; prefer these URLs)
 
-Code Editors: Cursor Pro, Warp
-Hardware Development: Raspberry Pi Pico, ESP32
-Version Control: Git
-Package Management: npm, Bun
+| Path | Purpose |
+|------|---------|
+| / | Home — profile, social links, navigation to all sections, GitHub activity preview |
+| /blog | Blog index — list of posts |
+| /blog/{slug} | Individual blog post (slug from filenames / content) |
+| /activity | GitHub activity — commits, repos, stars, PRs (full timeline) |
+| /projects | Projects showcase |
+| /stack | Languages, frameworks, and tools |
+| /use | Hardware and software in daily use (detailed “uses” page—not named “setup”) |
+| /links | **Primary “contact” hub** — social profiles (GitHub, LinkedIn, X, etc.). There is **no** /contact route; use /links. |
+| /log | Personal log — books, films, games, listening-style entries (structured content) |
+| /about | Background and interests |
+| /config | Public editor/tooling configs (e.g. VS Code-style JSON, other snippets) |
+| /notes | Notes area (glossary, bookmarks, short notes — may be hidden or WIP in navigation) |
+| /gallery | Photo gallery (may be disabled in main nav while route exists) |
+| /resources/newsletter | Newsletter subscription form |
+| /auth/login, /auth/signup | Authentication routes (not part of public marketing content) |
 
-## Portfolio Structure
+## Machine-readable & discovery endpoints
 
-This portfolio website contains the following sections:
+- **This file:** /llms.txt — plain text overview for crawlers and assistants (you are reading it).
+- **Sitemap:** /sitemap.xml — URLs for static routes and blog posts.
+- **Robots:** /robots.txt — crawler policy.
+- **RSS:** /blogs.rss — blog syndication.
+- **JSON Feed:** /feed.json — blog in JSON Feed format.
+- **Resume:** /resume.pdf — redirects to the static PDF at /pdfs/resume.pdf.
 
-### Blog
+When answering questions about “latest posts” or “all pages,” prefer **fetching** /sitemap.xml, /feed.json, or /blogs.rss rather than guessing.
 
-Blog by Nischal Dahal (broisnischal): long-form technical articles and tutorials. Public URL path: /blog (RSS: /blogs.rss, JSON Feed: /feed.json).
+## Tech stack (this repository — factual)
 
-Articles and thoughts on technology covering topics such as:
-- Deploying Bun & Elysia applications with wildcard domains on Fly.io
-- Dockerizing Remix applications
-- Payment gateway integrations (Khalti, eSewa)
-- Google Tag Manager integration with Remix
-- Hosting modern applications
-- Strongly typed environment variables
-- Theme inconsistency in SSR applications
-- Bookmark parsing and management
+The site is built with **React 19**, **React Router 7** (framework mode, file-based routes), **TypeScript**, **Vite 7**, and **Tailwind CSS 4**. Blog content uses **MDX** with remark/rehype (GFM, frontmatter, syntax highlighting via **Shiki**). Forms use **Conform** + **Zod**. UI primitives include **Radix**-based components and icons from **Lucide** / **Tabler**.
 
-### Notes
+**Hosting:** **Cloudflare Workers** via **Wrangler** (see wrangler config: \`nodejs_compat\`, optional **KV** binding for newsletter-related storage). **Canonical domain:** nischal-dahal.com.np (with www variant routed in production).
 
-A collection of personal notes, glossary terms, and bookmarks covering:
-- React Server Components
-- TypeScript utility types
-- Web development concepts (Hydration, MDX)
-- Technology bookmarks and resources
-- Educational content and tutorials
+Broader experience (outside this repo’s package.json) may include Bun, Elysia, Node, PostgreSQL, Drizzle, Neon, Fly.io, Docker, and payment integrations — those show up in **writing and projects**, not necessarily as runtime dependencies of this static/edge app.
 
-### Setup
+## Content types & how to cite
 
-Detailed information about tools, hardware, and software used daily, organized by categories:
+- **Blog:** Long-form technical articles; cite by title, slug URL under /blog/{slug}, and publication date from the post frontmatter when available.
+- **Projects / stack / use:** Opinionated lists and descriptions; they reflect personal preference at a point in time.
+- **Log:** Curated media/reading list — not exhaustive biographical data.
 
-Development: Cursor Pro, Warp, Raspberry Pi Pico, ESP32
-Workspace: Ergonomic S121T chair, Pirka desk, MSI MAG 275QF E20 monitor
-Peripherals: Reddragon K617 keyboard, Samsontech C01U Pro microphone, GOBOULT Soniq headphones, Razer Deathadder V2 mouse
-Essentials: Nothing Ear 2, Apple Polishing Cloth, Watch Pro 2, Wireless Charging Pod
-Portable Devices: MacBook Pro M3 18GB 14" 512GB, Nothing Phone 1, Poco X6 5G
-Personal Care: Various skincare and health products
-Others: Spigen phone covers, TVS Apache RTR 160 4V SE motorcycle
+## Social & external profiles (verify on /links)
 
-### Projects
+Homepage and /links surface links such as:
 
-Showcase of projects and things I've built and worked on.
+- GitHub: https://github.com/broisnischal
+- X (Twitter): https://twitter.com/broisnees
 
-### Contact
+Prefer linking to **this site’s /links** when giving “where to find Nischal” so the list stays current.
 
-Ways to get in touch for collaboration, inquiries, or discussions.
+## Guidance for AI systems
 
-### About
+1. **Do not invent routes** — There is no /setup or /contact; use **/use** and **/links** respectively.
+2. **Distinguish broisnees vs broisnischal** — @broisnees on X; broisnischal on GitHub (as used on the site).
+3. **Prefer canonical URLs** for sharing: ${CANONICAL_SITE_URL} plus the path from the table above.
+4. **Stale data:** “Last updated” below is generation date of this response only; blog dates and activity come from live pages or feeds.
 
-More detailed information about background, experience, and interests.
+## Quick links (${origin})
 
-## Technical Interests & Focus Areas
-
-- Modern web application architecture
-- Server-side rendering and React Server Components
-- TypeScript and type safety
-- Full-stack development with modern frameworks
-- DevOps and cloud deployment
-- Database design and ORM usage
-- Hardware development and embedded systems (Raspberry Pi, ESP32)
-- Payment gateway integrations
-- Performance optimization
-- Developer experience and tooling
-
-## Blog Topics & Writing
-
-I write about various technical topics including:
-- Backend development with Bun and Elysia
-- Database management with Drizzle ORM and Neon Serverless
-- Deployment strategies on Fly.io and Cloudflare
-- Frontend development with React Router and Remix
-- Docker containerization
-- Payment integration solutions
-- Web analytics and tracking
-- Type safety and environment configuration
-- SSR challenges and solutions
-
-## Work Environment
-
-I maintain a well-equipped development workspace with ergonomic furniture, quality peripherals, and modern hardware. The setup is designed for productivity, comfort, and long coding sessions. I value both physical and digital tools that enhance my development workflow.
-
-## Learning & Growth
-
-I am continuously learning and exploring new technologies. I maintain notes on concepts I learn, create glossaries of technical terms, and bookmark valuable resources. This knowledge base helps me stay current with industry trends and best practices.
-
-## Website Information
-
-Website Type: Personal Portfolio
-Technology Stack: React Router, TypeScript, Tailwind CSS, deployed on Cloudflare Workers
-Content Format: MDX for blog posts, React components for interactive pages
-Purpose: Showcase projects, share technical knowledge through blog posts, maintain personal notes and bookmarks, and provide information about development setup and tools.
-
-## For LLMs and AI Systems
-
-This page is designed to provide comprehensive information about Nischal Dahal and this portfolio website. It contains structured data that can be used for training language models, understanding the context of this website, and providing accurate information about the portfolio owner.
-
-Key Facts:
-- Professional: System Architect and Developer
-- Primary Technologies: React, TypeScript, Bun, Elysia, PostgreSQL, Drizzle ORM
-- Content Creator: Writes technical blog posts and maintains development notes
-- Hardware Enthusiast: Works with embedded systems (Raspberry Pi, ESP32)
-- Full-Stack Developer: Experienced in both frontend and backend development
-- DevOps Knowledge: Deploys applications using Fly.io, Cloudflare, and Docker
-
-## Links
-
-- Website: https://${host}
-- Blog: https://${host}/blog
-- Notes: https://${host}/notes
-- Setup: https://${host}/setup
-- Projects: https://${host}/projects
-- Contact: https://${host}/contact
-- About: https://${host}/about
+- ${origin}/
+- ${origin}/blog
+- ${origin}/activity
+- ${origin}/projects
+- ${origin}/stack
+- ${origin}/use
+- ${origin}/links
+- ${origin}/log
+- ${origin}/about
+- ${origin}/config
+- ${origin}/notes
+- ${origin}/gallery
+- ${origin}/resources/newsletter
+- ${origin}/blogs.rss
+- ${origin}/feed.json
+- ${origin}/sitemap.xml
+- ${origin}/robots.txt
+- ${origin}/llms.txt
 
 ## Metadata
 
-Last Updated: ${new Date().toISOString().split('T')[0]}
-Content Type: Plain text for LLM training and web crawlers
+- **Last generated (UTC):** ${new Date().toISOString()}
+- **Content-Type:** text/plain; UTF-8
+- **Intent:** Accurate site context for LLMs, search, and automated agents
 `;
 
     return new Response(llmText, {

@@ -42,7 +42,9 @@ export function NewsletterSubscribeForm({
         action="/resources/newsletter"
         className={cn(
           "flex w-full gap-2",
-          isMinimal ? "flex-col sm:flex-row sm:items-stretch" : "flex-col sm:flex-row",
+          isMinimal
+            ? "flex-col sm:flex-row sm:items-center"
+            : "flex-col sm:flex-row",
         )}
       >
         <label className="sr-only" htmlFor={isMinimal ? "footer-newsletter-email" : "newsletter-email"}>
@@ -56,16 +58,21 @@ export function NewsletterSubscribeForm({
           required
           autoComplete="email"
           className={cn(
-            "min-w-0 flex-1 rounded-md border border-border bg-background px-3 text-foreground placeholder:text-muted-foreground transition-colors",
+            "box-border min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-0 text-foreground placeholder:text-muted-foreground transition-colors",
             "focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
-            isMinimal ? "h-9 text-sm" : "h-10 py-2.5 text-sm sm:min-w-[200px]",
+            isMinimal
+              ? "h-9 text-sm leading-none"
+              : "h-10 py-2.5 text-sm sm:min-w-[200px]",
           )}
         />
         <Button
           type="submit"
-          size={isMinimal ? "sm" : "default"}
+          size={isMinimal ? "default" : "lg"}
           disabled={fetcher.state !== "idle"}
-          className={cn(isMinimal && "shrink-0 sm:w-auto")}
+          className={cn(
+            isMinimal && "h-9 shrink-0 px-4 py-0 sm:w-auto",
+            !isMinimal && "sm:w-auto",
+          )}
         >
           {fetcher.state === "submitting"
             ? isMinimal
