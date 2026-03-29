@@ -15,6 +15,7 @@ import {
   User,
   Wrench,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, NavLink, data } from "react-router";
 import { fetchGitHubActivity } from "~/.server/github-activity";
 import {
@@ -233,6 +234,9 @@ function NavigationCards() {
     },
   ];
 
+  const firstEnabledTo = navItems.find((i) => !i.disabled)?.to ?? "";
+  const [emphasizedTo, setEmphasizedTo] = useState(firstEnabledTo);
+
   return (
     <ul className="grid gap-3 sm:grid-cols-2 ">
       {navItems.map((item) => {
@@ -281,11 +285,13 @@ function NavigationCards() {
             <NavLink
               to={item.to}
               end
+              onMouseEnter={() => setEmphasizedTo(item.to)}
+              onFocus={() => setEmphasizedTo(item.to)}
               className={({ isActive }) =>
                 cn(
                   "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
-                  "hover:border-border hover:bg-muted/40",
-                  isActive && "border-border bg-muted/30",
+                  (isActive || emphasizedTo === item.to) &&
+                    "border-border bg-muted/40",
                 )
               }
             >
