@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio",
+  "compatibility_date": "2025-04-04",
+  "main": "./workers/app.ts",
+  "routes": [
+    "nischal-dahal.com.np/*",
+    "www.nischal-dahal.com.np/*",
+    "nischal-dahal.com.np"
+  ],
+  "preview_urls": true,
+  "kv_namespaces": [
+    {
+      "binding": "NEWSLETTER_KV",
+      "id": "8f5b81d6febc48839c35535fa1f89a58"
+    }
+  ],
+  "vars": {
+    "CLASH_ROYALE_API_TOKEN": "",
+    "CLASH_ROYALE_PLAYER_TAG": "",
+    "LICHESS_USERNAME": "broisnees",
+    "YOUTUBE_API_KEY": "",
+    "GOOGLE_OAUTH_CLIENT_ID": "",
+    "GOOGLE_OAUTH_CLIENT_SECRET": "",
+    "YOUTUBE_REFRESH_TOKEN": "",
+    "GOOGLE_PHOTOS_ALBUM_ID": "",
+    "GOOGLE_PHOTOS_REFRESH_TOKEN": "",
+    "LOG_JSON_URL": "https://raw.githubusercontent.com/broisnischal/broisawesome/main/public/log-content.json",
+    "GITHUB_USERNAME": "broisnischal",
+    "GITHUB_TOKEN": "",
+    "NPM_USERNAME": "neeswebservice"
+  },
+  "compatibility_flags": ["nodejs_compat", "nodejs_als"],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
+}

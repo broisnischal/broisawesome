@@ -1,0 +1,12 @@
+# Copy to `.dev.vars` and fill in (never commit `.dev.vars`).
+# https://developers.cloudflare.com/workers/local-development/#local-only-environment-variables
+
+CLASH_ROYALE_API_TOKEN=
+CLASH_ROYALE_PLAYER_TAG=
+YOUTUBE_API_KEY=
+GOOGLE_OAUTH_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_SECRET=
+YOUTUBE_REFRESH_TOKEN=
+GOOGLE_PHOTOS_ALBUM_ID=
+GOOGLE_PHOTOS_REFRESH_TOKEN=
+GITHUB_TOKEN=
