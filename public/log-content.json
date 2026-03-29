@@ -121,6 +121,62 @@
       "term": "pragmatic",
       "definition": "Focused on practical results rather than theory or ideals.",
       "example": "We took a pragmatic shortcut to ship on time."
+    },
+    {
+      "term": "trade-off",
+      "definition": "A compromise where gaining one benefit means accepting a cost elsewhere.",
+      "example": "Smaller bundles are a trade-off: faster loads, but less room for dev ergonomics.",
+      "note": "Often written tradeoff in US English."
+    },
+    {
+      "term": "verbatim",
+      "definition": "Word for word; exactly as said or written.",
+      "example": "I quoted the release notes verbatim in the changelog."
+    },
+    {
+      "term": "incremental",
+      "definition": "Happening in small steps; built up gradually.",
+      "example": "We made incremental improvements to LCP each week."
+    },
+    {
+      "term": "orthogonal",
+      "definition": "Independent; changing one thing doesn’t force changes in another.",
+      "example": "Auth and billing should be orthogonal concerns in the codebase."
+    },
+    {
+      "term": "ephemeral",
+      "definition": "Short-lived; not meant to last.",
+      "example": "Preview deployments are ephemeral — they vanish after the PR merges."
+    },
+    {
+      "term": "to rubber duck",
+      "definition": "To explain a problem out loud (even to an inanimate object) to spot the bug.",
+      "example": "I rubber-ducked the race condition and saw the missing await."
+    },
+    {
+      "term": "latency",
+      "definition": "Delay between a request and a response; how long you wait.",
+      "example": "Edge caching cut API latency from 200 ms to under 40 ms."
+    },
+    {
+      "term": "throughput",
+      "definition": "How much work or data is processed per unit of time.",
+      "example": "We optimized throughput on the worker by batching KV writes."
+    },
+    {
+      "term": "graceful degradation",
+      "definition": "A system keeps core value when parts fail, instead of breaking entirely.",
+      "example": "When the CDN hiccups, we show alt text — graceful degradation."
+    },
+    {
+      "term": "straw man",
+      "definition": "A weak version of an argument set up only to knock it down — not the real position.",
+      "example": "That critique was a straw man; nobody proposed storing passwords in localStorage."
+    },
+    {
+      "term": "invariably",
+      "definition": "Always; every time — without exception.",
+      "example": "After deploys, someone invariably asks whether we rolled back."
     }
   ]
 }
