@@ -9,6 +9,7 @@ import {
   createPersonSchema,
   createSchemaMetaTag,
 } from "~/lib/meta";
+import { cn } from "~/lib/utils";
 import type { Route } from "./+types/route";
 
 export const handle = {
@@ -70,17 +71,19 @@ export function TextLink({
   to,
   href,
   children,
+  className,
 }: {
   children: ReactNode;
   href?: string;
   to?: string;
+  className?: string;
 }) {
-  const className =
-    "border-b border-foreground/25 pb-px text-foreground transition-colors hover:border-foreground";
+  const baseClass =
+    "border-b w-fit border-foreground/25 pb-px text-foreground transition-colors hover:border-foreground";
 
   if (to) {
     return (
-      <Link to={to} className={className}>
+      <Link to={to} className={cn(baseClass, className)}>
         {children}
       </Link>
     );
@@ -88,7 +91,7 @@ export function TextLink({
   return (
     <a
       href={href}
-      className={className}
+      className={cn(baseClass, className)}
       target="_blank"
       rel="noreferrer noopener"
     >

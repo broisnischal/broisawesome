@@ -105,21 +105,21 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { activityPreview, activityUsername, activityError } = loaderData;
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl px-4 md:px-0">
       <section className="mb-14 max-w-md" aria-label="Profile">
         <img
           src="https://lh3.googleusercontent.com/a/ACg8ocIfOkkApycqNKsCPiAgwPeqiYI6WxM_2Tzbro5EuFBj42vok1B3vA=s96-c"
-          alt="Nischal Dahal"
-          className="h-18 w-18 rounded-full object-cover ring-1 ring-border"
+          alt="Nischal Dahal profile picture"
+          className="h-24 w-24 rounded-full object-cover ring-1 ring-border"
           loading="eager"
           fetchPriority="high"
         />
-        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground">
+        <h1 className="mt-5 text-3xl font-bold tracking-tight text-foreground">
           Nischal Dahal
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">@broisnees</p>
         <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-          building cool stuffs on web
+          building cool stuffs on web, platform agnostic, tech shavy guy.
         </p>
         <ul className="mt-6 flex flex-wrap items-center gap-5">
           {SOCIAL_LINKS.map(({ label, href, Icon }) => (
@@ -201,7 +201,7 @@ function NavigationCards() {
       icon: Link2,
     },
     {
-      to: "/log",
+      to: "/log?tab=game",
       title: "Log",
       description: "Books, media, games, glossary",
       icon: ScrollText,

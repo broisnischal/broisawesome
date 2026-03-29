@@ -71,7 +71,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             target="_blank"
             rel="noreferrer"
           >
-            {username}
+            @{username}
           </a>
           .
         </p>

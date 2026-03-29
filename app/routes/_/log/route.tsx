@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Link, redirect, useSearchParams } from "react-router";
 import { loadGameLogs } from "~/.server/logs/game-logs";
 import { loadLogJsonContent } from "~/.server/logs/log-content";
+import { Kbd } from "~/components/kbd";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type {
   ClashBattleRow,
@@ -85,15 +86,11 @@ const sectionLabelClass =
   "font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground";
 
 const tabListClass =
-  "bg-background h-auto p-1 flex flex-wrap gap-1 rounded-xl w-full justify-start border border-border/70";
+  "h-auto w-full justify-start border-0 bg-transparent p-0 shadow-none";
 
-const tabTriggerClass = cn(
-  "rounded-lg px-3 py-2 text-xs font-medium tracking-tight border-0 shadow-none sm:text-sm",
-  "text-muted-foreground",
-  "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-  "data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-background/70",
-  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-);
+/** Official Lichess favicon (PNG); hotlinked per normal embed / attribution practice. */
+const LICHESS_FAVICON =
+  "https://lichess1.org/assets/logo/lichess-favicon-32.png";
 
 function StatusPill({ status }: { status: LogStatus }) {
   return (
@@ -195,18 +192,18 @@ function ClashProfileBlock({ p }: { p: ClashProfileSummary }) {
       : "—";
 
   return (
-    <div className="mb-8 rounded-xl border border-border/60 bg-muted/15 p-5 space-y-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-lg font-semibold tracking-tight text-foreground">
+    <div className="mb-6">
+      <div className="flex flex-col gap-2 pb-3 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-6 border-b border-border/50">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="text-base font-semibold tracking-tight text-foreground">
             {p.name}
           </span>
-          <span className="text-xs font-mono text-muted-foreground">
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">
             {p.tag}
           </span>
         </div>
         {p.clanName ? (
-          <span className="text-xs text-muted-foreground text-right max-w-48 truncate">
+          <span className="text-xs text-muted-foreground sm:max-w-xs sm:text-right truncate">
             {p.clanName}
             {p.clanTag ? (
               <span className="font-mono opacity-80"> {p.clanTag}</span>
@@ -214,20 +211,22 @@ function ClashProfileBlock({ p }: { p: ClashProfileSummary }) {
           </span>
         ) : null}
       </div>
-      <StatGrid
-        rows={[
-          {
-            label: "trophies",
-            value: `${p.trophies} (best ${p.bestTrophies})`,
-          },
-          { label: "battles", value: p.battleCount },
-          { label: "w / l", value: `${p.wins} / ${p.losses}` },
-          { label: "win rate", value: winRate },
-          ...(p.threeCrownWins != null
-            ? [{ label: "3-crown", value: p.threeCrownWins } as const]
-            : []),
-        ]}
-      />
+      <div className="pt-3">
+        <StatGrid
+          rows={[
+            {
+              label: "trophies",
+              value: `${p.trophies} (best ${p.bestTrophies})`,
+            },
+            { label: "battles", value: p.battleCount },
+            { label: "w / l", value: `${p.wins} / ${p.losses}` },
+            { label: "win rate", value: winRate },
+            ...(p.threeCrownWins != null
+              ? [{ label: "3-crown", value: p.threeCrownWins } as const]
+              : []),
+          ]}
+        />
+      </div>
     </div>
   );
 }
@@ -302,6 +301,25 @@ function ClashOutcomeKbd({ outcome }: { outcome: ClashBattleRow["outcome"] }) {
     >
       {label}
     </kbd>
+  );
+}
+
+function LichessOutcomeKbd({ result }: { result: LichessGameRow["result"] }) {
+  const label =
+    result === "win" ? "WIN" : result === "loss" ? "LOSS" : "DRAW";
+  return (
+    <Kbd
+      className={cn(
+        "pointer-events-none inline-flex items-center font-mono text-[0.65rem] font-semibold uppercase tracking-[0.08em]",
+        result === "win" &&
+          "border-emerald-500/45 bg-emerald-500/12 text-emerald-900 dark:text-emerald-100",
+        result === "loss" &&
+          "border-red-500/40 bg-red-500/10 text-red-900 dark:text-red-100",
+        result === "draw" && "border-border bg-muted text-muted-foreground",
+      )}
+    >
+      {label}
+    </Kbd>
   );
 }
 
@@ -413,9 +431,8 @@ function GlossarySection({ entries = [] }: { entries?: GlossaryEntry[] }) {
         </h2>
         <p className="m-0 font-mono text-[12px] leading-relaxed text-muted-foreground">
           no entries — add <span className="text-foreground/85">glossary</span>{" "}
-          to log JSON (
-          <span className="text-foreground/85">term</span>, optional{" "}
-          <span className="text-foreground/85">definition</span>,{" "}
+          to log JSON (<span className="text-foreground/85">term</span>,
+          optional <span className="text-foreground/85">definition</span>,{" "}
           <span className="text-foreground/85">example</span>,{" "}
           <span className="text-foreground/85">note</span>).
         </p>
@@ -505,8 +522,7 @@ function LogDataSourceNote({
         role="alert"
         className="text-sm text-amber-800 dark:text-amber-200/95 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2 m-0 leading-relaxed"
       >
-        Could not load <span className="font-mono">LOG_JSON_URL</span>: {error}.
-        Showing embedded fallback lists (books, movies, blogs, glossary).
+        {error}
       </p>
     );
   }
@@ -552,35 +568,51 @@ function LichessGameRows({ games }: { games: LichessGameRow[] }) {
       {games.map((g) => (
         <div
           key={g.id}
-          className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 py-3 border-b border-border/70 last:border-b-0 text-sm"
+          className="flex gap-3 border-b border-border/50 py-3.5 last:border-b-0 sm:gap-4"
         >
-          <OutLink
-            href={g.href}
-            className="min-w-0 inline-flex flex-col gap-0.5 group w-fit sm:max-w-[55%]"
-          >
-            <span className="font-medium text-foreground group-hover:text-primary inline-flex items-center gap-1">
-              {g.left}
-              <ArrowUpRightIcon
-                className="size-3 shrink-0 opacity-40 group-hover:opacity-90"
-                aria-hidden
-              />
-            </span>
-            <time
-              className="text-xs text-muted-foreground font-mono tabular-nums"
-              dateTime={g.playedAt}
-            >
-              {g.playedAt
-                ? new Date(g.playedAt).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : ""}
-            </time>
-          </OutLink>
-          <div className="text-muted-foreground shrink-0 sm:text-right text-xs sm:text-sm font-mono">
-            {g.right}
+          <img
+            src={LICHESS_FAVICON}
+            alt=""
+            width={20}
+            height={20}
+            className="mt-0.5 size-5 shrink-0 rounded-sm border border-border/40 bg-background opacity-[0.92]"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+            <div className="flex min-w-0 max-w-full flex-col gap-0.5 sm:max-w-[58%]">
+              <OutLink
+                href={g.href}
+                className="group inline-flex w-fit max-w-full"
+              >
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-foreground underline-offset-2 group-hover:text-primary group-hover:underline">
+                  vs {g.opponent}
+                  <ArrowUpRightIcon
+                    className="size-3 shrink-0 opacity-40 group-hover:opacity-90"
+                    aria-hidden
+                  />
+                </span>
+              </OutLink>
+              <time
+                className="text-xs text-muted-foreground font-mono tabular-nums"
+                dateTime={g.playedAt}
+              >
+                {g.playedAt
+                  ? new Date(g.playedAt).toLocaleString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}
+              </time>
+            </div>
+            <div className="flex shrink-0 flex-col items-start gap-1.5 sm:items-end">
+              <LichessOutcomeKbd result={g.result} />
+              <div className="text-left text-xs font-mono text-muted-foreground tabular-nums sm:text-right">
+                {g.speed} · {g.rated ? "rated" : "casual"}
+              </div>
+            </div>
           </div>
         </div>
       ))}
@@ -622,19 +654,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         aria-hidden
       />
 
-      <header className="relative flex flex-col gap-4 border-b border-border/60 pb-8">
+      <header className="relative flex flex-col gap-4">
         <p className={cn("m-0", sectionLabelClass)}>Personal log</p>
         <h1 className="mt-1 text-4xl font-bold tracking-tight text-foreground m-0 md:text-5xl md:tracking-tighter">
           Log
         </h1>
         <p className="text-sm text-muted-foreground leading-relaxed m-0 max-w-prose">
-          Books, film, blogs, English vocabulary, and live game stats — loaded
-          on the server.
+          I wanted to list them out, for myself, for share, or just for the
+          record.
         </p>
-        <LogDataSourceNote
-          fromRemote={logContentFromRemote}
-          error={logContentError}
-        />
       </header>
 
       <Tabs
@@ -643,21 +671,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         className="relative w-full gap-6"
       >
         <TabsList className={tabListClass}>
-          <TabsTrigger value="book" className={tabTriggerClass}>
-            Books
-          </TabsTrigger>
-          <TabsTrigger value="movie" className={tabTriggerClass}>
-            Movies
-          </TabsTrigger>
-          <TabsTrigger value="blog" className={tabTriggerClass}>
-            Blogs
-          </TabsTrigger>
-          <TabsTrigger value="game" className={tabTriggerClass}>
-            Games
-          </TabsTrigger>
-          <TabsTrigger value="glossary" className={tabTriggerClass}>
-            Glossary
-          </TabsTrigger>
+          <TabsTrigger value="book">Books</TabsTrigger>
+          <TabsTrigger value="movie">Movies</TabsTrigger>
+          <TabsTrigger value="blog">Blogs</TabsTrigger>
+          <TabsTrigger value="game">Games</TabsTrigger>
+          <TabsTrigger value="glossary">Glossary</TabsTrigger>
         </TabsList>
 
         <TabsContent value="book" className="mt-0">
@@ -674,20 +692,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   left={b.title}
                   right={
                     <span className="inline-flex flex-wrap items-center gap-2 justify-end">
-                      {b.author ? (
-                        <span className="text-muted-foreground">
+                      {b.year != null ? (
+                        <span className="tabular-nums text-muted-foreground">
                           {b.author}
                         </span>
                       ) : null}
-                      {b.year != null ? (
-                        <span className="tabular-nums text-muted-foreground">
-                          {b.year}
-                        </span>
-                      ) : null}
-                      <StatusPill status={b.status} />
                     </span>
                   }
-                  note={b.note}
                   href={b.url}
                 />
               ))}
@@ -706,19 +717,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               {movies.map((m, i) => (
                 <SplitRow
                   key={`${m.title}-${i}`}
-                  left={
-                    <>
-                      {m.title}
-                      {m.year != null ? (
-                        <span className="font-normal text-muted-foreground">
-                          {" "}
-                          ({m.year})
-                        </span>
-                      ) : null}
-                    </>
-                  }
+                  left={m.title}
                   right={<StatusPill status={m.status} />}
-                  note={m.note}
                   href={m.url}
                 />
               ))}
@@ -755,6 +755,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             >
               Clash Royale
             </h2>
+            <p
+              className="text-sm text-muted-foreground m-0 leading-relaxed mb-4"
+              aria-label="Clash Royale"
+            >
+              I mostly play clash royale, clash of clans, and chess, and here
+              are the stats, and the recent games.
+            </p>
             {games.clash.ok ? (
               <>
                 {games.clash.profile ? (

@@ -1,5 +1,5 @@
-import { useFetcher } from "react-router";
 import { Mail } from "lucide-react";
+import { useFetcher } from "react-router";
 
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -40,14 +40,12 @@ export function NewsletterSubscribeForm({
       <fetcher.Form
         method="post"
         action="/resources/newsletter"
-        className={cn(
-          "flex w-full gap-2",
-          isMinimal
-            ? "flex-col sm:flex-row sm:items-center"
-            : "flex-col sm:flex-row",
-        )}
+        className={cn("flex w-full gap-2")}
       >
-        <label className="sr-only" htmlFor={isMinimal ? "footer-newsletter-email" : "newsletter-email"}>
+        <label
+          className="sr-only"
+          htmlFor={isMinimal ? "footer-newsletter-email" : "newsletter-email"}
+        >
           Email for newsletter
         </label>
         <input

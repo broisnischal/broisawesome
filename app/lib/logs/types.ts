@@ -59,9 +59,11 @@ export type LichessProfileSummary = {
 export type LichessGameRow = {
   id: string;
   playedAt: string;
-  left: string;
-  right: string;
   href: string;
+  opponent: string;
+  speed: string;
+  rated: boolean;
+  result: "win" | "loss" | "draw";
 };
 
 export type ClashProfileSummary = {

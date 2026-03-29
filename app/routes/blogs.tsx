@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "lucide-react";
 import { Link, data } from "react-router";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import {
@@ -95,19 +96,13 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
     <div className=" border-border">
       <div className="max-w-2xl mb-8">
         <p className="text-muted-foreground leading-relaxed mb-4">
-          I write about{" "}
+          I write about topics like{" "}
           <strong className="text-foreground">modern web development</strong>,
           <strong className="text-foreground"> serverless architecture</strong>,
-          <strong className="text-foreground"> React Router</strong>, and
-          <strong className="text-foreground"> best practices</strong>. Each
-          post shares knowledge and insights from real-world projects and
+          <strong className="text-foreground"> system design</strong>, and
+          <strong className="text-foreground"> core computer science</strong>.
+          Each post shares knowledge and insights from real-world projects and
           experiences.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          I typically publish{" "}
-          <strong className="text-foreground">1-2 articles per month</strong>,
-          focusing on practical solutions and lessons learned from building
-          production applications.
         </p>
       </div>
       <Blogs data={loaderData.blogs} url="/blog" />
@@ -126,12 +121,17 @@ function Blogs({
 }) {
   return (
     <div>
-      <p className="text-zinc-700 dark:text-zinc-50 mb-2">
+      <p className="text-zinc-700 flex items-center gap-1 dark:text-zinc-50 mb-2">
         Subscribe to my articles using{" "}
-        <a className="underline" href="/blogs.rss">
-          RSS
+        <a
+          className="underline flex items-center gap-1"
+          href="/blogs.rss"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Subscribe to my articles using RSS"
+        >
+          RSS <ArrowRightIcon className="size-4" aria-hidden />
         </a>
-        .
       </p>
       <ul className=" md:list-inside md:list-disc flex flex-col gap-2">
         {data.map((blog) => (

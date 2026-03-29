@@ -23,7 +23,8 @@ const hintsUtils = getHintUtils({
  * if they are not set then reloads the page if any cookie was set to an
  * inaccurate value.
  */
-export function ClientHintCheck({ nonce }: { nonce: string }) {
+/** `nonce` must be stable between SSR and hydration; never use `Date`/`random` here. */
+export function ClientHintCheck({ nonce }: { nonce?: string }) {
   const { revalidate } = useRevalidator();
   const requestInfo = useRequestInfo();
 
@@ -44,11 +45,10 @@ export function ClientHintCheck({ nonce }: { nonce: string }) {
 
   return (
     <script
-      nonce={nonce}
+      {...(nonce ? { nonce } : {})}
       dangerouslySetInnerHTML={{
         __html: hintsUtils.getClientHintCheckScript(),
-      }
-      }
+      }}
     />
   );
 }

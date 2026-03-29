@@ -181,18 +181,25 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       >
         <h1
           id="links-find-heading"
-          className="font-mono text-xs font-normal uppercase tracking-widest text-muted-foreground"
+          className=" font-mono text-xs font-normal uppercase tracking-widest text-muted-foreground"
         >
-          Elsewhere
+          Elsewhere on the web that i'm active on
         </h1>
         <nav
-          className="flex flex-wrap items-center gap-x-6 gap-y-2"
-          aria-label="Social and profile links"
+          className="flex flex-col items-start gap-x-6 gap-y-4"
+          aria-label="Social and profile links for Nischal Dahal"
         >
           {links.map((link) => (
             <SocialAnchor key={link.id} link={link} />
           ))}
         </nav>
+
+        <p className="text-muted-foreground text-sm flex items-center gap-1">
+          Wallet address:{" "}
+          <span className="font-mono text-foreground">
+            0x644D721Cbe97BC458d9347A2CCE47c063EEd0Eb0
+          </span>
+        </p>
       </section>
     </div>
   );

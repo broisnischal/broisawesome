@@ -172,24 +172,19 @@ function formatLichessRow(
   const iWhite = w.toLowerCase() === me;
   const opponent = iWhite ? b : w;
   const speed = g.speed ?? "game";
-  const rated = g.rated === true ? "rated" : "casual";
-  let result = "draw";
+  let result: "win" | "loss" | "draw" = "draw";
   if (g.winner === "white") result = iWhite ? "win" : "loss";
   if (g.winner === "black") result = iWhite ? "loss" : "win";
   const ms = g.lastMoveAt ?? g.createdAt ?? 0;
   const playedAt = ms ? new Date(ms).toISOString() : "";
-  const myP = iWhite ? g.players?.white : g.players?.black;
-  const opP = iWhite ? g.players?.black : g.players?.white;
-  const rLine =
-    myP?.rating != null && opP?.rating != null
-      ? `${myP.rating} vs ${opP.rating}`
-      : "";
   return {
     id: g.id,
     playedAt,
-    left: `vs ${opponent}`,
-    right: [speed, rated, result, rLine].filter(Boolean).join(" · "),
     href: `https://lichess.org/${g.id}`,
+    opponent,
+    speed,
+    rated: g.rated === true,
+    result,
   };
 }
 

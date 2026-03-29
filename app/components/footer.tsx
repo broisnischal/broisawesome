@@ -74,26 +74,20 @@ export function Footer() {
             </div>
           </div>
           <p
-            className="shrink-0 flex gap-3 font-mono text-[11px] leading-relaxed tracking-tight text-muted-foreground sm:text-xs"
+            className="shrink-0 flex flex-col md:flex-row md:gap-3 font-mono text-[11px] leading-relaxed tracking-tight text-muted-foreground sm:text-xs"
             aria-label="Build version, last modified date, and commit"
           >
             <span className="tabular-nums text-foreground/90">
               version {version}
             </span>
-            {metaSep}
             <span className="tabular-nums">
               last modified on {formatBuildDate(modified)}
             </span>
-            {metaSep}
-            <TextLink href={commitUrl}>
-              <a
-                href={commitUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="tabular-nums text-muted-foreground underline decoration-muted-foreground/30 underline-offset-[3px] transition-colors hover:text-foreground hover:decoration-foreground/40"
-              >
-                {commit}
-              </a>
+            <TextLink
+              href={commitUrl}
+              className="tabular-nums text-muted-foreground underline decoration-muted-foreground/30 underline-offset-[3px] hover:text-foreground hover:decoration-foreground/40"
+            >
+              {commit}
             </TextLink>
           </p>
         </div>
