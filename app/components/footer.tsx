@@ -74,7 +74,7 @@ export function Footer() {
             </div>
           </div>
           <p
-            className="shrink-0 font-mono text-[11px] leading-relaxed tracking-tight text-muted-foreground sm:text-xs"
+            className="shrink-0 flex gap-3 font-mono text-[11px] leading-relaxed tracking-tight text-muted-foreground sm:text-xs"
             aria-label="Build version, last modified date, and commit"
           >
             <span className="tabular-nums text-foreground/90">
@@ -82,7 +82,7 @@ export function Footer() {
             </span>
             {metaSep}
             <span className="tabular-nums">
-              last modified {formatBuildDate(modified)}
+              last modified on {formatBuildDate(modified)}
             </span>
             {metaSep}
             <TextLink href={commitUrl}>

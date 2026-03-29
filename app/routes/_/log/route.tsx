@@ -407,60 +407,84 @@ function ClashBattleRows({ battles }: { battles: ClashBattleRow[] }) {
 function GlossarySection({ entries = [] }: { entries?: GlossaryEntry[] }) {
   if (entries.length === 0) {
     return (
-      <section aria-labelledby="glossary-heading">
+      <section aria-labelledby="glossary-heading" className="max-w-xl">
         <h2 id="glossary-heading" className={cn("m-0 mb-3", sectionLabelClass)}>
           Glossary
         </h2>
-        <p className="text-sm text-muted-foreground m-0 leading-relaxed">
-          No entries yet. Add a <span className="font-mono">glossary</span>{" "}
-          array to your log JSON (see{" "}
-          <span className="font-mono">public/log-content.json</span>) — each
-          item needs a <span className="font-mono">term</span>; optional{" "}
-          <span className="font-mono">definition</span>,{" "}
-          <span className="font-mono">example</span>, and{" "}
-          <span className="font-mono">note</span>.
+        <p className="m-0 font-mono text-[12px] leading-relaxed text-muted-foreground">
+          no entries — add <span className="text-foreground/85">glossary</span>{" "}
+          to log JSON (
+          <span className="text-foreground/85">term</span>, optional{" "}
+          <span className="text-foreground/85">definition</span>,{" "}
+          <span className="text-foreground/85">example</span>,{" "}
+          <span className="text-foreground/85">note</span>).
         </p>
       </section>
     );
   }
 
+  const countLabel = `${entries.length} term${entries.length === 1 ? "" : "s"}`;
+
   return (
-    <section aria-labelledby="glossary-heading" className="space-y-6">
-      <div>
-        <h2 id="glossary-heading" className={cn("m-0 mb-1", sectionLabelClass)}>
-          Glossary
-        </h2>
-        <p className="text-sm text-muted-foreground m-0 leading-relaxed max-w-prose">
-          Words and phrases I&apos;m collecting while learning English — same
-          remote JSON as books and movies.
-        </p>
-      </div>
-      <ul className="m-0 list-none p-0 flex flex-col gap-4">
+    <section aria-labelledby="glossary-heading" className="max-w-xl">
+      <header className="mb-5 flex flex-wrap items-start justify-between gap-x-4 gap-y-2 border-b border-border/45 pb-4">
+        <div className="min-w-0 space-y-1">
+          <h2 id="glossary-heading" className={cn("m-0", sectionLabelClass)}>
+            Glossary
+          </h2>
+          <p className="m-0 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/50">
+            English notes
+          </p>
+        </div>
+        <span
+          className="shrink-0 pt-0.5 font-mono text-[10px] tabular-nums tracking-wide text-muted-foreground/60"
+          aria-label={countLabel}
+        >
+          {countLabel}
+        </span>
+      </header>
+      <ul className="m-0 list-none p-0">
         {entries.map((e, i) => (
           <li
             key={`${e.term}-${i}`}
-            className="rounded-xl border border-border/70 bg-muted/20 px-4 py-4 sm:px-5"
+            className={cn(
+              "group grid grid-cols-[minmax(1.75rem,2rem)_minmax(0,1fr)] gap-x-3 border-b border-border/40 py-3 sm:gap-x-4 sm:py-3.5",
+              "transition-colors duration-150 last:border-b-0",
+              "hover:bg-muted/25 sm:-mx-2 sm:px-2 sm:rounded-md",
+            )}
           >
-            <h3 className="text-base font-semibold tracking-tight text-foreground m-0">
-              {e.term}
-            </h3>
-            {e.definition ? (
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground m-0">
-                {e.definition}
+            <span
+              className="pt-0.5 text-right font-mono text-[10px] tabular-nums leading-none text-muted-foreground/40 select-none sm:text-[11px]"
+              aria-hidden
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div className="min-w-0 space-y-0.5">
+              <p className="m-0 font-mono text-[13px] font-medium leading-snug tracking-tight text-foreground">
+                {e.term}
               </p>
-            ) : null}
-            {e.example ? (
-              <blockquote className="mt-3 border-l-2 border-primary/35 pl-3 m-0">
-                <p className="text-sm italic text-foreground/90 leading-relaxed m-0">
+              {e.definition ? (
+                <p className="m-0 text-[13px] leading-normal text-muted-foreground">
+                  {e.definition}
+                </p>
+              ) : null}
+              {e.example ? (
+                <p className="m-0 text-[12.5px] leading-normal text-foreground/78">
+                  <span className="mr-1.5 inline font-mono text-[10px] font-normal uppercase tracking-wider text-muted-foreground/55">
+                    e.g.
+                  </span>
                   {e.example}
                 </p>
-              </blockquote>
-            ) : null}
-            {e.note ? (
-              <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed m-0">
-                {e.note}
-              </p>
-            ) : null}
+              ) : null}
+              {e.note ? (
+                <p className="m-0 pt-0.5 text-[11px] leading-relaxed text-muted-foreground/75">
+                  <span className="mr-1 text-muted-foreground/35 select-none">
+                    ·
+                  </span>
+                  {e.note}
+                </p>
+              ) : null}
+            </div>
           </li>
         ))}
       </ul>
