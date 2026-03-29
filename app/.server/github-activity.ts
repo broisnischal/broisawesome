@@ -16,10 +16,28 @@ export type GitHubActivityIcon =
   | "gist"
   | "default";
 
+/** Timeline / feed colors: push = green, merge = purple, opened / starred = amber, etc. */
+export type GitHubActivityAccent =
+  | "push"
+  | "merge"
+  | "pr_open"
+  | "pr"
+  | "star"
+  | "issue_open"
+  | "issue_closed"
+  | "issue"
+  | "create"
+  | "fork"
+  | "release"
+  | "public"
+  | "delete"
+  | "default";
+
 export type GitHubActivityItem = {
   id: string;
   eventType: string;
   icon: GitHubActivityIcon;
+  accent: GitHubActivityAccent;
   title: string;
   subtitle?: string;
   href: string;
@@ -32,6 +50,8 @@ export type GitHubActivityItem = {
   repoLabel?: string;
   repoUrl?: string;
   tail?: string;
+  /** Push events: 7-char SHA for link label (matches `href` tip when present). */
+  pushHeadShort?: string;
 };
 
 type GitHubEvent = {
@@ -87,6 +107,21 @@ function pushEventHref(
   return `${baseRepoHref}/commits`;
 }
 
+/** Short display SHA for push rows (`payload.head`, or last entry in `payload.commits`). */
+function pushHeadShortSha(p: Record<string, unknown>): string | undefined {
+  const head = typeof p.head === "string" ? p.head.trim() : "";
+  if (/^[0-9a-f]{7,40}$/i.test(head)) {
+    return head.slice(0, 7);
+  }
+  const commits = Array.isArray(p.commits) ? p.commits : [];
+  const last = commits[commits.length - 1] as { sha?: string } | undefined;
+  const sha = typeof last?.sha === "string" ? last.sha.trim() : "";
+  if (/^[0-9a-f]{7,40}$/i.test(sha)) {
+    return sha.slice(0, 7);
+  }
+  return undefined;
+}
+
 function pickIcon(type: string): GitHubActivityIcon {
   switch (type) {
     case "PushEvent":
@@ -128,6 +163,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
       const ref = typeof p.ref === "string" ? p.ref.replace(/^refs\/heads\//, "") : "";
       const commitCount = pushCommitCount(p);
       const href = pushEventHref(baseHref, p, ref);
+      const pushHeadShort = pushHeadShortSha(p);
       const action =
         commitCount <= 0
           ? "Pushed to "
@@ -144,6 +180,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "commit",
+        accent: "push",
         title,
         subtitle: ref ? `on ${ref}` : undefined,
         href,
@@ -151,6 +188,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         action,
         repoLabel: shortRepo,
         repoUrl: baseHref,
+        pushHeadShort,
       };
     }
     case "CreateEvent": {
@@ -161,6 +199,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
           id: ev.id,
           eventType: ev.type,
           icon: "repo",
+          accent: "create",
           title: `Created repository ${shortRepo}`,
           href: baseHref,
           createdAt: ev.created_at,
@@ -175,6 +214,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
           id: ev.id,
           eventType: ev.type,
           icon: "repo",
+          accent: "create",
           title: `Created branch ${ref} in ${shortRepo}`,
           href: treeHref,
           createdAt: ev.created_at,
@@ -189,6 +229,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
           id: ev.id,
           eventType: ev.type,
           icon: "release",
+          accent: "release",
           title: `Created tag ${ref} in ${shortRepo}`,
           href: tagHref,
           createdAt: ev.created_at,
@@ -201,6 +242,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "repo",
+        accent: "create",
         title: `Created ${refType || "resource"} in ${repoName}`,
         href: baseHref,
         createdAt: ev.created_at,
@@ -212,6 +254,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "star",
+        accent: "star",
         title: `Starred ${repoName}`,
         href: baseHref,
         createdAt: ev.created_at,
@@ -227,6 +270,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "fork",
+        accent: "fork",
         title: `Forked ${repoName}`,
         subtitle: forkName ? `→ ${forkName}` : undefined,
         href: forkName ? repoUrl(forkName) : baseHref,
@@ -238,10 +282,17 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
       const issue = p.issue as { title?: string; number?: number; html_url?: string } | undefined;
       const num = issue?.number;
       const title = issue?.title ?? "issue";
+      const accent: GitHubActivityAccent =
+        action === "opened"
+          ? "issue_open"
+          : action === "closed"
+            ? "issue_closed"
+            : "issue";
       return {
         id: ev.id,
         eventType: ev.type,
         icon: "issue",
+        accent,
         title: `${action.charAt(0).toUpperCase() + action.slice(1)} issue${num != null ? ` #${num}` : ""}`,
         subtitle: title,
         href: typeof issue?.html_url === "string" ? issue.html_url : `${baseHref}/issues`,
@@ -250,13 +301,26 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
     }
     case "PullRequestEvent": {
       const action = typeof p.action === "string" ? p.action : "updated";
-      const pr = p.pull_request as { title?: string; number?: number; html_url?: string } | undefined;
+      const pr = p.pull_request as {
+        title?: string;
+        number?: number;
+        html_url?: string;
+        merged?: boolean;
+      } | undefined;
       const num = pr?.number;
       const title = pr?.title ?? "pull request";
+      const merged = pr?.merged === true;
+      const accent: GitHubActivityAccent =
+        action === "closed" && merged
+          ? "merge"
+          : action === "opened"
+            ? "pr_open"
+            : "pr";
       return {
         id: ev.id,
         eventType: ev.type,
         icon: "pr",
+        accent,
         title: `${action.charAt(0).toUpperCase() + action.slice(1)} PR${num != null ? ` #${num}` : ""}`,
         subtitle: title,
         href: typeof pr?.html_url === "string" ? pr.html_url : `${baseHref}/pulls`,
@@ -271,6 +335,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "release",
+        accent: "release",
         title: `${action.charAt(0).toUpperCase() + action.slice(1)} ${label}`,
         subtitle: repoName,
         href: typeof release?.html_url === "string" ? release.html_url : `${baseHref}/releases`,
@@ -282,6 +347,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "public",
+        accent: "public",
         title: `Open-sourced ${repoName.split("/")[1] ?? repoName}`,
         href: baseHref,
         createdAt: ev.created_at,
@@ -293,6 +359,7 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: "delete",
+        accent: "delete",
         title: `Deleted ${refType}${ref ? ` ${ref}` : ""}`,
         subtitle: repoName,
         href: baseHref,
@@ -304,11 +371,12 @@ function parseEvent(ev: GitHubEvent): GitHubActivityItem | null {
         id: ev.id,
         eventType: ev.type,
         icon: pickIcon(ev.type),
+        accent: "default",
         title: `${ev.type.replace(/Event$/, "")} on ${repoName}`,
         href: baseHref,
         createdAt: ev.created_at,
       };
-  }
+    }
 }
 
 export type GitHubActivityResult = {

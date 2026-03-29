@@ -1,12 +1,13 @@
 import { ArrowUpRightIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link, redirect, useSearchParams } from "react-router";
-import { loadLogJsonContent } from "~/.server/logs/log-content";
 import { loadGameLogs } from "~/.server/logs/game-logs";
+import { loadLogJsonContent } from "~/.server/logs/log-content";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type {
   ClashBattleRow,
   ClashProfileSummary,
+  GlossaryEntry,
   LichessGameRow,
   LichessProfileSummary,
   LogStatus,
@@ -15,7 +16,7 @@ import { createHeaders, createMetaTags } from "~/lib/meta";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/route";
 
-const LOG_TABS = ["book", "movie", "blog", "game", "mytube"] as const;
+const LOG_TABS = ["book", "movie", "blog", "game", "glossary"] as const;
 export type LogTab = (typeof LOG_TABS)[number];
 
 function isLogTab(value: string | null): value is LogTab {
@@ -30,18 +31,20 @@ export const meta: Route.MetaFunction = () => {
   return createMetaTags({
     title: "Log",
     description:
-      "Reading list, watch list, and blogs (JSON or fallback), plus games (Lichess & Clash Royale).",
+      "Reading list, watch list, blogs, English glossary, and games (Lichess & Clash Royale).",
     path: "/log",
-    keywords: ["log", "reading", "lichess", "clash royale", "games", "books"],
+    keywords: [
+      "log",
+      "reading",
+      "glossary",
+      "english",
+      "lichess",
+      "clash royale",
+      "games",
+      "books",
+    ],
   });
 };
-
-export const links: Route.LinksFunction = () => [
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap",
-  },
-];
 
 export function headers() {
   return createHeaders({
@@ -53,8 +56,8 @@ export function headers() {
 export async function loader({ request, context }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const tabParam = url.searchParams.get("tab");
-  if (tabParam === "song") {
-    url.searchParams.set("tab", "mytube");
+  if (tabParam === "song" || tabParam === "mytube") {
+    url.searchParams.set("tab", "glossary");
     return redirect(`${url.pathname}?${url.searchParams.toString()}`);
   }
   if (!isLogTab(tabParam)) {
@@ -71,22 +74,24 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     bookLogs: media.bookLogs,
     movieLogs: media.movieLogs,
     blogLogs: media.blogLogs,
+    glossaryLogs: media.glossaryLogs,
     games,
     logContentFromRemote: media.fromRemote,
     logContentError: media.remoteError,
   };
 }
 
-const displaySerif = "[font-family:Newsreader,Georgia,serif]";
+const sectionLabelClass =
+  "font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground";
 
 const tabListClass =
-  "bg-muted/30 h-auto p-1 flex flex-wrap gap-1 rounded-xl w-full justify-start border border-border/60";
+  "bg-background h-auto p-1 flex flex-wrap gap-1 rounded-xl w-full justify-start border border-border/70";
 
 const tabTriggerClass = cn(
-  "rounded-lg px-3.5 py-2 text-sm font-medium tracking-tight border-0 shadow-none",
+  "rounded-lg px-3 py-2 text-xs font-medium tracking-tight border-0 shadow-none sm:text-sm",
   "text-muted-foreground",
   "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-  "data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-background/60",
+  "data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-background/70",
   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
 );
 
@@ -193,9 +198,7 @@ function ClashProfileBlock({ p }: { p: ClashProfileSummary }) {
     <div className="mb-8 rounded-xl border border-border/60 bg-muted/15 p-5 space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex flex-col gap-0.5">
-          <span
-            className={cn("text-lg font-semibold tracking-tight", displaySerif)}
-          >
+          <span className="text-lg font-semibold tracking-tight text-foreground">
             {p.name}
           </span>
           <span className="text-xs font-mono text-muted-foreground">
@@ -242,10 +245,7 @@ function LichessProfileBlock({ p }: { p: LichessProfileSummary }) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <OutLink
           href={p.profileHref}
-          className={cn(
-            "inline-flex items-center gap-1 text-lg font-semibold tracking-tight hover:text-primary transition-colors group",
-            displaySerif,
-          )}
+          className="inline-flex items-center gap-1 text-lg font-semibold tracking-tight text-foreground hover:text-primary transition-colors group"
         >
           @{p.username}
           {p.title ? (
@@ -308,11 +308,19 @@ function ClashOutcomeKbd({ outcome }: { outcome: ClashBattleRow["outcome"] }) {
 function DeckStrip({ label, urls }: { label: string; urls: string[] }) {
   if (urls.length === 0) return null;
   return (
-    <div className="flex flex-col gap-1.5 mt-2">
-      <span className="text-[0.65rem] font-mono uppercase tracking-[0.12em] text-muted-foreground">
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <span
+        className="text-[0.65rem] font-mono uppercase tracking-[0.12em] text-muted-foreground truncate block"
+        title={label}
+      >
         {label}
       </span>
-      <div className="flex flex-wrap gap-1">
+      <div
+        className={cn(
+          // 4 cols on small, 8 on lg; width = n×w-9 + (n−1)×gap-1
+          "grid shrink-0 grid-cols-4 gap-1 max-w-full w-39 lg:grid-cols-8 lg:w-79",
+        )}
+      >
         {urls.map((src, i) => (
           <img
             key={`${src}-${i}`}
@@ -378,9 +386,16 @@ function ClashBattleRows({ battles }: { battles: ClashBattleRow[] }) {
           </div>
           {(row.myDeckIconUrls.length > 0 ||
             row.oppDeckIconUrls.length > 0) && (
-            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-              <DeckStrip label="You" urls={row.myDeckIconUrls} />
-              <DeckStrip label={row.opponentName} urls={row.oppDeckIconUrls} />
+            <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start sm:gap-x-6 sm:gap-y-0">
+              <div className="min-w-0">
+                <DeckStrip label="You" urls={row.myDeckIconUrls} />
+              </div>
+              <div className="min-w-0">
+                <DeckStrip
+                  label={row.opponentName}
+                  urls={row.oppDeckIconUrls}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -389,23 +404,66 @@ function ClashBattleRows({ battles }: { battles: ClashBattleRow[] }) {
   );
 }
 
-function MyTubeStubSection() {
+function GlossarySection({ entries = [] }: { entries?: GlossaryEntry[] }) {
+  if (entries.length === 0) {
+    return (
+      <section aria-labelledby="glossary-heading">
+        <h2 id="glossary-heading" className={cn("m-0 mb-3", sectionLabelClass)}>
+          Glossary
+        </h2>
+        <p className="text-sm text-muted-foreground m-0 leading-relaxed">
+          No entries yet. Add a <span className="font-mono">glossary</span>{" "}
+          array to your log JSON (see{" "}
+          <span className="font-mono">public/log-content.json</span>) — each
+          item needs a <span className="font-mono">term</span>; optional{" "}
+          <span className="font-mono">definition</span>,{" "}
+          <span className="font-mono">example</span>, and{" "}
+          <span className="font-mono">note</span>.
+        </p>
+      </section>
+    );
+  }
+
   return (
-    <section aria-labelledby="mytube-stub-heading">
-      <h2
-        id="mytube-stub-heading"
-        className={cn(
-          "text-lg font-semibold text-foreground m-0 mb-3 tracking-tight",
-          displaySerif,
-        )}
-      >
-        MyTube
-      </h2>
-      <p className="text-sm text-muted-foreground m-0 leading-relaxed">
-        Stub only. Book, movie, and blog rows come from{" "}
-        <span className="font-mono">LOG_JSON_URL</span> (GitHub raw or Gist is
-        easiest) or built-in fallback data.
-      </p>
+    <section aria-labelledby="glossary-heading" className="space-y-6">
+      <div>
+        <h2 id="glossary-heading" className={cn("m-0 mb-1", sectionLabelClass)}>
+          Glossary
+        </h2>
+        <p className="text-sm text-muted-foreground m-0 leading-relaxed max-w-prose">
+          Words and phrases I&apos;m collecting while learning English — same
+          remote JSON as books and movies.
+        </p>
+      </div>
+      <ul className="m-0 list-none p-0 flex flex-col gap-4">
+        {entries.map((e, i) => (
+          <li
+            key={`${e.term}-${i}`}
+            className="rounded-xl border border-border/70 bg-muted/20 px-4 py-4 sm:px-5"
+          >
+            <h3 className="text-base font-semibold tracking-tight text-foreground m-0">
+              {e.term}
+            </h3>
+            {e.definition ? (
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground m-0">
+                {e.definition}
+              </p>
+            ) : null}
+            {e.example ? (
+              <blockquote className="mt-3 border-l-2 border-primary/35 pl-3 m-0">
+                <p className="text-sm italic text-foreground/90 leading-relaxed m-0">
+                  {e.example}
+                </p>
+              </blockquote>
+            ) : null}
+            {e.note ? (
+              <p className="mt-2.5 text-xs text-muted-foreground leading-relaxed m-0">
+                {e.note}
+              </p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -423,15 +481,15 @@ function LogDataSourceNote({
         role="alert"
         className="text-sm text-amber-800 dark:text-amber-200/95 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2 m-0 leading-relaxed"
       >
-        Could not load <span className="font-mono">LOG_JSON_URL</span>:{" "}
-        {error}. Showing embedded fallback lists.
+        Could not load <span className="font-mono">LOG_JSON_URL</span>: {error}.
+        Showing embedded fallback lists (books, movies, blogs, glossary).
       </p>
     );
   }
   if (fromRemote) {
     return (
       <p className="text-xs text-muted-foreground m-0">
-        Book, movie, and blog lists are loaded from remote JSON.
+        Book, movie, blog, and glossary lists are loaded from remote JSON.
       </p>
     );
   }
@@ -439,8 +497,8 @@ function LogDataSourceNote({
     <div className="text-xs text-muted-foreground space-y-1.5 m-0 leading-relaxed">
       <p className="m-0">
         Set <span className="font-mono">LOG_JSON_URL</span> to public HTTPS JSON
-        (template <span className="font-mono">public/log-content.json</span> in
-        this repo).
+        (template <span className="font-mono">public/log-content.json</span> —
+        includes optional <span className="font-mono">glossary</span>).
       </p>
       <p className="m-0 break-all opacity-90">
         GitHub:{" "}
@@ -449,8 +507,8 @@ function LogDataSourceNote({
         </span>
       </p>
       <p className="m-0 opacity-90">
-        Gist: create a public gist with the same JSON → open <strong>Raw</strong>{" "}
-        → paste that URL.
+        Gist: create a public gist with the same JSON → open{" "}
+        <strong>Raw</strong> → paste that URL.
       </p>
     </div>
   );
@@ -511,10 +569,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     bookLogs: books,
     movieLogs: movies,
     blogLogs: blogs,
+    glossaryLogs,
     games,
     logContentFromRemote,
     logContentError,
   } = loaderData;
+  const glossary = glossaryLogs ?? [];
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
@@ -532,19 +592,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="flex flex-col gap-10 max-w-2xl text-left w-full">
-      <header className="flex flex-col gap-4 border-b border-border/60 pb-8">
-        <h1
-          className={cn(
-            "text-4xl sm:text-[2.75rem] font-semibold tracking-tight text-foreground m-0 leading-[1.1]",
-            displaySerif,
-          )}
-        >
+    <article className="relative p-0 flex w-full max-w-3xl flex-col gap-10 text-left">
+      <div
+        className="pointer-events-none absolute -right-20 -top-6 h-56 w-56 rounded-full bg-linear-to-br from-foreground/6 via-transparent to-transparent blur-3xl dark:from-foreground/9"
+        aria-hidden
+      />
+
+      <header className="relative flex flex-col gap-4 border-b border-border/60 pb-8">
+        <p className={cn("m-0", sectionLabelClass)}>Personal log</p>
+        <h1 className="mt-1 text-4xl font-bold tracking-tight text-foreground m-0 md:text-5xl md:tracking-tighter">
           Log
         </h1>
         <p className="text-sm text-muted-foreground leading-relaxed m-0 max-w-prose">
-          Media and games worth tracking — loaded on the server, no client fetch
-          loops.
+          Books, film, blogs, English vocabulary, and live game stats — loaded
+          on the server.
         </p>
         <LogDataSourceNote
           fromRemote={logContentFromRemote}
@@ -552,22 +613,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         />
       </header>
 
-      <Tabs value={tab} onValueChange={setTab} className="w-full gap-6">
+      <Tabs
+        value={tab}
+        onValueChange={setTab}
+        className="relative w-full gap-6"
+      >
         <TabsList className={tabListClass}>
           <TabsTrigger value="book" className={tabTriggerClass}>
-            book
+            Books
           </TabsTrigger>
           <TabsTrigger value="movie" className={tabTriggerClass}>
-            movie
+            Movies
           </TabsTrigger>
           <TabsTrigger value="blog" className={tabTriggerClass}>
-            blog
+            Blogs
           </TabsTrigger>
           <TabsTrigger value="game" className={tabTriggerClass}>
-            game
+            Games
           </TabsTrigger>
-          <TabsTrigger value="mytube" className={tabTriggerClass}>
-            mytube
+          <TabsTrigger value="glossary" className={tabTriggerClass}>
+            Glossary
           </TabsTrigger>
         </TabsList>
 
@@ -584,9 +649,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   key={`${b.title}-${i}`}
                   left={b.title}
                   right={
-                    <span className="inline-flex items-center gap-2 justify-end">
+                    <span className="inline-flex flex-wrap items-center gap-2 justify-end">
                       {b.author ? (
-                        <span className="text-muted-foreground">{b.author}</span>
+                        <span className="text-muted-foreground">
+                          {b.author}
+                        </span>
+                      ) : null}
+                      {b.year != null ? (
+                        <span className="tabular-nums text-muted-foreground">
+                          {b.year}
+                        </span>
                       ) : null}
                       <StatusPill status={b.status} />
                     </span>
@@ -613,8 +685,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   left={
                     <>
                       {m.title}
-                      {m.year ? (
-                        <span className="text-muted-foreground font-normal">
+                      {m.year != null ? (
+                        <span className="font-normal text-muted-foreground">
                           {" "}
                           ({m.year})
                         </span>
@@ -655,10 +727,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <section aria-labelledby="clash-heading">
             <h2
               id="clash-heading"
-              className={cn(
-                "text-lg font-semibold text-foreground mb-4 tracking-tight",
-                displaySerif,
-              )}
+              className={cn("m-0 mb-4", sectionLabelClass)}
             >
               Clash Royale
             </h2>
@@ -679,10 +748,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <section aria-labelledby="lichess-heading">
             <h2
               id="lichess-heading"
-              className={cn(
-                "text-lg font-semibold text-foreground mb-4 tracking-tight",
-                displaySerif,
-              )}
+              className={cn("m-0 mb-4", sectionLabelClass)}
             >
               Lichess
             </h2>
@@ -701,10 +767,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </section>
         </TabsContent>
 
-        <TabsContent value="mytube" className="mt-0">
-          <MyTubeStubSection />
+        <TabsContent value="glossary" className="mt-0">
+          <GlossarySection entries={glossary} />
         </TabsContent>
       </Tabs>
-    </div>
+    </article>
   );
 }

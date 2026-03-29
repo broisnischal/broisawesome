@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
-  BookOpen,
   Briefcase,
   Code,
+  FileText,
   Github,
   Globe,
   Link2,
@@ -33,7 +33,7 @@ export const handle = {
 
 export const meta: Route.MetaFunction = () => {
   const metaTags = createMetaTags({
-    title: "Nischal Dahal - Software Developer",
+    title: "Nischal Dahal - aka broisnischal",
     description:
       "Nischal Dahal (broisnischal) — software developer building serverless systems, Android apps, and modern web experiences. Portfolio, blog, projects, and latest GitHub activity.",
     path: "/",
@@ -179,7 +179,7 @@ function NavigationCards() {
       to: "/blog",
       title: "Blog",
       description: "Articles and thoughts on technology",
-      icon: BookOpen,
+      icon: FileText,
     },
     {
       to: "/notes",
@@ -203,7 +203,7 @@ function NavigationCards() {
     {
       to: "/log",
       title: "Log",
-      description: "Books, media, games, listening",
+      description: "Books, media, games, glossary",
       icon: ScrollText,
     },
     {

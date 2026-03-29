@@ -66,7 +66,7 @@ const SOCIAL: { label: string; href: string; Icon: LucideIcon }[] = [
   { label: "RSS", href: `${CANONICAL_SITE_URL}/blogs.rss`, Icon: Rss },
 ];
 
-function TextLink({
+export function TextLink({
   to,
   href,
   children,

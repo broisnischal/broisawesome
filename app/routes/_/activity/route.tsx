@@ -67,7 +67,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           Public events from{" "}
           <a
             href={`https://github.com/${username}`}
-            className="text-[#0969da] hover:underline dark:text-[#58a6ff]"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
             target="_blank"
             rel="noreferrer"
           >
