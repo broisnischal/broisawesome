@@ -1,8 +1,12 @@
 import type { AppLoadContext } from "react-router";
 import { withMemoryCache } from "~/.server/memory-cache";
+import { cocHeroPortraitUrl } from "~/lib/coc-hero-portrait";
 import type {
   ClashBattleRow,
   ClashProfileSummary,
+  CocBattleRow,
+  CocHeroRow,
+  CocProfileSummary,
   GamesLoaderData,
   LichessGameRow,
   LichessProfileSummary,
@@ -21,9 +25,14 @@ type GameLogEnv = {
   CLASH_ROYALE_PLAYER_TAG?: string;
   CLASH_ROYALE_API_TOKEN?: string;
   CLASH_ROYALE_API_BASE?: string;
+  /** https://developer.clashofclans.com — JWT; whitelist API egress IP on the key (Workers IP may change). */
+  CLASH_OF_CLANS_PLAYER_TAG?: string;
+  CLASH_OF_CLANS_API_TOKEN?: string;
+  CLASH_OF_CLANS_API_BASE?: string;
 };
 
 const CLASH_DEFAULT_API_BASE = "https://proxy.royaleapi.dev";
+const COC_DEFAULT_API_BASE = "https://api.clashofclans.com";
 
 /** Lichess + Clash round-trips are slow; cache within each runtime isolate. */
 const GAME_LOGS_CACHE_MS = 2 * 60 * 1000;
@@ -32,13 +41,21 @@ function gameLogsCacheKey(env: GameLogEnv | undefined): string {
   const lichess = env?.LICHESS_USERNAME?.trim() || "";
   const clashTag = env?.CLASH_ROYALE_PLAYER_TAG?.trim() || "";
   const hasClashToken = Boolean(env?.CLASH_ROYALE_API_TOKEN?.trim());
-  return `game-logs:v1:${lichess}:${clashTag}:${hasClashToken ? "1" : "0"}`;
+  const cocTag = env?.CLASH_OF_CLANS_PLAYER_TAG?.trim() || "";
+  const hasCocToken = Boolean(env?.CLASH_OF_CLANS_API_TOKEN?.trim());
+  return `game-logs:v2:${lichess}:${clashTag}:${hasClashToken ? "1" : "0"}:${cocTag}:${hasCocToken ? "1" : "0"}`;
 }
 
 function clashApiBase(env: GameLogEnv | undefined): string {
   const raw = env?.CLASH_ROYALE_API_BASE?.trim();
   if (raw) return raw.replace(/\/$/, "");
   return CLASH_DEFAULT_API_BASE;
+}
+
+function cocApiBase(env: GameLogEnv | undefined): string {
+  const raw = env?.CLASH_OF_CLANS_API_BASE?.trim();
+  if (raw) return raw.replace(/\/$/, "");
+  return COC_DEFAULT_API_BASE;
 }
 
 type LichessGameJson = {
@@ -197,27 +214,24 @@ function formatClashRow(
   const arena = b.arena?.name ?? "Arena";
   const mode = humanizeClashMode(b.gameMode?.name);
   const oppName = b.opponent?.[0]?.name ?? "Opponent";
-  const type = b.type ? humanizeClashMode(String(b.type)) : "";
   const deck = b.deckSelection
     ? humanizeClashMode(b.deckSelection)
     : "";
-  const event =
-    typeof b.eventTag === "string" && b.eventTag.length > 0
-      ? b.eventTag
-      : "";
-  const ladder = b.isLadderTournament ? "tournament" : "";
 
   const outcome: "win" | "loss" | "draw" =
     myCrowns > oppCrowns ? "win" : myCrowns < oppCrowns ? "loss" : "draw";
 
-  const metaParts = [oppName, type, deck, event, ladder].filter(Boolean);
+  const subtitleTags: string[] = [];
+  if (deck) subtitleTags.push(deck);
+  if (b.isLadderTournament) subtitleTags.push("Tournament");
 
   return {
     battleTimeRaw: b.battleTime,
     battleTimeIso: parseClashBattleTimeIso(b.battleTime),
     title: `${arena} · ${mode}`,
-    crownsLine: `${myCrowns}–${oppCrowns} crowns`,
-    subtitleRest: metaParts.join(" · "),
+    myCrowns,
+    oppCrowns,
+    subtitleTags,
     outcome,
     myDeckIconUrls: deckIconUrlsFromBattler(b.team?.[0], iconById),
     oppDeckIconUrls: deckIconUrlsFromBattler(b.opponent?.[0], iconById),
@@ -414,6 +428,273 @@ async function fetchClash(
   };
 }
 
+function cocErrorMessage(res: Response, status: number, remote: string): string {
+  const hint =
+    status === 403 || status === 401
+      ? " Ensure developer.clashofclans.com key allows this request IP (Cloudflare Workers may need a static egress or IP allowlist update)."
+      : "";
+  const tagHint = status === 404 ? " (check player tag format #XXXX)" : "";
+  return `Clash of Clans API ${status}${tagHint}${remote}${hint}`;
+}
+
+async function parseCocError(res: Response): Promise<string> {
+  try {
+    const errBody = (await res.clone().json()) as {
+      message?: string;
+      reason?: string;
+    };
+    if (typeof errBody?.message === "string") return ` — ${errBody.message}`;
+    if (typeof errBody?.reason === "string") return ` — ${errBody.reason}`;
+  } catch {
+    /* ignore */
+  }
+  return "";
+}
+
+type CocBattleJson = {
+  battleType?: string;
+  attack?: boolean;
+  opponentPlayerTag?: string;
+  stars?: number;
+  destructionPercentage?: number;
+  armyShareCode?: string;
+};
+
+function pickClanBadgeUrl(
+  clan: { badgeUrls?: Record<string, string> } | undefined,
+): string | undefined {
+  const b = clan?.badgeUrls;
+  if (!b || typeof b !== "object") return undefined;
+  const medium = b.medium;
+  const large = b.large;
+  const small = b.small;
+  if (typeof medium === "string" && medium.length > 0) return medium;
+  if (typeof large === "string" && large.length > 0) return large;
+  if (typeof small === "string" && small.length > 0) return small;
+  return undefined;
+}
+
+function pickLeagueIconUrl(p: Record<string, unknown>): string | undefined {
+  const tier = p.leagueTier as
+    | { iconUrls?: { small?: string; large?: string } }
+    | undefined;
+  const league = p.league as
+    | { iconUrls?: { small?: string; medium?: string; tiny?: string } }
+    | undefined;
+  const tLarge = tier?.iconUrls?.large;
+  const tSmall = tier?.iconUrls?.small;
+  const lMed = league?.iconUrls?.medium;
+  const lSmall = league?.iconUrls?.small;
+  if (typeof tLarge === "string" && tLarge.length > 0) return tLarge;
+  if (typeof tSmall === "string" && tSmall.length > 0) return tSmall;
+  if (typeof lMed === "string" && lMed.length > 0) return lMed;
+  if (typeof lSmall === "string" && lSmall.length > 0) return lSmall;
+  return undefined;
+}
+
+function pickLeagueName(p: Record<string, unknown>): string | undefined {
+  const tier = p.leagueTier as { name?: string } | undefined;
+  const league = p.league as { name?: string } | undefined;
+  if (typeof tier?.name === "string" && tier.name.length > 0) return tier.name;
+  if (typeof league?.name === "string" && league.name.length > 0)
+    return league.name;
+  return undefined;
+}
+
+function parseCocHeroesHome(p: Record<string, unknown>): CocHeroRow[] | undefined {
+  const raw = p.heroes;
+  if (!Array.isArray(raw)) return undefined;
+  const rows: CocHeroRow[] = [];
+  for (const h of raw) {
+    if (!h || typeof h !== "object") continue;
+    const o = h as {
+      name?: string;
+      level?: number;
+      maxLevel?: number;
+      village?: string;
+      iconUrls?: { medium?: string; small?: string };
+    };
+    if (o.village !== "home") continue;
+    if (typeof o.name !== "string" || typeof o.level !== "number") continue;
+    const fromApi =
+      typeof o.iconUrls?.medium === "string" && o.iconUrls.medium.length > 0
+        ? o.iconUrls.medium
+        : typeof o.iconUrls?.small === "string" && o.iconUrls.small.length > 0
+          ? o.iconUrls.small
+          : undefined;
+    const portraitUrl = fromApi ?? cocHeroPortraitUrl(o.name);
+    rows.push({
+      name: o.name,
+      level: o.level,
+      maxLevel: typeof o.maxLevel === "number" ? o.maxLevel : o.level,
+      ...(portraitUrl ? { portraitUrl } : {}),
+    });
+  }
+  rows.sort((a, b) => b.level - a.level);
+  return rows.slice(0, 6);
+}
+
+function buildCocLegendLine(
+  legend: Record<string, unknown> | undefined,
+): { legendTrophies?: number; legendSeasonLine?: string } {
+  if (!legend || typeof legend !== "object") return {};
+  const lt = legend.legendTrophies;
+  const legendTrophies = typeof lt === "number" ? lt : undefined;
+  const cur = legend.currentSeason as
+    | { rank?: number; trophies?: number }
+    | undefined;
+  if (cur && typeof cur === "object") {
+    const parts: string[] = [];
+    if (typeof cur.rank === "number") parts.push(`rank ${cur.rank}`);
+    if (typeof cur.trophies === "number")
+      parts.push(`${cur.trophies.toLocaleString()} legend trophies`);
+    if (parts.length) {
+      return { legendTrophies, legendSeasonLine: parts.join(" · ") };
+    }
+  }
+  return { legendTrophies };
+}
+
+async function fetchCocProfile(
+  base: string,
+  pathTag: string,
+  token: string,
+): Promise<{ profile: CocProfileSummary | null; error?: string }> {
+  const url = `${base}/v1/players/${pathTag}`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) {
+    const remote = await parseCocError(res);
+    return {
+      profile: null,
+      error: cocErrorMessage(res, res.status, remote),
+    };
+  }
+  const p = (await res.json()) as Record<string, unknown>;
+  const clan = p.clan as
+    | { name?: string; tag?: string; badgeUrls?: Record<string, string> }
+    | undefined;
+  const legendRaw = p.legendStatistics as Record<string, unknown> | undefined;
+  const { legendTrophies, legendSeasonLine } = buildCocLegendLine(legendRaw);
+
+  const roleRaw = p.role;
+  const role = typeof roleRaw === "string" ? roleRaw : undefined;
+
+  const heroesHome = parseCocHeroesHome(p);
+  const clanBadgeUrl = pickClanBadgeUrl(clan);
+  const leagueIconUrl = pickLeagueIconUrl(p);
+  const leagueName = pickLeagueName(p);
+
+  const profile: CocProfileSummary = {
+    name: String(p.name ?? ""),
+    tag: String(p.tag ?? ""),
+    townHallLevel: Number(p.townHallLevel ?? 0),
+    townHallWeaponLevel:
+      typeof p.townHallWeaponLevel === "number"
+        ? p.townHallWeaponLevel
+        : undefined,
+    expLevel: typeof p.expLevel === "number" ? p.expLevel : undefined,
+    trophies: Number(p.trophies ?? 0),
+    bestTrophies: Number(p.bestTrophies ?? 0),
+    warStars: Number(p.warStars ?? 0),
+    attackWins: Number(p.attackWins ?? 0),
+    defenseWins: Number(p.defenseWins ?? 0),
+    builderHallLevel:
+      typeof p.builderHallLevel === "number" ? p.builderHallLevel : undefined,
+    builderBaseTrophies:
+      typeof p.builderBaseTrophies === "number"
+        ? p.builderBaseTrophies
+        : undefined,
+    clanName: typeof clan?.name === "string" ? clan.name : undefined,
+    clanTag: typeof clan?.tag === "string" ? clan.tag : undefined,
+    clanBadgeUrl,
+    role,
+    leagueName,
+    leagueIconUrl,
+    heroesHome: heroesHome?.length ? heroesHome : undefined,
+    legendTrophies,
+    legendSeasonLine,
+  };
+  return { profile };
+}
+
+function formatCocBattleRow(b: CocBattleJson): CocBattleRow {
+  const battleType =
+    typeof b.battleType === "string" && b.battleType.length > 0
+      ? b.battleType
+      : "unknown";
+  return {
+    battleType,
+    attack: b.attack === true,
+    opponentTag:
+      typeof b.opponentPlayerTag === "string" ? b.opponentPlayerTag : "—",
+    stars: typeof b.stars === "number" ? b.stars : 0,
+    destructionPercent:
+      typeof b.destructionPercentage === "number"
+        ? b.destructionPercentage
+        : 0,
+    armyShareCode:
+      typeof b.armyShareCode === "string" && b.armyShareCode.length > 0
+        ? b.armyShareCode
+        : undefined,
+  };
+}
+
+async function fetchCocBattleLog(
+  base: string,
+  pathTag: string,
+  token: string,
+): Promise<CocBattleRow[]> {
+  const url = `${base}/v1/players/${pathTag}/battlelog`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as
+    | CocBattleJson[]
+    | { items?: CocBattleJson[] };
+  const items = Array.isArray(data)
+    ? data
+    : Array.isArray((data as { items?: CocBattleJson[] }).items)
+      ? (data as { items: CocBattleJson[] }).items
+      : [];
+  return items.slice(0, 5).map((row) => formatCocBattleRow(row));
+}
+
+async function fetchCoc(
+  env: GameLogEnv | undefined,
+): Promise<GamesLoaderData["coc"]> {
+  const token = env?.CLASH_OF_CLANS_API_TOKEN?.trim();
+  const rawTag = env?.CLASH_OF_CLANS_PLAYER_TAG?.trim();
+  if (!token || !rawTag) {
+    return {
+      ok: false,
+      message:
+        "Set CLASH_OF_CLANS_API_TOKEN and CLASH_OF_CLANS_PLAYER_TAG in wrangler vars or .dev.vars (JWT from developer.clashofclans.com).",
+    };
+  }
+
+  const tagForUrl = rawTag.startsWith("#") ? rawTag : `#${rawTag}`;
+  const pathTag = encodeURIComponent(tagForUrl);
+  const base = cocApiBase(env);
+
+  const [result, battles] = await Promise.all([
+    fetchCocProfile(base, pathTag, token),
+    fetchCocBattleLog(base, pathTag, token),
+  ]);
+  if (result.error) {
+    return { ok: false, message: result.error };
+  }
+  return { ok: true, profile: result.profile, battles };
+}
+
 export async function loadGameLogs(
   context: AppLoadContext,
 ): Promise<GamesLoaderData> {
@@ -423,11 +704,12 @@ export async function loadGameLogs(
     gameLogsCacheKey(env),
     GAME_LOGS_CACHE_MS,
     async () => {
-      const [lichess, clash] = await Promise.all([
+      const [lichess, clash, coc] = await Promise.all([
         fetchLichess(env),
         fetchClash(env),
+        fetchCoc(env),
       ]);
-      return { lichess, clash };
+      return { lichess, clash, coc };
     },
   );
 }

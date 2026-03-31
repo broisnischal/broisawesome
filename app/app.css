@@ -21,6 +21,10 @@
 }
 
 @theme {
+  /* Display: rounded playful (Clash-adjacent; Fredoka has lighter weights than Titan One) */
+  --font-clash:
+    "Fredoka", "Geist Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-sans:
     "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

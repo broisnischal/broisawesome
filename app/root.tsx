@@ -7,7 +7,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
 import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/root";
 import "./app.css";

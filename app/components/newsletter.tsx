@@ -34,7 +34,7 @@ export function NewsletterSubscribeForm({
       )}
       {isMinimal && (
         <p className="mb-2 text-xs text-muted-foreground leading-snug">
-          Occasional updates on posts and projects — no spam.
+          Occasional updates on posts and projects, no spam.
         </p>
       )}
       <fetcher.Form

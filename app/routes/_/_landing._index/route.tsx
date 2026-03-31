@@ -32,6 +32,13 @@ export const handle = {
   breadcrumb: () => <Link to="/">Home</Link>,
 };
 
+export const links: Route.LinksFunction = () => [
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500&display=swap",
+  },
+];
+
 export const meta: Route.MetaFunction = () => {
   const metaTags = createMetaTags({
     title: "Nischal Dahal - aka broisnischal",
@@ -109,18 +116,22 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     <div className="max-w-4xl px-4 md:px-0">
       <section className="mb-14 max-w-md" aria-label="Profile">
         <img
-          src="https://lh3.googleusercontent.com/a/ACg8ocIfOkkApycqNKsCPiAgwPeqiYI6WxM_2Tzbro5EuFBj42vok1B3vA=s96-c"
+          src="https://lh3.googleusercontent.com/a/ACg8ocIfOkkApycqNKsCPiAgwPeqiYI6WxM_2Tzbro5EuFBj42vok1B3vA=s256-c"
           alt="Nischal Dahal profile picture"
           className="h-24 w-24 rounded-full object-cover ring-1 ring-border"
+          width={96}
+          height={96}
           loading="eager"
           fetchPriority="high"
+          referrerPolicy="no-referrer"
         />
-        <h1 className="mt-5 text-3xl font-bold tracking-tight text-foreground">
+        <h1 className="mt-5 font-clash text-3xl font-normal tracking-tight text-foreground">
           Nischal Dahal
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">@broisnees</p>
         <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-          building cool stuffs on web, platform agnostic, tech shavy guy.
+          building cool stuffs on web, platform agnostic, tech savvy guy,
+          romantic, sophisticated, and a bit of a nerd.
         </p>
         <ul className="mt-6 flex flex-wrap items-center gap-5">
           {SOCIAL_LINKS.map(({ label, href, Icon }) => (
@@ -285,6 +296,7 @@ function NavigationCards() {
             <NavLink
               to={item.to}
               end
+              prefetch="intent"
               onMouseEnter={() => setEmphasizedTo(item.to)}
               onFocus={() => setEmphasizedTo(item.to)}
               className={({ isActive }) =>

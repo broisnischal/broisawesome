@@ -85,10 +85,11 @@ export type ClashBattleRow = {
   /** Parsed instant for `<time dateTime>` and formatting; null if unparseable. */
   battleTimeIso: string | null;
   title: string;
-  /** Crown line rendered bold, e.g. `0–3 crowns`. */
-  crownsLine: string;
-  /** Metadata after the crown line (` · ` joined). */
-  subtitleRest: string;
+  /** Your crowns vs opponent (0–3); shown as small crown icons in the UI. */
+  myCrowns: number;
+  oppCrowns: number;
+  /** Short labels (deck / ladder); omit redundant opponent name and raw event tags. */
+  subtitleTags: string[];
   /** From crown counts (your team vs opponent in the API). */
   outcome: "win" | "loss" | "draw";
   /** Resolved from official `/v1/cards` `iconUrls.medium` (same order as API `cards`). */
@@ -97,11 +98,64 @@ export type ClashBattleRow = {
   opponentName: string;
 };
 
+/** Home-village heroes from GET /v1/players/{tag}. */
+export type CocHeroRow = {
+  name: string;
+  level: number;
+  maxLevel: number;
+  /** Prefer API `iconUrls` when Supercell adds them; else wiki-mirrored in-game icon. */
+  portraitUrl?: string;
+};
+
+/** Clash of Clans — GET /v1/players/{tag} + badge/icon URLs; GET /v1/players/{tag}/battlelog. */
+export type CocProfileSummary = {
+  name: string;
+  tag: string;
+  townHallLevel: number;
+  /** Giga Tesla / monolith level when TH12+. */
+  townHallWeaponLevel?: number;
+  expLevel?: number;
+  trophies: number;
+  bestTrophies: number;
+  warStars: number;
+  attackWins: number;
+  defenseWins: number;
+  builderHallLevel?: number;
+  builderBaseTrophies?: number;
+  clanName?: string;
+  clanTag?: string;
+  /** Supercell CDN — clan badge. */
+  clanBadgeUrl?: string;
+  role?: string;
+  leagueName?: string;
+  /** Supercell CDN — league / legend league tier art. */
+  leagueIconUrl?: string;
+  /** Top home heroes by level (with portrait URLs when known). */
+  heroesHome?: CocHeroRow[];
+  /** Legend league legend trophies when in / recently in legends. */
+  legendTrophies?: number;
+  /** e.g. current legend season rank + trophies, when API returns them. */
+  legendSeasonLine?: string;
+};
+
+/** From GET /v1/players/{tag}/battlelog — no replay URLs; armyShareCode is in-game army link. */
+export type CocBattleRow = {
+  battleType: string;
+  attack: boolean;
+  opponentTag: string;
+  stars: number;
+  destructionPercent: number;
+  armyShareCode?: string;
+};
+
 export type GamesLoaderData = {
   lichess:
     | { ok: true; profile: LichessProfileSummary | null; games: LichessGameRow[] }
     | { ok: false; message: string };
   clash:
     | { ok: true; profile: ClashProfileSummary | null; battles: ClashBattleRow[] }
+    | { ok: false; message: string };
+  coc:
+    | { ok: true; profile: CocProfileSummary | null; battles: CocBattleRow[] }
     | { ok: false; message: string };
 };
