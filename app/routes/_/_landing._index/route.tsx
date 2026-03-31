@@ -6,10 +6,10 @@ import {
   FileText,
   Github,
   Globe,
+  Image,
   Link2,
   Rss,
   ScrollText,
-  Server,
   StickyNote,
   Twitter,
   User,
@@ -110,7 +110,7 @@ const SOCIAL_LINKS = [
 ] as const;
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { activityPreview, activityUsername, activityError } = loaderData;
+  const { activityPreview, activityError } = loaderData;
 
   return (
     <div className="max-w-4xl px-4 md:px-0">
@@ -131,7 +131,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <p className="mt-1 text-sm text-muted-foreground">@broisnees</p>
         <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
           building cool stuffs on web, platform agnostic, tech savvy guy,
-          romantic, sophisticated, and a bit of a nerd.
+          <span className="font-medium"> romantic </span>, sophisticated, and a
+          bit of a nerd.
         </p>
         <ul className="mt-6 flex flex-wrap items-center gap-5">
           {SOCIAL_LINKS.map(({ label, href, Icon }) => (
@@ -184,13 +185,13 @@ function NavigationCards() {
     {
       to: "/activity",
       title: "Activity",
-      description: "Commits, repos, stars, and PRs from GitHub",
+      description: "timeline from mine github",
       icon: Activity,
     },
     {
       to: "/blog",
       title: "Blog",
-      description: "Articles and thoughts; use Writing for a date-grouped list",
+      description: "articles and thoughts",
       icon: FileText,
     },
     {
@@ -203,45 +204,45 @@ function NavigationCards() {
     {
       to: "/projects",
       title: "Projects",
-      description: "Things I've built and shipped",
+      description: "things i've working on",
       icon: Briefcase,
     },
     {
       to: "/links",
       title: "Links",
-      description: "Socials and contact",
+      description: "links to my socials",
       icon: Link2,
     },
     {
       to: "/log?tab=game",
       title: "Log",
-      description: "Books, media, games, glossary",
+      description: "my PL, games, glossary and more",
       icon: ScrollText,
     },
     {
       to: "/use",
       title: "Use",
-      description: "Hardware and software I use",
+      description: "setup and hardware i use",
       icon: Wrench,
     },
     {
       to: "/about",
       title: "About",
-      description: "Background and interests",
+      description: "background and interests",
       icon: User,
     },
     {
       to: "/stack",
       title: "Stack",
-      description: "Languages, frameworks, and tools",
+      description: "languages, frameworks, and tools",
       icon: Code,
     },
     {
-      to: "/gallery",
+      to: "https://photos.app.goo.gl/2RHWh9PyAGyRCZAP9",
       title: "Gallery",
-      description: "Photos from Google Photos",
-      icon: Server,
-      disabled: true,
+      description: "photos from google photos",
+      icon: Image,
+      disabled: false,
     },
   ];
 
@@ -252,6 +253,7 @@ function NavigationCards() {
     <ul className="grid gap-3 sm:grid-cols-2 ">
       {navItems.map((item) => {
         const Icon = item.icon;
+        const isExternal = /^https?:\/\//.test(item.to);
         const inner = (
           <>
             <span
@@ -293,22 +295,38 @@ function NavigationCards() {
 
         return (
           <li key={item.to}>
-            <NavLink
-              to={item.to}
-              end
-              prefetch="intent"
-              onMouseEnter={() => setEmphasizedTo(item.to)}
-              onFocus={() => setEmphasizedTo(item.to)}
-              className={({ isActive }) =>
-                cn(
+            {isExternal ? (
+              <a
+                href={item.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setEmphasizedTo(item.to)}
+                onFocus={() => setEmphasizedTo(item.to)}
+                className={cn(
                   "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
-                  (isActive || emphasizedTo === item.to) &&
-                    "border-border bg-muted/40",
-                )
-              }
-            >
-              {inner}
-            </NavLink>
+                  emphasizedTo === item.to && "border-border bg-muted/40",
+                )}
+              >
+                {inner}
+              </a>
+            ) : (
+              <NavLink
+                to={item.to}
+                end
+                prefetch="intent"
+                onMouseEnter={() => setEmphasizedTo(item.to)}
+                onFocus={() => setEmphasizedTo(item.to)}
+                className={({ isActive }) =>
+                  cn(
+                    "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
+                    (isActive || emphasizedTo === item.to) &&
+                      "border-border bg-muted/40",
+                  )
+                }
+              >
+                {inner}
+              </NavLink>
+            )}
           </li>
         );
       })}

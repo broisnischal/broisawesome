@@ -181,7 +181,7 @@ function WalletRow({ address }: { address: string }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
       <p className="text-muted-foreground text-sm flex flex-wrap items-center gap-x-1 gap-y-1">
-        <span>Wallet address:</span>
+        <span>Wallet :</span>
         <button
           type="button"
           onClick={copy}
