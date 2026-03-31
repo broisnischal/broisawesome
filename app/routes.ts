@@ -19,6 +19,7 @@ export default [
   // ]),
 
   layout(typedFilePath("routes/layout.tsx"), [
+    route("writing", typedFilePath("routes/writing.tsx")),
     ...prefix("blog", [
       index(typedFilePath("routes/blogs.tsx")),
       route(":slug", typedFilePath("routes/blogs.$slug.tsx")),

@@ -30,6 +30,7 @@ export const routeFileList = [
   "routes/resources/gallery-image.tsx",
   "routes/resources/newsletter.tsx",
   "routes/resources/theme-switch.tsx",
+  "routes/writing.tsx",
 ] as const;
 
 export type RouteFilePath = typeof routeFileList[number];

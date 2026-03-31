@@ -190,7 +190,7 @@ function NavigationCards() {
     {
       to: "/blog",
       title: "Blog",
-      description: "Articles and thoughts on technology",
+      description: "Articles and thoughts; use Writing for a date-grouped list",
       icon: FileText,
     },
     {

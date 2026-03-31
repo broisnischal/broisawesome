@@ -1,8 +1,13 @@
 import {
+  Check,
   Code,
   Coffee,
+  Copy,
+  ExternalLink,
   FileText,
   Github,
+  Images,
+  Instagram,
   Linkedin,
   MessageCircle,
   Package,
@@ -12,6 +17,7 @@ import {
   type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
+import { useCallback, useState } from "react";
 import { Link, data } from "react-router";
 import { createHeaders, createMetaTags } from "~/lib/meta";
 import type { Route } from "./+types/route";
@@ -64,6 +70,8 @@ const iconMap: Record<string, ComponentType<LucideProps>> = {
   chess: Code,
   npmjs: Package,
   rss: Rss,
+  image: Images,
+  instagram: Instagram,
 };
 
 const socialLinks: SocialLink[] = [
@@ -147,10 +155,71 @@ const socialLinks: SocialLink[] = [
   },
 ];
 
+const WALLET_ADDRESS = "0x644D721Cbe97BC458d9347A2CCE47c063EEd0Eb0" as const;
+
 export async function loader({}: Route.LoaderArgs) {
   return data({
     links: socialLinks,
   });
+}
+
+function WalletRow({ address }: { address: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard may be unavailable (e.g. non-secure context)
+    }
+  }, [address]);
+
+  const explorerUrl = `https://etherscan.io/address/${address}`;
+
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
+      <p className="text-muted-foreground text-sm flex flex-wrap items-center gap-x-1 gap-y-1">
+        <span>Wallet address:</span>
+        <button
+          type="button"
+          onClick={copy}
+          className="group inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-background/80 px-2 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-sm"
+          title={copied ? "Copied" : "Copy address"}
+          aria-label={
+            copied
+              ? "Address copied to clipboard"
+              : `Copy wallet address ${address} to clipboard`
+          }
+        >
+          <span className="truncate">{address}</span>
+          {copied ? (
+            <Check
+              className="size-3.5 shrink-0 text-emerald-600"
+              strokeWidth={2}
+              aria-hidden
+            />
+          ) : (
+            <Copy
+              className="size-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100"
+              strokeWidth={1.75}
+              aria-hidden
+            />
+          )}
+        </button>
+      </p>
+      <a
+        href={explorerUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+      >
+        View on Etherscan
+        <ExternalLink className="size-3.5" strokeWidth={1.75} aria-hidden />
+      </a>
+    </div>
+  );
 }
 
 function SocialAnchor({ link }: { link: SocialLink }) {
@@ -183,7 +252,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           id="links-find-heading"
           className=" font-mono text-xs font-normal uppercase tracking-widest text-muted-foreground"
         >
-          Elsewhere on the web that i'm active on
+          Elsewhere on the web that I&apos;m active on
         </h1>
         <nav
           className="flex flex-col items-start gap-x-6 gap-y-4"
@@ -194,12 +263,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           ))}
         </nav>
 
-        <p className="text-muted-foreground text-sm flex items-center gap-1">
-          Wallet address:{" "}
-          <span className="font-mono text-foreground">
-            0x644D721Cbe97BC458d9347A2CCE47c063EEd0Eb0
-          </span>
-        </p>
+        <WalletRow address={WALLET_ADDRESS} />
       </section>
     </div>
   );

@@ -10,6 +10,7 @@ import { TextLink } from "~/routes/_/about/route";
 
 const FOOTER_LINKS: { to: string; label: string; external?: boolean }[] = [
   { to: "/", label: "Home" },
+  { to: "/writing", label: "Writing" },
   { to: "/blog", label: "Blog" },
   { to: "/activity", label: "Activity" },
   { to: "/projects", label: "Projects" },

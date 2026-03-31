@@ -166,6 +166,20 @@ body {
   }
 }
 
+/* Site ↔ Writing: Link viewTransition cross-fade (Chromium, Safari 18+) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms !important;
+  }
+}
+
 /* MDX Content Styling */
 @layer components {
   /* Target MDX content within blog routes */

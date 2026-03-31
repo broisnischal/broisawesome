@@ -104,6 +104,16 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
           Each post shares knowledge and insights from real-world projects and
           experiences.
         </p>
+        <p className="text-sm text-muted-foreground">
+          Prefer a minimal, date-grouped list? See{" "}
+          <Link
+            to="/writing"
+            className="text-foreground underline underline-offset-4 hover:text-foreground/90"
+          >
+            Writing
+          </Link>
+          .
+        </p>
       </div>
       <Blogs data={loaderData.blogs} url="/blog" />
       <br />
