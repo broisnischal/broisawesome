@@ -9,8 +9,6 @@ import {
 } from "react-router";
 import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/root";
-import "@fontsource-variable/geist/index.css";
-import "@fontsource-variable/geist-mono/index.css";
 import "./app.css";
 import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
