@@ -6,8 +6,10 @@ import {
   FileText,
   Github,
   Globe,
+  Headphones,
   Image,
   Link2,
+  Sparkles,
   Rss,
   ScrollText,
   StickyNote,
@@ -109,6 +111,47 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
+type WorkExperience = {
+  role: string;
+  company?: string;
+  period: string;
+  location?: string;
+  description: string;
+  highlights?: string[];
+};
+
+/**
+ * Homepage work list.
+ * Edit this array to keep your work/experience section current.
+ */
+const WORK_EXPERIENCE: WorkExperience[] = [
+  {
+    role: "DX Engineer",
+    company: "AITC International",
+    period: "2025 — Present",
+    location: "Onsite",
+    description: "",
+  },
+  {
+    role: "System Architect",
+    company: "Veda Studios",
+    period: "2023 — Present",
+    location: "Kathmandu, Nepal",
+    description:
+      "Designing and shipping serverless-first systems with a focus on reliability, cost control, and developer experience.",
+    highlights: ["Cloudflare Workers", "System design", "DX", "Performance"],
+  },
+  {
+    role: "Full Stack Engineer",
+    company: "Freelance / Product Work",
+    period: "2021 — Present",
+    location: "Remote",
+    description:
+      "Building production web products end-to-end: architecture, API design, frontend implementation, and deployment.",
+    highlights: ["React", "TypeScript", "API design", "UI engineering"],
+  },
+];
+
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { activityPreview, activityError } = loaderData;
 
@@ -167,6 +210,73 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </h2>
         <NavigationCards />
       </section>
+
+      <section
+        aria-labelledby="work-heading"
+        className="relative mt-12 border-t border-border/70 pt-8"
+      >
+        <div
+          className="pointer-events-none absolute -left-14 top-8 h-36 w-36 rounded-full bg-linear-to-br from-foreground/[0.06] via-foreground/[0.02] to-transparent blur-2xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute right-0 top-24 h-28 w-28 rounded-full bg-linear-to-tr from-foreground/[0.05] via-transparent to-transparent blur-2xl"
+          aria-hidden
+        />
+
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <h2
+            id="work-heading"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
+          >
+            Work Experience
+          </h2>
+          <Link
+            to="/about"
+            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+          >
+            more on /about
+          </Link>
+        </div>
+
+        <ol className="relative ml-1 list-none border-l border-border/60 p-0">
+          {WORK_EXPERIENCE.map((item) => (
+            <li
+              key={`${item.role}-${item.company}-${item.period}`}
+              className="relative pb-8 pl-6 last:pb-0"
+            >
+              <span
+                className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-foreground/80 ring-4 ring-background"
+                aria-hidden
+              />
+
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 leading-tight">
+                <h3 className="text-[15px] font-medium tracking-tight text-foreground">
+                  {item.role}
+                </h3>
+                <p className="font-mono text-[11px] text-muted-foreground">
+                  {item.period}
+                </p>
+              </div>
+
+              {item.company ? (
+                <p className="font-mono text-[11px] text-muted-foreground">
+                  {item.company}
+                </p>
+              ) : null}
+
+              {/* <p className="mt-1 text-sm text-muted-foreground">
+                  {item.company}
+                  {item.location ? <span className="opacity-70"> · {item.location}</span> : null}
+                </p> */}
+
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                {item.description}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }
@@ -194,13 +304,13 @@ function NavigationCards() {
       description: "articles and thoughts",
       icon: FileText,
     },
-    {
-      to: "/notes",
-      title: "Notes",
-      description: "Glossary, bookmarks, and short notes",
-      icon: StickyNote,
-      disabled: true,
-    },
+    // {
+    //   to: "/notes",
+    //   title: "Notes",
+    //   description: "Glossary, bookmarks, and short notes",
+    //   icon: StickyNote,
+    //   disabled: true,
+    // },
     {
       to: "/projects",
       title: "Projects",
@@ -218,6 +328,18 @@ function NavigationCards() {
       title: "Log",
       description: "my PL, games, glossary and more",
       icon: ScrollText,
+    },
+    // {
+    //   to: "/listening",
+    //   title: "Listening",
+    //   description: "recently played songs",
+    //   icon: Headphones,
+    // },
+    {
+      to: "/portfolio-curation",
+      title: "Sites",
+      description: "sites i like, jump in",
+      icon: Sparkles,
     },
     {
       to: "/use",

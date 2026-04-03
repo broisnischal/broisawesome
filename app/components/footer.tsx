@@ -10,7 +10,6 @@ import { TextLink } from "~/routes/_/about/route";
 
 const FOOTER_LINKS: { to: string; label: string; external?: boolean }[] = [
   { to: "/", label: "Home" },
-  { to: "/writing", label: "Writing" },
   { to: "/blog", label: "Blog" },
   { to: "/activity", label: "Activity" },
   { to: "/projects", label: "Projects" },
@@ -38,9 +37,9 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-background">
       <div className="mx-auto max-w-3xl px-4 py-12 md:px-6 lg:px-8 xl:px-12">
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-12">
           <div
-            className="space-y-1.5"
+            className="space-y-2"
             aria-labelledby="footer-newsletter-heading"
           >
             <h2
@@ -52,7 +51,7 @@ export function Footer() {
             <NewsletterSubscribeForm variant="minimal" />
           </div>
 
-          <div className="flex flex-col gap-8 border-t border-border/60 pt-10 sm:flex-row sm:items-start sm:justify-between sm:gap-12">
+          <div className="flex flex-col gap-8  pt-10 sm:flex-row sm:items-start sm:justify-between sm:gap-12">
             <div className="flex min-w-0 flex-col gap-4 text-sm text-muted-foreground">
               <p>© {year} Nischal Dahal</p>
               <nav

@@ -21,8 +21,7 @@ export const CANONICAL_SITE_URL = "https://nischal-dahal.com.np";
 const SITE_URL = CANONICAL_SITE_URL;
 const DEFAULT_AUTHOR = "Nischal Dahal";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.ico`;
-const PUBLISHER_LOGO =
-  "https://avatars.githubusercontent.com/u/98168009?v=4";
+const PUBLISHER_LOGO = "https://avatars.githubusercontent.com/u/98168009?v=4";
 
 export function absoluteUrl(path: string): string {
   if (!path) return SITE_URL;

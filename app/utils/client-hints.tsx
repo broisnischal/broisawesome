@@ -33,14 +33,14 @@ export function ClientHintCheck({ nonce }: { nonce?: string }) {
     // This prevents unwanted theme switches when user has manually set a theme
     const userPref = requestInfo?.userPrefs?.theme;
 
-    if (userPref === 'system' || !userPref) {
+    if (userPref === "system" || !userPref) {
       // User wants to follow system theme, so subscribe to changes
       return subscribeToSchemeChange(() => revalidate());
     }
 
     // User has manual theme preference, don't subscribe to system changes
     // This prevents the theme from switching when system theme changes
-    return () => { };
+    return () => {};
   }, [revalidate, requestInfo?.userPrefs?.theme]);
 
   return (

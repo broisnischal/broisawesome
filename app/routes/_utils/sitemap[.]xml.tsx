@@ -14,8 +14,7 @@ export async function loader({}: Route.LoaderArgs) {
   const today = formatW3CDate(new Date());
 
   const staticUrls = staticRoutes.map((route) => {
-    const priority =
-      route === "/" ? "1.0" : route === "/blog" ? "0.95" : "0.8";
+    const priority = route === "/" ? "1.0" : route === "/blog" ? "0.95" : "0.8";
     return {
       loc: `${CANONICAL_SITE_URL}${route}`,
       lastmod: today,

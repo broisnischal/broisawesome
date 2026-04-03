@@ -12,6 +12,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
+import { SiteWritingToggle } from "./components/site-writing-toggle";
 import { ScriptDangerously } from "./lib";
 import { useTheme } from "./routes/resources/theme-switch";
 import { ClientHintCheck, getHints } from "./utils/client-hints";
@@ -131,8 +132,11 @@ export default function App({ loaderData }: Route.ComponentProps) {
 
   return (
     <Document loaderData={loaderData} theme={theme}>
-      <div className="flex min-h-screen flex-col">
+      <div className="relative flex min-h-screen flex-col">
         <ProgessBar />
+        <div className="pointer-events-none fixed right-4 top-4 z-50 md:right-6 md:top-6 lg:right-8 lg:top-8 xl:right-12 xl:top-10">
+          <SiteWritingToggle className="pointer-events-auto" />
+        </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <Outlet />
           <Footer />

@@ -29,5 +29,11 @@ declare namespace Cloudflare {
      * May differ from your npm profile URL; if the npm section is empty, set this to the account that publishes your packages.
      */
     NPM_USERNAME?: string;
+    /** Spotify app credentials for public-playlist fetch (Client Credentials). */
+    SPOTIFY_CLIENT_ID?: string;
+    SPOTIFY_CLIENT_SECRET?: string;
+    /** Optional: playlist id or URL; defaults to the curated public playlist in code. */
+    SPOTIFY_PUBLIC_PLAYLIST_ID?: string;
+    SPOTIFY_PUBLIC_PLAYLIST_URL?: string;
   }
 }
