@@ -9,6 +9,8 @@ import {
 } from "react-router";
 import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/root";
+import "@fontsource-variable/geist/index.css";
+import "@fontsource-variable/geist-mono/index.css";
 import "./app.css";
 import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
@@ -38,7 +40,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500&display=swap",
   },
   {
     rel: "alternate",
@@ -76,11 +78,7 @@ function Document({
   theme: ReturnType<typeof useTheme>;
 }) {
   return (
-    <html
-      lang="en"
-      // className={clsx({ dark: theme === "dark" }, theme)}
-      // data-theme={theme}
-    >
+    <html lang="en" className="font-sans antialiased">
       <head>
         <ClientHintCheck />
         <meta charSet="utf-8" />
@@ -114,7 +112,7 @@ function Document({
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         {children}
         <Scripts />
         <ScrollRestoration

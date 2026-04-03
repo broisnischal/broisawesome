@@ -47,14 +47,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { gallery } = loaderData;
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl font-sans">
       <header className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           Gallery
         </h1>
-        <p className="mt-2 text-muted-foreground text-sm max-w-xl">
+        <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
           Loaded with the Photos Library API from{" "}
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">
+          <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
             GOOGLE_PHOTOS_ALBUM_ID
           </code>
           . Only{" "}
@@ -102,7 +102,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <EmptyDescription className="max-w-lg text-pretty">
               The search returned no app-created items for this album. Use the
               album id from{" "}
-              <code className="text-xs bg-muted px-1 py-0.5 rounded">
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
                 albums.create
               </code>{" "}
               if a browser-only album id does not match the API, and ensure

@@ -48,7 +48,7 @@ const developmentSubsections: DevSubsection[] = [
       {
         name: "Typography",
         detail:
-          "Geist Mono in the editor, Geist Sans in the UI. Line height bumped a notch so my eyes don't hate me.",
+          "Geist Mono in the editor, Geist in the UI. Line height bumped a notch so my eyes don't hate me.",
         sublinks: [{ label: "Geist fonts", link: "https://vercel.com/font" }],
       },
       {
@@ -260,7 +260,7 @@ function CatalogList({
                 to={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors group"
+                className="group inline-flex items-center gap-1.5 text-base font-medium text-foreground transition-colors hover:text-primary"
               >
                 <span className="text-pretty">{item.name}</span>
                 <ArrowUpRightIcon
@@ -269,7 +269,7 @@ function CatalogList({
                 />
               </Link>
             ) : (
-              <span className="text-sm font-medium text-foreground text-pretty">
+              <span className="text-base font-medium text-pretty text-foreground">
                 {item.name}
               </span>
             )}
@@ -289,7 +289,7 @@ function DevSublinkList({ items }: { items: DevSublink[] }) {
             to={s.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors group"
+            className="group inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             {s.label}
             <ArrowUpRightIcon
@@ -484,9 +484,11 @@ export function Use() {
   };
 
   return (
-    <div className="flex flex-col gap-10 max-w-2xl text-left">
+    <div className="flex max-w-2xl flex-col gap-10 text-left font-sans">
       <div className="flex flex-col gap-3">
-        <h1>Things I'm using...</h1>
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
+          Things I&apos;m using…
+        </h1>
         <p className="text-base text-muted-foreground leading-relaxed">
           About ten years of buying random gadgets and software and slowly
           figuring out what actually stuck. This page is the short version: the
@@ -503,7 +505,7 @@ export function Use() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-primary text-lg font-mono">Hardware</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed m-0">
+          <p className="m-0 text-base leading-relaxed text-muted-foreground">
             Laptops, phones, the messy desk in the photo, earbuds, watch. What
             actually gets used, not what looks good in a spec sheet.
           </p>
@@ -525,7 +527,7 @@ export function Use() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-primary text-lg font-mono">Personal care</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed m-0">
+          <p className="m-0 text-base leading-relaxed text-muted-foreground">
             Skin picks that survived my bad experiments. Nothing fancy, just
             things that don&apos;t make my face angry.
           </p>
@@ -536,7 +538,7 @@ export function Use() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-primary text-lg font-mono">Peripherals</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed m-0">
+          <p className="m-0 text-base leading-relaxed text-muted-foreground">
             Random bits: bike, polishing cloth, whatever didn&apos;t fit above.
           </p>
         </div>

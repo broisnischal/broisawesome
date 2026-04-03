@@ -120,24 +120,24 @@ export default function WritingPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <HotkeysProvider>
-      <div className="writing-archive scheme-light min-h-[55vh] text-neutral-900 ">
+      <div className="writing-archive min-h-[55vh] font-sans text-foreground">
         <div className="max-w-xl w-full">
           <header className="pb-8">
-            <h1 className="text-4xl font-semibold tracking-tight text-neutral-950 sm:text-[2.75rem] sm:leading-[1.1]">
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl sm:leading-[1.1]">
               Writing
             </h1>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500">
+            <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
               Long-form posts, newest first. Also available via{" "}
               <a
                 href="/blogs.rss"
-                className="text-neutral-700 underline decoration-neutral-300 underline-offset-[3px] transition-colors hover:text-neutral-950"
+                className="font-medium text-foreground underline decoration-border underline-offset-[3px] transition-colors hover:decoration-foreground"
               >
                 RSS
               </a>{" "}
               or the{" "}
               <Link
                 to="/blog"
-                className="text-neutral-700 underline decoration-neutral-300 underline-offset-[3px] transition-colors hover:text-neutral-950"
+                className="font-medium text-foreground underline decoration-border underline-offset-[3px] transition-colors hover:decoration-foreground"
               >
                 full blog page
               </Link>
@@ -146,7 +146,7 @@ export default function WritingPage({ loaderData }: Route.ComponentProps) {
           </header>
 
           {groups.length === 0 ? (
-            <p className="mt-12 text-sm text-neutral-500">
+            <p className="mt-12 text-base text-muted-foreground">
               No dated posts yet.
             </p>
           ) : (
@@ -186,9 +186,9 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
         <label className="sr-only" htmlFor="writing-search">
           Search posts
         </label>
-        <div className="flex items-center gap-2.5 rounded-full border border-neutral-200 bg-white px-3.5 py-2 pl-3 w-full ">
+        <div className="flex w-full items-center gap-2.5 rounded-full border border-border bg-muted/30 px-3.5 py-2.5 pl-3">
           <Search
-            className="size-4.5 shrink-0 text-neutral-400"
+            className="size-4.5 shrink-0 text-muted-foreground"
             aria-hidden
             strokeWidth={1.75}
           />
@@ -201,7 +201,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
             placeholder="Search"
             autoComplete="off"
             spellCheck={false}
-            className="min-w-0 flex-1 border-0 bg-transparent text-[0.9375rem] text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-0"
+            className="min-w-0 flex-1 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
           />
           <span
             className="hidden shrink-0 items-center gap-1 sm:flex"
@@ -210,7 +210,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
             {shortcutParts.map((part) => (
               <kbd
                 key={part}
-                className="rounded-md border border-neutral-200/90 bg-neutral-50 px-1.5 py-0.5 font-sans text-[11px] font-medium text-neutral-400"
+                className="rounded-md border border-border bg-muted/80 px-1.5 py-0.5 font-sans text-xs font-medium text-muted-foreground"
               >
                 {part}
               </kbd>
@@ -220,7 +220,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
       </div>
 
       {emptySearch ? (
-        <p className="mt-12 text-sm text-neutral-500">
+        <p className="mt-12 text-base text-muted-foreground">
           No posts match &ldquo;{trimmed}&rdquo;.
         </p>
       ) : (
@@ -229,7 +229,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
             <section key={year} aria-labelledby={`writing-y-${year}`}>
               <h2
                 id={`writing-y-${year}`}
-                className="text-[13px] font-medium tabular-nums tracking-wide text-neutral-400"
+                className="text-sm font-medium tabular-nums tracking-wide text-muted-foreground"
               >
                 {year}
               </h2>
@@ -239,7 +239,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
                     <Link
                       to={`/blog/${post.slug}`}
                       prefetch="intent"
-                      className="block text-[1.0625rem] font-normal leading-snug text-neutral-800 transition-colors hover:text-neutral-950"
+                      className="block text-lg font-normal leading-snug text-foreground transition-colors hover:text-primary"
                     >
                       {post.title}
                     </Link>

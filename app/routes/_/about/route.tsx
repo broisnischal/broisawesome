@@ -102,14 +102,14 @@ export function TextLink({
 
 export default function Page() {
   return (
-    <article className="relative max-w-2xl p-0">
+    <article className="relative max-w-2xl p-0 font-sans">
       <div
         className="pointer-events-none absolute -right-24 -top-8 h-64 w-64 rounded-full bg-linear-to-br from-foreground/6 via-transparent to-transparent blur-3xl dark:from-foreground/9"
         aria-hidden
       />
 
       <header className="relative mb-10 md:mb-12">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
           About
         </p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl md:tracking-tighter">
@@ -127,7 +127,7 @@ export default function Page() {
       </header>
 
       <div className="relative space-y-10 md:space-y-12">
-        <div className="space-y-6 text-[15px] leading-[1.75] text-foreground">
+        <div className="space-y-6 text-base leading-relaxed text-foreground">
           <p>
             If you open my{" "}
             <TextLink href="https://github.com/broisnischal">GitHub</TextLink>{" "}
@@ -154,7 +154,7 @@ export default function Page() {
         >
           <h2
             id="find-me"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
+            className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground"
           >
             Elsewhere
           </h2>

@@ -258,15 +258,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { categories: cats } = loaderData;
 
   return (
-    <div className="relative max-w-xl">
+    <div className="relative max-w-xl font-sans">
       <header className="mb-10 md:mb-11">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
           Stack
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl md:tracking-tighter">
+        <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl md:tracking-tighter">
           Tools I rely on
         </h1>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           Software I actually use. Desk and longer notes live on{" "}
           <Link
             to="/use"

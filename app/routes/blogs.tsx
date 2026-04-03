@@ -93,9 +93,9 @@ export async function loader() {
 
 export default function BlogLayout({ loaderData }: Route.ComponentProps) {
   return (
-    <div className=" border-border">
-      <div className="max-w-2xl mb-8">
-        <p className="text-muted-foreground leading-relaxed mb-4">
+    <div className="border-border font-sans">
+      <div className="mb-8 max-w-2xl">
+        <p className="mb-4 text-base leading-relaxed text-muted-foreground">
           I write about topics like{" "}
           <strong className="text-foreground">modern web development</strong>,
           <strong className="text-foreground"> serverless architecture</strong>,
@@ -104,7 +104,7 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
           Each post shares knowledge and insights from real-world projects and
           experiences.
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Prefer a minimal, date-grouped list? See{" "}
           <Link
             to="/writing"
@@ -131,10 +131,10 @@ function Blogs({
 }) {
   return (
     <div>
-      <p className="text-zinc-700 flex items-center gap-1 dark:text-zinc-50 mb-2">
+      <p className="mb-3 flex items-center gap-1 text-base text-muted-foreground">
         Subscribe to my articles using{" "}
         <a
-          className="underline flex items-center gap-1"
+          className="flex items-center gap-1 font-medium text-foreground underline underline-offset-4"
           href="/blogs.rss"
           target="_blank"
           rel="noreferrer"
@@ -143,14 +143,14 @@ function Blogs({
           RSS <ArrowRightIcon className="size-4" aria-hidden />
         </a>
       </p>
-      <ul className=" md:list-inside md:list-disc flex flex-col gap-2">
+      <ul className="flex flex-col gap-2.5 md:list-inside md:list-disc">
         {data.map((blog) => (
           <li className="" key={blog.slug}>
             <Link
               // viewTransition
               state={{ back: url }}
               prefetch="intent"
-              className=" visited:text-zinc-500! dark:visited:text-zinc-300! text-blue-600 dark:text-blue-400! hover:underline hover:text-black dark:hover:text-white"
+              className="text-lg text-foreground underline-offset-4 visited:text-muted-foreground hover:text-primary hover:underline"
               to={`/blog/${blog.slug}`}
             >
               {blog.title}

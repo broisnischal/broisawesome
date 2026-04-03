@@ -31,10 +31,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { tracks, error, playlistUrl } = loaderData;
 
   return (
-    <div className="-mx-4 md:-mx-6 lg:-mx-8 xl:-mx-12">
-      <h1 className="sr-only">Listening</h1>
+    <div className="-mx-4 font-sans md:-mx-6 lg:-mx-8 xl:-mx-12">
+      <header className="mb-6 px-4 md:px-6 lg:px-8 xl:px-12">
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          Spotify
+        </p>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-foreground">
+          Listening
+        </h1>
+      </header>
 
-      <p className="mb-3 px-4 text-sm text-muted-foreground md:px-6 lg:px-8 xl:px-12">
+      <p className="mb-4 px-4 text-base text-muted-foreground md:px-6 lg:px-8 xl:px-12">
         Source:{" "}
         <a
           href={playlistUrl}
@@ -47,18 +54,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </p>
 
       {error ? (
-        <p className="px-4 text-sm text-destructive md:px-6 lg:px-8 xl:px-12">
+        <p className="px-4 text-base text-destructive md:px-6 lg:px-8 xl:px-12">
           {error}
         </p>
       ) : null}
 
       {tracks.length === 0 && !error ? (
-        <p className="px-4 text-sm text-muted-foreground md:px-6 lg:px-8 xl:px-12">
+        <p className="px-4 text-base text-muted-foreground md:px-6 lg:px-8 xl:px-12">
           No playlist tracks found.
         </p>
       ) : (
         <div className="overflow-x-auto border-y border-border/60">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-base">
             <thead>
               <tr className="border-b border-border/60 bg-muted/20 text-muted-foreground">
                 <th className="px-4 py-2 text-left font-medium md:px-6 lg:px-8 xl:px-12">

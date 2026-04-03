@@ -234,7 +234,7 @@ function SocialAnchor({ link }: { link: SocialLink }) {
       className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
     >
       <Icon className="size-4.5 shrink-0" strokeWidth={1.75} aria-hidden />
-      <span className="text-sm underline underline-offset-4">{link.name}</span>
+      <span className="text-base underline underline-offset-4">{link.name}</span>
     </a>
   );
 }
@@ -243,17 +243,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { links } = loaderData;
 
   return (
-    <div className="max-w-4xl h-1/2 ">
+    <div className="h-1/2 max-w-4xl font-sans">
       <section
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-6"
         aria-labelledby="links-find-heading"
       >
         <h1
           id="links-find-heading"
-          className=" font-mono text-xs font-normal uppercase tracking-widest text-muted-foreground"
+          className="max-w-2xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl"
         >
-          Elsewhere on the web that I&apos;m active on
+          Links
         </h1>
+        <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
+          Elsewhere on the web where I&apos;m active.
+        </p>
         <nav
           className="flex flex-col items-start gap-x-6 gap-y-4"
           aria-label="Social and profile links for Nischal Dahal"

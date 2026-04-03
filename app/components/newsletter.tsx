@@ -27,13 +27,13 @@ export function NewsletterSubscribeForm({
             strokeWidth={1.5}
             aria-hidden
           />
-          <h3 className="text-base font-medium text-foreground">
+          <h3 className="text-lg font-semibold text-foreground">
             Subscribe to my newsletter
           </h3>
         </div>
       )}
       {isMinimal && (
-        <p className="mb-2 text-xs text-muted-foreground leading-snug">
+        <p className="mb-2 text-sm text-muted-foreground leading-relaxed">
           Occasional updates on posts and projects, no spam.
         </p>
       )}

@@ -97,7 +97,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 const sectionLabelClass =
-  "font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground";
+  "font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground";
 
 const tabListClass =
   "h-auto w-full justify-start border-0 bg-transparent p-0 shadow-none";
@@ -674,7 +674,7 @@ function ClashBattleRows({ battles }: { battles: ClashBattleRow[] }) {
                   {row.subtitleTags.map((tag, ti) => (
                     <span
                       key={`${tag}-${ti}`}
-                      className="rounded-md border border-border/60 bg-muted/35 px-2 py-0.5 text-[11px] font-medium leading-none text-muted-foreground"
+                      className="rounded-md border border-border/60 bg-muted/35 px-2 py-0.5 text-xs font-medium leading-none text-muted-foreground"
                     >
                       {tag}
                     </span>
@@ -963,7 +963,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <article className="relative p-0 flex w-full max-w-3xl flex-col gap-10 text-left">
+    <article className="relative flex w-full max-w-3xl flex-col gap-10 p-0 text-left font-sans">
       <div
         className="pointer-events-none absolute -right-20 -top-6 h-56 w-56 rounded-full bg-linear-to-br from-foreground/6 via-transparent to-transparent blur-3xl dark:from-foreground/9"
         aria-hidden

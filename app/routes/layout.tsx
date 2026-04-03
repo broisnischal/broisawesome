@@ -9,8 +9,8 @@ export default function Page() {
   );
 
   return (
-    <main className="min-h-0 flex-1">
-      <div className="mx-auto max-w-3xl p-4 md:p-6 lg:p-8 xl:p-12">
+    <main className="min-h-0 flex-1 font-sans">
+      <div className="mx-auto max-w-3xl px-4 py-6 md:px-6 md:py-8 lg:px-8 lg:py-10 xl:px-12 xl:py-12">
         <div className="mb-6 min-h-10 min-w-0">
           {!hideBreadcrumbs && <Breadcrumbs />}
         </div>

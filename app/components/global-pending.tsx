@@ -29,12 +29,15 @@ export default function ProgessBar() {
     });
   }, [delayedPending]);
 
+  const showBar = delayedPending || !animationComplete;
+  if (!showBar) return null;
+
   return (
     <div
       role="progressbar"
       aria-hidden={delayedPending ? undefined : true}
       aria-valuetext={delayedPending ? 'Loading' : undefined}
-      className="fixed inset-x-0  left-0 top-0 z-[999] h-[0.20rem]  animate-pulse"
+      className="fixed inset-x-0 left-0 top-0 z-[999] h-[0.20rem]"
     >
       <div
         ref={ref}

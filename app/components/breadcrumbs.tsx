@@ -43,7 +43,7 @@ export function Breadcrumbs() {
 
   return (
     <nav
-      className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground lowercase"
+      className="flex flex-wrap items-center gap-2 text-base text-muted-foreground lowercase"
       aria-label="Breadcrumb"
     >
       <Link

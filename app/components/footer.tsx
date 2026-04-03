@@ -36,7 +36,7 @@ export function Footer() {
 
   return (
     <footer className="mt-auto border-t border-border bg-background">
-      <div className="mx-auto max-w-3xl px-4 py-12 md:px-6 lg:px-8 xl:px-12">
+      <div className="mx-auto max-w-3xl px-4 py-14 md:px-6 md:py-16 lg:px-8 xl:px-12">
         <div className="flex flex-col gap-12">
           <div
             className="space-y-2"
@@ -44,7 +44,7 @@ export function Footer() {
           >
             <h2
               id="footer-newsletter-heading"
-              className="text-sm font-medium text-foreground"
+              className="text-base font-semibold text-foreground"
             >
               Newsletter
             </h2>
@@ -52,7 +52,7 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col gap-8  pt-10 sm:flex-row sm:items-start sm:justify-between sm:gap-12">
-            <div className="flex min-w-0 flex-col gap-4 text-sm text-muted-foreground">
+            <div className="flex min-w-0 flex-col gap-4 text-base leading-relaxed text-muted-foreground">
               <p>© {year} Nischal Dahal</p>
               <nav
                 className="flex flex-wrap gap-x-3 gap-y-2"
@@ -74,7 +74,7 @@ export function Footer() {
             </div>
           </div>
           <p
-            className="shrink-0 flex flex-col md:flex-row md:gap-3 font-mono text-[11px] leading-relaxed tracking-tight text-muted-foreground sm:text-xs"
+            className="shrink-0 flex flex-col md:flex-row md:gap-3 font-mono text-xs leading-relaxed tracking-tight text-muted-foreground sm:text-sm"
             aria-label="Build version, last modified date, and commit"
           >
             <span className="tabular-nums text-foreground/90">

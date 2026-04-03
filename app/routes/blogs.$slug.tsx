@@ -201,13 +201,13 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className="blog-content">
+    <article className="blog-content font-sans">
       <header className="mb-8 pb-6 border-b border-border">
-        <h1 className="text-4xl font-bold leading-tight text-foreground mb-4">
+        <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
           {blog.title}
         </h1>
         {blog.date && (
-          <time className="text-muted-foreground text-sm block mb-4">
+          <time className="mb-4 block text-base text-muted-foreground">
             {new Date(blog.date).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",

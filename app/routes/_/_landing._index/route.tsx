@@ -1,23 +1,21 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
+  ArrowUpRight,
   Briefcase,
   Code,
   FileText,
   Github,
   Globe,
-  Headphones,
   Image,
   Link2,
-  Sparkles,
   Rss,
   ScrollText,
-  StickyNote,
+  Sparkles,
   Twitter,
   User,
   Wrench,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, NavLink, data } from "react-router";
 import { fetchGitHubActivity } from "~/.server/github-activity";
 import {
@@ -33,13 +31,6 @@ import type { Route } from "./+types/route";
 export const handle = {
   breadcrumb: () => <Link to="/">Home</Link>,
 };
-
-export const links: Route.LinksFunction = () => [
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500&display=swap",
-  },
-];
 
 export const meta: Route.MetaFunction = () => {
   const metaTags = createMetaTags({
@@ -168,11 +159,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           fetchPriority="high"
           referrerPolicy="no-referrer"
         />
-        <h1 className="mt-5 font-clash text-3xl font-normal tracking-tight text-foreground">
+        <h1 className="mt-5 font-clash text-2xl font-normal tracking-tight text-foreground md:text-5xl">
           Nischal Dahal
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">@broisnees</p>
-        <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+        <p className="mt-1.5 text-base text-muted-foreground">@broisnees</p>
+        <p className="mt-4 max-w-prose text-lg text-muted-foreground leading-relaxed">
           building cool stuffs on web, platform agnostic, tech savvy guy,
           <span className="font-medium"> romantic </span>, sophisticated, and a
           bit of a nerd.
@@ -195,7 +186,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </section>
 
       {activityError && activityPreview.length === 0 && (
-        <p className="mb-8 text-sm text-muted-foreground" role="status">
+        <p className="mb-8 text-base text-muted-foreground" role="status">
           GitHub preview unavailable ({activityError}). Full timeline on{" "}
           <Link to="/activity" className="underline underline-offset-4">
             /activity
@@ -227,13 +218,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div className="mb-6 flex items-end justify-between gap-3">
           <h2
             id="work-heading"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
+            className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground"
           >
             Work Experience
           </h2>
           <Link
             to="/about"
-            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
           >
             more on /about
           </Link>
@@ -251,16 +242,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               />
 
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 leading-tight">
-                <h3 className="text-[15px] font-medium tracking-tight text-foreground">
+                <h3 className="text-lg font-semibold tracking-tight text-foreground">
                   {item.role}
                 </h3>
-                <p className="font-mono text-[11px] text-muted-foreground">
+                <p className="font-mono text-xs text-muted-foreground">
                   {item.period}
                 </p>
               </div>
 
               {item.company ? (
-                <p className="font-mono text-[11px] text-muted-foreground">
+                <p className="font-mono text-xs text-muted-foreground">
                   {item.company}
                 </p>
               ) : null}
@@ -270,7 +261,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   {item.location ? <span className="opacity-70"> · {item.location}</span> : null}
                 </p> */}
 
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 max-w-2xl text-base leading-relaxed text-muted-foreground">
                 {item.description}
               </p>
             </li>
@@ -295,13 +286,13 @@ function NavigationCards() {
     {
       to: "/activity",
       title: "Activity",
-      description: "timeline from mine github",
+      description: "GitHub activity timeline",
       icon: Activity,
     },
     {
       to: "/blog",
       title: "Blog",
-      description: "articles and thoughts",
+      description: "Articles and notes",
       icon: FileText,
     },
     // {
@@ -314,19 +305,19 @@ function NavigationCards() {
     {
       to: "/projects",
       title: "Projects",
-      description: "things i've working on",
+      description: "Things I'm working on",
       icon: Briefcase,
     },
     {
       to: "/links",
       title: "Links",
-      description: "links to my socials",
+      description: "Social and profile links",
       icon: Link2,
     },
     {
       to: "/log?tab=game",
       title: "Log",
-      description: "my PL, games, glossary and more",
+      description: "Games, reading list.",
       icon: ScrollText,
     },
     // {
@@ -338,13 +329,13 @@ function NavigationCards() {
     {
       to: "/portfolio-curation",
       title: "Sites",
-      description: "sites i like, jump in",
+      description: "Sites I like — jump in",
       icon: Sparkles,
     },
     {
       to: "/use",
       title: "Use",
-      description: "setup and hardware i use",
+      description: "Setup and hardware I use",
       icon: Wrench,
     },
     {
@@ -362,17 +353,14 @@ function NavigationCards() {
     {
       to: "https://photos.app.goo.gl/2RHWh9PyAGyRCZAP9",
       title: "Gallery",
-      description: "photos from google photos",
+      description: "Photos on Google Photos",
       icon: Image,
       disabled: false,
     },
   ];
 
-  const firstEnabledTo = navItems.find((i) => !i.disabled)?.to ?? "";
-  const [emphasizedTo, setEmphasizedTo] = useState(firstEnabledTo);
-
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 ">
+    <ul className="grid gap-x-5 gap-y-2 sm:grid-cols-2">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isExternal = /^https?:\/\//.test(item.to);
@@ -380,24 +368,37 @@ function NavigationCards() {
           <>
             <span
               className={cn(
-                "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/80",
-                item.disabled ? "text-muted-foreground" : "text-foreground",
+                "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/55",
+                item.disabled
+                  ? "text-muted-foreground/70"
+                  : "text-foreground/85",
               )}
             >
-              <Icon className="h-5 w-5" aria-hidden />
+              <Icon className="h-4 w-4" aria-hidden />
             </span>
-            <span className="min-w-0">
+            <span className="min-w-0 flex-1 font-sans">
               <span
                 className={cn(
-                  "block text-sm font-medium",
+                  "block text-[0.98rem] font-medium tracking-tight",
                   item.disabled ? "text-muted-foreground" : "text-foreground",
                 )}
               >
                 {item.title}
               </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground leading-snug">
+              <span className="mt-0.5 block text-[0.86rem] leading-relaxed text-muted-foreground">
                 {item.description}
               </span>
+            </span>
+            <span
+              className={cn(
+                "mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all",
+                item.disabled
+                  ? "opacity-0"
+                  : "translate-x-0.5 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
+              )}
+              aria-hidden
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" />
             </span>
           </>
         );
@@ -406,7 +407,7 @@ function NavigationCards() {
           return (
             <li key={item.to}>
               <div
-                className="flex gap-3 rounded-xl border border-transparent p-3 opacity-45 pointer-events-none cursor-not-allowed select-none"
+                className="flex items-start gap-3 rounded-lg border border-transparent px-3 py-2.5 opacity-45 pointer-events-none cursor-not-allowed select-none"
                 aria-disabled="true"
               >
                 {inner}
@@ -422,11 +423,9 @@ function NavigationCards() {
                 href={item.to}
                 target="_blank"
                 rel="noopener noreferrer"
-                onMouseEnter={() => setEmphasizedTo(item.to)}
-                onFocus={() => setEmphasizedTo(item.to)}
                 className={cn(
-                  "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
-                  emphasizedTo === item.to && "border-border bg-muted/40",
+                  "group flex items-start gap-3 rounded-lg border border-border/35 bg-background/30 px-3 py-2.5 transition-all duration-150 hover:border-border/70 hover:bg-muted/25",
+                  "hover:border-border/50 hover:bg-muted/25",
                 )}
               >
                 {inner}
@@ -436,13 +435,10 @@ function NavigationCards() {
                 to={item.to}
                 end
                 prefetch="intent"
-                onMouseEnter={() => setEmphasizedTo(item.to)}
-                onFocus={() => setEmphasizedTo(item.to)}
                 className={({ isActive }) =>
                   cn(
-                    "flex gap-3 rounded-xl border border-transparent p-3 transition-colors",
-                    (isActive || emphasizedTo === item.to) &&
-                      "border-border bg-muted/40",
+                    "group flex items-start gap-3 rounded-lg border border-border/35 bg-background/30 px-3 py-2.5 transition-all duration-150 hover:border-border/70 hover:bg-muted/25",
+                    isActive && "border-border/70 bg-muted/30",
                   )
                 }
               >

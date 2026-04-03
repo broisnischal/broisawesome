@@ -2,39 +2,62 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+/* Geist (Vercel): self-hosted variable fonts via Fontsource — see root.tsx imports */
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: "Geist Sans";
-  src: url("/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist Mono";
-  src: url("/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme {
-  /* Display: rounded playful (Clash-adjacent; Fredoka has lighter weights than Titan One) */
+  /* Display: rounded playful (Clash-adjacent; Fredoka from Google Fonts in root links) */
   --font-clash:
-    "Fredoka", "Geist Sans", ui-sans-serif, system-ui, sans-serif,
+    "Fredoka", "Geist Variable", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-sans:
-    "Geist Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Geist Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono:
-    "Geist Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+    "Geist Mono Variable", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+
+  /*
+   * Slightly larger scale (antfu.me / editorial feel): better at 100% zoom than default Tailwind.
+   * Line heights tuned for Geist; headings stay strong without feeling oversized.
+   */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65rem;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.375rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-5xl: 3.125rem;
+  --text-5xl--line-height: 1.1;
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1;
+  --text-7xl: 4.5rem;
+  --text-7xl--line-height: 1;
+  --text-8xl: 6rem;
+  --text-8xl--line-height: 1;
+  --text-9xl: 8rem;
+  --text-9xl--line-height: 1;
 }
 
 html {
-  @apply bg-background text-foreground;
+  @apply bg-background font-sans text-foreground antialiased;
+  font-synthesis: none;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "calt" 1;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -43,10 +66,6 @@ html {
   @media (prefers-color-scheme: light) {
     color-scheme: light;
   }
-}
-
-body {
-  @apply bg-background text-foreground;
 }
 
 @theme inline {
@@ -100,7 +119,8 @@ body {
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* Darker than default for secondary text — reads better at smaller sizes */
+  --muted-foreground: oklch(0.48 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -135,7 +155,7 @@ body {
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted-foreground: oklch(0.74 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -162,7 +182,8 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans text-base leading-relaxed;
+    font-optical-sizing: auto;
   }
 }
 
@@ -210,7 +231,7 @@ body {
 
   [data-blog-content] p,
   .blog-content p {
-    @apply mb-4 leading-7 text-foreground;
+    @apply mb-4 text-base leading-relaxed text-foreground;
   }
 
   [data-blog-content] ul,

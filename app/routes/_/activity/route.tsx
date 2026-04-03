@@ -58,12 +58,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { groups, username, error, rateLimitRemaining, fromApi } = loaderData;
 
   return (
-    <div className="max-w-xl">
-      <header className="border-b border-border pb-5 mb-6">
-        <h1 className="sr-only text-xl font-semibold tracking-tight text-foreground">
+    <div className="max-w-xl font-sans">
+      <header className="mb-8 border-b border-border pb-6">
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          GitHub
+        </p>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-foreground">
           Activity
         </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+        <p className="mt-3 text-base leading-relaxed text-muted-foreground">
           Public events from{" "}
           <a
             href={`https://github.com/${username}`}
@@ -80,7 +83,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             {fromApi ? "GitHub: " : ""}
             {error}
             {rateLimitRemaining != null && rateLimitRemaining <= 10 && (
-              <span className="block mt-1 text-muted-foreground text-xs">
+              <span className="mt-1 block text-sm text-muted-foreground">
                 Rate limit remaining: {rateLimitRemaining}
               </span>
             )}
@@ -89,14 +92,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </header>
 
       {groups.length === 0 && !error ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           No recent public events.
         </p>
       ) : (
         <ol className="space-y-8 list-none pl-0" aria-label="Activity timeline">
           {groups.map((group) => (
             <li key={group.dateKey}>
-              <h2 className="text-sm font-semibold text-foreground mb-3">
+              <h2 className="mb-3 text-base font-semibold tracking-tight text-foreground">
                 <time dateTime={group.dateKey}>{group.label}</time>
               </h2>
               <ul className="list-none pl-0 space-y-0">

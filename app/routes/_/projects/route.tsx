@@ -109,15 +109,15 @@ export function headers() {
 
 export default function Page() {
   return (
-    <div className="max-w-4xl w-full">
+    <div className="w-full max-w-4xl font-sans">
       <header className="mb-8  pb-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
           Selected Work
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-foreground">
           Projects
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
           Minimal notes on what I built, why I started it, and the motive behind
           each one.
         </p>
@@ -135,7 +135,7 @@ export default function Page() {
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base font-medium tracking-tight text-foreground">
+                <h2 className="text-lg font-semibold tracking-tight text-foreground">
                   {project.name}
                 </h2>
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -164,7 +164,7 @@ export default function Page() {
 
               <dl className="mt-3 space-y-2 text-sm leading-relaxed">
                 <div>
-                  <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
                     Motive
                   </dt>
                   <dd className="mt-1 text-foreground/90">{project.motive}</dd>
@@ -184,7 +184,7 @@ export default function Page() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="max-w-4xl w-full">
+    <div className="w-full max-w-4xl font-sans">
       <h1 className="text-2xl font-semibold text-foreground">Error</h1>
       <p className="mt-2 text-destructive">{error.message}</p>
     </div>
