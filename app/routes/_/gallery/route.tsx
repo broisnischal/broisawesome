@@ -47,7 +47,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { gallery } = loaderData;
 
   return (
-    <div className="max-w-4xl font-sans">
+    <div className="w-full font-sans">
       <header className="mb-8">
         <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           Gallery
@@ -158,7 +158,7 @@ function GalleryTile({ photo }: { photo: GalleryPhoto }) {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="max-w-4xl">
+    <div className="w-full font-sans">
       <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
       <p className="text-destructive">{error.message}</p>
     </div>

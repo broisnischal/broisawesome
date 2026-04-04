@@ -40,9 +40,10 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex items-center justify-center gap-1 rounded-none border-0 bg-transparent px-2 py-1 font-mono text-sm font-normal lowercase leading-none tracking-normal whitespace-nowrap text-black shadow-none transition-[color,background-color] dark:text-neutral-100",
+        "inline-flex items-center justify-center gap-1 rounded-md border border-transparent bg-transparent px-2.5 py-1.5 font-mono text-sm font-normal lowercase leading-none tracking-normal whitespace-nowrap text-black shadow-none transition-[color,background-color,border-color] dark:text-neutral-100",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:focus-visible:outline-white",
-        "data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none",
+        "data-[state=active]:border-black/10 data-[state=active]:bg-black data-[state=active]:text-white data-[state=active]:shadow-none",
+        "dark:data-[state=active]:border-white/10 dark:data-[state=active]:bg-white/10 dark:data-[state=active]:text-white",
         "disabled:pointer-events-none disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 cursor-pointer",
         className,

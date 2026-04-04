@@ -102,7 +102,7 @@ export function TextLink({
 
 export default function Page() {
   return (
-    <article className="relative max-w-2xl p-0 font-sans">
+    <article className="relative w-full p-0 font-sans">
       <div
         className="pointer-events-none absolute -right-24 -top-8 h-64 w-64 rounded-full bg-linear-to-br from-foreground/6 via-transparent to-transparent blur-3xl dark:from-foreground/9"
         aria-hidden
@@ -190,7 +190,7 @@ export default function Page() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="max-w-4xl">
+    <div className="w-full font-sans">
       <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
       <p className="text-destructive">{error.message}</p>
     </div>

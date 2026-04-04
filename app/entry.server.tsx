@@ -36,13 +36,11 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html");
-
-  // Do not cache the document by default: the shell is personalized (e.g. theme
-  // cookie), so public caching would serve the wrong or stale theme. Routes that
-  // want caching can set Cache-Control in their headers().
-  if (!responseHeaders.has("Cache-Control")) {
-    responseHeaders.set("Cache-Control", "private, max-age=0, must-revalidate");
-  }
+  // Do not allow HTML documents to be stored or reused from caches.
+  // Route-level cache headers can still be used for non-document resources.
+  responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+  responseHeaders.set("Pragma", "no-cache");
+  responseHeaders.set("Expires", "0");
 
   return new Response(body, {
     headers: responseHeaders,

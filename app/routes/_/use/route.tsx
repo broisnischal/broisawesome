@@ -484,7 +484,7 @@ export function Use() {
   };
 
   return (
-    <div className="flex max-w-2xl flex-col gap-10 text-left font-sans">
+    <div className="flex w-full flex-col gap-10 text-left font-sans">
       <div className="flex flex-col gap-3">
         <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           Things I&apos;m using…

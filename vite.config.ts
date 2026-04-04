@@ -1,11 +1,11 @@
-import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import mdx from "@mdx-js/rollup";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { rehypePrettyCode } from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";
@@ -60,9 +60,11 @@ export default defineConfig({
         rehypeSlug,
         () =>
           rehypePrettyCode({
-            theme: "min-light",
-            keepBackground: false,
-            bypassInlineCode: true,
+            // Shiki theme for fenced code in MDX (build-time via rehype-pretty-code).
+            // "github-light" matches the soft light syntax colors in the reference.
+            theme: "github-light",
+            keepBackground: true,
+            bypassInlineCode: false,
             transformers: [],
           }),
       ],

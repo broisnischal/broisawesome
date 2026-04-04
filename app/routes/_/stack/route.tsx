@@ -258,7 +258,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { categories: cats } = loaderData;
 
   return (
-    <div className="relative max-w-xl font-sans">
+    <div className="relative w-full font-sans">
       <header className="mb-10 md:mb-11">
         <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
           Stack

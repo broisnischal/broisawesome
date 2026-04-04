@@ -8,7 +8,16 @@ import { useRouteLoaderData } from "react-router";
  */
 export function useRequestInfo() {
   const data = useRouteLoaderData<typeof rootLoaders>("root");
-  invariant(data?.requestInfo, "No requestInfo found in root loader");
+  invariant(data?.path, "No path found in root loader");
 
-  return data.requestInfo;
+  return {
+    path: data.path,
+    hints: {
+      theme: "light" as "light" | "dark",
+      timeZone: "UTC",
+    },
+    userPrefs: {
+      theme: "light" as "light" | "dark" | "system",
+    },
+  };
 }

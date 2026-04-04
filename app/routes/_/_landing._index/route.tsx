@@ -16,7 +16,8 @@ import {
   User,
   Wrench,
 } from "lucide-react";
-import { Link, NavLink, data } from "react-router";
+import { useState } from "react";
+import { Link, NavLink, data, useLocation } from "react-router";
 import { fetchGitHubActivity } from "~/.server/github-activity";
 import {
   CANONICAL_SITE_URL,
@@ -121,7 +122,9 @@ const WORK_EXPERIENCE: WorkExperience[] = [
     company: "AITC International",
     period: "2025 — Present",
     location: "Onsite",
-    description: "",
+    description:
+      "Improving internal tooling, documentation, and day-to-day developer workflows.",
+    highlights: ["Tooling", "Documentation", "DX"],
   },
   {
     role: "System Architect",
@@ -147,7 +150,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { activityPreview, activityError } = loaderData;
 
   return (
-    <div className="max-w-4xl px-4 md:px-0">
+    <div className="w-full max-w-3xl">
       <section className="mb-14 max-w-md" aria-label="Profile">
         <img
           src="https://lh3.googleusercontent.com/a/ACg8ocIfOkkApycqNKsCPiAgwPeqiYI6WxM_2Tzbro5EuFBj42vok1B3vA=s256-c"
@@ -159,11 +162,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           fetchPriority="high"
           referrerPolicy="no-referrer"
         />
-        <h1 className="mt-5 font-clash text-2xl font-normal tracking-tight text-foreground md:text-5xl">
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-foreground md:text-5xl">
           Nischal Dahal
         </h1>
         <p className="mt-1.5 text-base text-muted-foreground">@broisnees</p>
-        <p className="mt-4 max-w-prose text-lg text-muted-foreground leading-relaxed">
+        <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
           building cool stuffs on web, platform agnostic, tech savvy guy,
           <span className="font-medium"> romantic </span>, sophisticated, and a
           bit of a nerd.
@@ -195,78 +198,151 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </p>
       )}
 
-      <section aria-labelledby="nav-heading">
-        <h2 id="nav-heading" className="sr-only">
-          Site sections
+      <section aria-labelledby="nav-heading" className="mt-2">
+        <h2
+          id="nav-heading"
+          className="mb-3 font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-muted-foreground"
+        >
+          Explore
         </h2>
         <NavigationCards />
       </section>
 
       <section
         aria-labelledby="work-heading"
-        className="relative mt-12 border-t border-border/70 pt-8"
+        className="relative mt-14 border-t border-border/50 pt-10"
       >
         <div
-          className="pointer-events-none absolute -left-14 top-8 h-36 w-36 rounded-full bg-linear-to-br from-foreground/[0.06] via-foreground/[0.02] to-transparent blur-2xl"
+          className="pointer-events-none absolute -left-12 top-10 h-32 w-32 rounded-full bg-linear-to-br from-foreground/6 via-foreground/2 to-transparent blur-2xl"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute right-0 top-24 h-28 w-28 rounded-full bg-linear-to-tr from-foreground/[0.05] via-transparent to-transparent blur-2xl"
+          className="pointer-events-none absolute right-0 top-28 h-24 w-24 rounded-full bg-linear-to-tr from-foreground/5 via-transparent to-transparent blur-2xl"
           aria-hidden
         />
 
-        <div className="mb-6 flex items-end justify-between gap-3">
+        <div className="relative mb-8 flex flex-wrap items-end justify-between gap-3">
           <h2
             id="work-heading"
-            className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground"
+            className="font-mono text-[0.7rem] font-medium uppercase tracking-[0.2em] text-muted-foreground"
           >
-            Work Experience
+            Work experience
           </h2>
           <Link
             to="/about"
-            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+            className="group inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            more on /about
+            <span className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors group-hover:decoration-foreground/35">
+              More on /about
+            </span>
+            <ArrowUpRight
+              className="size-3.5 opacity-60 transition-all duration-200 group-hover:translate-x-px group-hover:-translate-y-px group-hover:opacity-100"
+              aria-hidden
+            />
           </Link>
         </div>
 
-        <ol className="relative ml-1 list-none border-l border-border/60 p-0">
-          {WORK_EXPERIENCE.map((item) => (
-            <li
-              key={`${item.role}-${item.company}-${item.period}`}
-              className="relative pb-8 pl-6 last:pb-0"
-            >
-              <span
-                className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-foreground/80 ring-4 ring-background"
-                aria-hidden
-              />
+        <div className="relative">
+          {/* Rail: 12px column; line + particles centered at 6px */}
+          <div
+            className="pointer-events-none absolute top-2 bottom-2 left-[6px] w-px -translate-x-1/2 bg-linear-to-b from-border via-border/65 to-border/12 dark:from-white/14 dark:via-white/9 dark:to-white/4"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute top-2 bottom-2 left-[6px] w-4 -translate-x-1/2 overflow-hidden"
+            aria-hidden
+          >
+            <span
+              className="work-timeline-particle"
+              style={{ animationDelay: "0s" }}
+            />
+            <span
+              className="work-timeline-particle"
+              style={{ animationDelay: "1.25s" }}
+            />
+            <span
+              className="work-timeline-particle"
+              style={{ animationDelay: "2.5s" }}
+            />
+          </div>
 
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 leading-tight">
-                <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                  {item.role}
-                </h3>
-                <p className="font-mono text-xs text-muted-foreground">
-                  {item.period}
-                </p>
-              </div>
+          <ol className="relative m-0 list-none p-0">
+            {WORK_EXPERIENCE.map((item, index) => {
+              const metaParts = [item.company, item.location].filter(Boolean);
+              const meta = metaParts.join(" · ");
 
-              {item.company ? (
-                <p className="font-mono text-xs text-muted-foreground">
-                  {item.company}
-                </p>
-              ) : null}
+              return (
+                <li
+                  key={`${item.role}-${item.company}-${item.period}`}
+                  className={cn(
+                    "group/item grid grid-cols-[12px_minmax(0,1fr)] gap-x-4",
+                    index < WORK_EXPERIENCE.length - 1 ? "pb-10" : "pb-1",
+                  )}
+                >
+                  <div className="flex justify-center pt-[0.35rem]">
+                    <span
+                      className={cn(
+                        "relative z-1 flex size-2 shrink-0 items-center justify-center rounded-full bg-background ring-2",
+                        index === 0
+                          ? "ring-foreground/38 dark:ring-white/42"
+                          : "ring-border/85 dark:ring-white/14",
+                      )}
+                      aria-hidden
+                    >
+                      <span
+                        className={cn(
+                          "block size-1 rounded-full",
+                          index === 0
+                            ? "bg-foreground/90"
+                            : "bg-muted-foreground/60",
+                        )}
+                      />
+                    </span>
+                  </div>
 
-              {/* <p className="mt-1 text-sm text-muted-foreground">
-                  {item.company}
-                  {item.location ? <span className="opacity-70"> · {item.location}</span> : null}
-                </p> */}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5">
+                      <div className="min-w-0 space-y-0.5">
+                        <h3 className="text-base font-semibold tracking-tight text-foreground md:text-[1.0625rem]">
+                          {item.role}
+                        </h3>
+                        {meta ? (
+                          <p className="text-xs leading-snug text-muted-foreground">
+                            {meta}
+                          </p>
+                        ) : null}
+                      </div>
+                      <p className="shrink-0 font-mono text-[0.7rem] tracking-wide text-muted-foreground/90 tabular-nums">
+                        {item.period}
+                      </p>
+                    </div>
 
-              <p className="mt-2 max-w-2xl text-base leading-relaxed text-muted-foreground">
-                {item.description}
-              </p>
-            </li>
-          ))}
-        </ol>
+                    {item.description ? (
+                      <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-[0.9375rem]">
+                        {item.description}
+                      </p>
+                    ) : null}
+
+                    {item.highlights?.length ? (
+                      <ul
+                        className="mt-3 flex flex-wrap gap-1.5"
+                        aria-label={`Focus areas for ${item.role}`}
+                      >
+                        {item.highlights.map((tag) => (
+                          <li key={tag}>
+                            <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/25 px-2.5 py-0.5 text-[0.68rem] font-medium tracking-wide text-muted-foreground transition-colors duration-200 group-hover/item:border-border/80 group-hover/item:bg-muted/40 dark:border-white/10 dark:bg-white/5 dark:group-hover/item:border-white/15">
+                              {tag}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </section>
     </div>
   );
@@ -280,6 +356,16 @@ type NavItem = {
   /** Temporarily hidden from navigation (faded, not clickable). */
   disabled?: boolean;
 };
+
+function navStableKey(item: NavItem) {
+  return item.to;
+}
+
+function pathMatchesItem(pathname: string, to: string) {
+  const base = to.split("?")[0] || to;
+  if (base === "/") return pathname === "/";
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
 
 function NavigationCards() {
   const navItems: NavItem[] = [
@@ -359,96 +445,164 @@ function NavigationCards() {
     },
   ];
 
+  const location = useLocation();
+  const firstEnabled = navItems.find((i) => !i.disabled);
+  const firstKey = firstEnabled ? navStableKey(firstEnabled) : "";
+  const [emphasizedKey, setEmphasizedKey] = useState(firstKey);
+
+  const activeInternalItem = navItems.find(
+    (i) =>
+      !i.disabled &&
+      !/^https?:\/\//.test(i.to) &&
+      pathMatchesItem(location.pathname, i.to),
+  );
+  const activeInternalKey = activeInternalItem
+    ? navStableKey(activeInternalItem)
+    : null;
+
   return (
-    <ul className="grid gap-x-5 gap-y-2 sm:grid-cols-2">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isExternal = /^https?:\/\//.test(item.to);
-        const inner = (
-          <>
-            <span
-              className={cn(
-                "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/55",
-                item.disabled
-                  ? "text-muted-foreground/70"
-                  : "text-foreground/85",
-              )}
-            >
-              <Icon className="h-4 w-4" aria-hidden />
-            </span>
-            <span className="min-w-0 flex-1 font-sans">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl",
+        "border border-border/70 bg-muted/25 shadow-[0_1px_0_0_oklch(0_0_0_/_0.04)]",
+        "dark:border-white/[0.09] dark:bg-white/[0.025] dark:shadow-[0_1px_0_0_oklch(1_0_0_/_0.06)]",
+      )}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,oklch(0.55_0.12_264_/_0.06),transparent_55%)] dark:bg-[radial-gradient(120%_80%_at_0%_0%,oklch(0.55_0.14_264_/_0.12),transparent_55%)]"
+        aria-hidden
+      />
+      <ul className="relative grid gap-1 p-1.5 sm:grid-cols-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isExternal = /^https?:\/\//.test(item.to);
+          const key = navStableKey(item);
+          const isEmphasized = !item.disabled && emphasizedKey === key;
+
+          const inner = (isLifted: boolean) => (
+            <>
               <span
                 className={cn(
-                  "block text-[0.98rem] font-medium tracking-tight",
-                  item.disabled ? "text-muted-foreground" : "text-foreground",
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200",
+                  item.disabled
+                    ? "bg-muted/40 text-muted-foreground/60"
+                    : cn(
+                        "text-foreground/75",
+                        "bg-foreground/[0.045] dark:bg-white/[0.06]",
+                        isLifted &&
+                          "bg-foreground/[0.07] text-foreground dark:bg-white/[0.1] dark:text-foreground",
+                      ),
                 )}
               >
-                {item.title}
+                <Icon className="" strokeWidth={1.75} aria-hidden />
               </span>
-              <span className="mt-0.5 block text-[0.86rem] leading-relaxed text-muted-foreground">
-                {item.description}
+              <span className="min-w-0 flex-1 text-left">
+                <span
+                  className={cn(
+                    "block text-sm font-medium tracking-tight text-balance",
+                    item.disabled ? "text-muted-foreground" : "text-foreground",
+                  )}
+                >
+                  {item.title}
+                </span>
+                <span className=" block text-xs leading-relaxed text-muted-foreground">
+                  {item.description}
+                </span>
               </span>
-            </span>
-            <span
-              className={cn(
-                "mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all",
-                item.disabled
-                  ? "opacity-0"
-                  : "translate-x-0.5 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
-              )}
-              aria-hidden
-            >
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </span>
-          </>
-        );
+              <span
+                className={cn(
+                  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-all duration-200",
+                  item.disabled
+                    ? "opacity-0"
+                    : cn(
+                        isLifted
+                          ? "translate-x-0 opacity-100"
+                          : "translate-x-0.5 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100",
+                      ),
+                )}
+                aria-hidden
+              >
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+            </>
+          );
 
-        if (item.disabled) {
+          const interactiveClass = ({
+            isActive,
+            isLifted,
+          }: {
+            isActive: boolean;
+            isLifted: boolean;
+          }) =>
+            cn(
+              "group relative flex items-center gap-3 rounded-xl px-2.5 py-2.5 outline-none transition-[background-color,box-shadow] duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+              "focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              item.disabled
+                ? ""
+                : cn(
+                    isLifted &&
+                      cn(
+                        "bg-background/80 shadow-[inset_0_0_0_1px_oklch(0_0_0_/_0.06)]",
+                        "dark:bg-white/[0.06] dark:shadow-[inset_0_0_0_1px_oklch(1_0_0_/_0.1)]",
+                      ),
+                    !isLifted && "hover:bg-muted/35 dark:hover:bg-white/[0.04]",
+                  ),
+            );
+
+          if (item.disabled) {
+            return (
+              <li key={item.to}>
+                <div
+                  className="flex cursor-not-allowed items-center gap-3 rounded-xl px-2.5 py-2.5 opacity-40 select-none"
+                  aria-disabled="true"
+                >
+                  {inner(false)}
+                </div>
+              </li>
+            );
+          }
+
+          const setEmphasis = () => setEmphasizedKey(key);
+          const resolveLifted = (isActive: boolean) =>
+            isActive ||
+            (isEmphasized && (!activeInternalKey || activeInternalKey === key));
+
           return (
             <li key={item.to}>
-              <div
-                className="flex items-start gap-3 rounded-lg border border-transparent px-3 py-2.5 opacity-45 pointer-events-none cursor-not-allowed select-none"
-                aria-disabled="true"
-              >
-                {inner}
-              </div>
+              {isExternal ? (
+                <a
+                  href={item.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onMouseEnter={setEmphasis}
+                  onFocus={setEmphasis}
+                  className={interactiveClass({
+                    isActive: false,
+                    isLifted: resolveLifted(false),
+                  })}
+                >
+                  {inner(resolveLifted(false))}
+                </a>
+              ) : (
+                <NavLink
+                  to={item.to}
+                  end
+                  prefetch="intent"
+                  onMouseEnter={setEmphasis}
+                  onFocus={setEmphasis}
+                  className={({ isActive }) => {
+                    const isLifted = resolveLifted(isActive);
+                    return interactiveClass({ isActive, isLifted });
+                  }}
+                >
+                  {({ isActive }) => inner(resolveLifted(isActive))}
+                </NavLink>
+              )}
             </li>
           );
-        }
-
-        return (
-          <li key={item.to}>
-            {isExternal ? (
-              <a
-                href={item.to}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "group flex items-start gap-3 rounded-lg border border-border/35 bg-background/30 px-3 py-2.5 transition-all duration-150 hover:border-border/70 hover:bg-muted/25",
-                  "hover:border-border/50 hover:bg-muted/25",
-                )}
-              >
-                {inner}
-              </a>
-            ) : (
-              <NavLink
-                to={item.to}
-                end
-                prefetch="intent"
-                className={({ isActive }) =>
-                  cn(
-                    "group flex items-start gap-3 rounded-lg border border-border/35 bg-background/30 px-3 py-2.5 transition-all duration-150 hover:border-border/70 hover:bg-muted/25",
-                    isActive && "border-border/70 bg-muted/30",
-                  )
-                }
-              >
-                {inner}
-              </NavLink>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+        })}
+      </ul>
+    </div>
   );
 }
 

@@ -243,7 +243,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { links } = loaderData;
 
   return (
-    <div className="h-1/2 max-w-4xl font-sans">
+    <div className="h-1/2 w-full font-sans">
       <section
         className="flex flex-col gap-6"
         aria-labelledby="links-find-heading"
@@ -274,7 +274,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="max-w-4xl">
+    <div className="w-full font-sans">
       <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
       <p className="text-destructive">{error.message}</p>
     </div>

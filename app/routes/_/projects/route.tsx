@@ -109,7 +109,7 @@ export function headers() {
 
 export default function Page() {
   return (
-    <div className="w-full max-w-4xl font-sans">
+    <div className="w-full font-sans">
       <header className="mb-8  pb-8">
         <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
           Selected Work
@@ -184,7 +184,7 @@ export default function Page() {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="w-full max-w-4xl font-sans">
+    <div className="w-full font-sans">
       <h1 className="text-2xl font-semibold text-foreground">Error</h1>
       <p className="mt-2 text-destructive">{error.message}</p>
     </div>

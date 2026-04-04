@@ -110,6 +110,8 @@ html {
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
+  --selection-bg: color-mix(in oklch, var(--foreground) 28%, transparent);
+  --selection-fg: var(--background);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -146,6 +148,8 @@ html {
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+  --selection-bg: color-mix(in oklch, var(--foreground) 38%, transparent);
+  --selection-fg: var(--background);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
@@ -181,6 +185,14 @@ html {
   * {
     @apply border-border outline-ring/50;
   }
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--selection-fg);
+  }
+  ::-moz-selection {
+    background: var(--selection-bg);
+    color: var(--selection-fg);
+  }
   body {
     @apply bg-background text-foreground font-sans text-base leading-relaxed;
     font-optical-sizing: auto;
@@ -198,6 +210,55 @@ html {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 1ms !important;
+  }
+}
+
+/* Landing: work experience timeline — particles drift upward along the rail */
+@keyframes work-timeline-particle-rise {
+  0% {
+    top: calc(100% + 2px);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.85;
+  }
+  94% {
+    opacity: 0.85;
+  }
+  100% {
+    top: -6px;
+    opacity: 0;
+  }
+}
+
+.work-timeline-particle {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  transform: translateX(-50%);
+  background: color-mix(in oklch, var(--foreground) 42%, transparent);
+  box-shadow:
+    0 0 6px color-mix(in oklch, var(--foreground) 25%, transparent),
+    0 0 12px color-mix(in oklch, var(--foreground) 12%, transparent);
+  animation: work-timeline-particle-rise 3.8s cubic-bezier(0.45, 0, 0.2, 1)
+    infinite;
+  will-change: top, opacity;
+}
+
+.dark .work-timeline-particle {
+  background: color-mix(in oklch, var(--foreground) 38%, transparent);
+  box-shadow:
+    0 0 8px color-mix(in oklch, var(--foreground) 22%, transparent),
+    0 0 14px color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-timeline-particle {
+    animation: none !important;
+    opacity: 0 !important;
+    visibility: hidden;
   }
 }
 
@@ -279,6 +340,16 @@ html {
     @apply before:content-[''] after:content-[''];
   }
 
+  /* Fenced blocks: strip inline-code chip styles (Shiki sets colors on spans) */
+  [data-blog-content] pre code,
+  .blog-content pre code,
+  article.blog-content pre code {
+    @apply m-0 rounded-none shadow-none font-mono text-sm leading-relaxed;
+    background: transparent !important;
+    border: none;
+    @apply before:content-none after:content-none;
+  }
+
   /* Code blocks should not have inline code styling */
   /* [data-blog-content] pre code,
   .blog-content pre code {
@@ -300,28 +371,56 @@ html {
     overflow-x: auto;
   }
    */
-  /* rehype-pretty-code specific styling */
+  /*
+   * rehype-pretty-code + Shiki (github-light): flat, barely-there cool white so
+   * syntax colors stay correct on light panels even when the site is in dark mode.
+   */
   [data-blog-content] pre[data-theme],
   .blog-content pre[data-theme],
-  article pre[data-theme] {
-    @apply mb-4 rounded-lg overflow-x-auto;
-    /* Remove horizontal padding and break out of blog content padding to align with container */
-    padding-left: 0;
-    padding-right: 0;
-    /* Break out of blog content px-4 (1rem) padding */
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: calc(100% + 2rem);
-    /* Remove borders */
-    border: none;
+  article.blog-content pre[data-theme] {
+    @apply mb-6 max-w-full overflow-x-auto;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    padding: 1.125rem 1.25rem;
+    border-radius: calc(var(--radius) + 6px);
+    border: 1px solid oklch(0.92 0.004 264 / 0.65);
+    background-color: oklch(0.994 0.002 264) !important;
+  }
+
+  .dark [data-blog-content] pre[data-theme],
+  .dark .blog-content pre[data-theme],
+  .dark article.blog-content pre[data-theme] {
+    border-color: oklch(0.45 0.015 264 / 0.32);
+  }
+
+  @media (min-width: 768px) {
+    [data-blog-content] pre[data-theme],
+    .blog-content pre[data-theme],
+    article.blog-content pre[data-theme] {
+      padding: 1.35rem 1.6rem;
+    }
   }
 
   [data-blog-content] pre[data-theme] code,
   .blog-content pre[data-theme] code,
-  article pre[data-theme] code {
-    background: none;
+  article.blog-content pre[data-theme] code {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: transparent;
     border: none;
-    margin: 0 10px;
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
+
+  @media (min-width: 768px) {
+    [data-blog-content] pre[data-theme] code,
+    .blog-content pre[data-theme] code,
+    article.blog-content pre[data-theme] code {
+      font-size: 0.875rem;
+    }
   }
 
   /* Code block line numbers and highlights */
@@ -332,7 +431,8 @@ html {
 
   [data-blog-content] pre code .line.highlighted,
   .blog-content pre code .line.highlighted {
-    @apply bg-primary/20;
+    background-color: color-mix(in oklch, var(--primary) 14%, oklch(0.96 0.01 264));
+    border-radius: 0.2rem;
   }
 
   /* [data-blog-content] pre code .line.highlighted-line,
@@ -370,7 +470,7 @@ html {
 
   [data-blog-content] img,
   .blog-content img {
-    @apply max-w-full h-auto rounded-lg my-4;
+    @apply max-w-full h-auto rounded-lg my-6 border border-border/70 shadow-none;
   }
 
   /* Also style direct MDX content */
@@ -419,12 +519,6 @@ html {
   [data-blog-content] em,
   .blog-content em {
     @apply italic;
-  }
-
-  /* Image styling */
-  [data-blog-content] img,
-  .blog-content img {
-    @apply max-w-full h-auto rounded-lg my-6 shadow-lg;
   }
 
   /* Table styling improvements */

@@ -3,11 +3,10 @@ import { useRequestInfo } from "../../utils/request-info";
 import { setTheme, type Theme } from "../../utils/theme-server";
 import { invariantResponse } from "@epic-web/invariant";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { data, redirect, useFetcher } from "react-router";
-import { ServerOnly } from "remix-utils/server-only";
+import { data, useFetcher, useFetchers } from "react-router";
 import type { Route } from "./+types/theme-switch";
-import type { ReactElement } from "react";
 import { createMetaTags, createHeaders } from "~/lib/meta";
+import { cn } from "~/lib/utils";
 
 export const meta: Route.MetaFunction = () => {
   return createMetaTags({
@@ -32,6 +31,15 @@ export function headers() {
 
 const VALID_THEMES = ["system", "light", "dark"] as const;
 type ValidTheme = (typeof VALID_THEMES)[number];
+const THEME_OPTIONS = [
+  { value: "system", label: "System", icon: Monitor },
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+] as const satisfies ReadonlyArray<{
+  value: ValidTheme;
+  label: string;
+  icon: typeof Monitor;
+}>;
 
 function isValidTheme(value: unknown): value is ValidTheme {
   return (
@@ -42,7 +50,6 @@ function isValidTheme(value: unknown): value is ValidTheme {
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const theme = formData.get("theme");
-  const redirectTo = formData.get("redirectTo");
 
   invariantResponse(
     isValidTheme(theme),
@@ -53,53 +60,88 @@ export async function action({ request }: Route.ActionArgs) {
     headers: { "set-cookie": setTheme(theme) },
   };
 
-  if (redirectTo && typeof redirectTo === "string") {
-    return redirect(redirectTo, responseInit);
-  } else {
-    return data({ success: true, theme }, responseInit);
-  }
+  return data({ success: true, theme }, responseInit);
+}
+
+function useOptimisticThemeSubmission() {
+  const fetchers = useFetchers();
+
+  const themeFetcher = fetchers.find((fetcher) => {
+    const formAction = fetcher.formAction;
+
+    return (
+      formAction?.endsWith("/resources/theme-switch") &&
+      typeof fetcher.formData?.get("theme") === "string"
+    );
+  });
+
+  const pendingTheme = themeFetcher?.formData?.get("theme");
+  return isValidTheme(pendingTheme) ? pendingTheme : null;
 }
 
 export function ThemeSwitch({
   userPreference,
+  className,
+  size = "default",
 }: {
   userPreference?: Theme | "system" | null;
+  className?: string;
+  size?: "sm" | "default";
 }) {
   const fetcher = useFetcher();
-  const requestInfo = useRequestInfo();
+  const optimisticTheme = useOptimisticThemeSubmission();
 
   const mode = userPreference ?? "system";
-
-  // Cycle through: system -> light -> dark -> system
-  const nextMode =
-    mode === "system" ? "light" : mode === "light" ? "dark" : "system";
-
-  const size = 16;
-  const modeLabel: Record<ValidTheme | Theme, ReactElement> = {
-    light: <Sun size={size} />,
-    dark: <Moon size={size} />,
-    system: <Monitor size={size} />,
-  };
+  const activeMode = optimisticTheme ?? mode;
+  const isSubmitting = fetcher.state !== "idle";
+  const iconSize = size === "sm" ? 14 : 16;
 
   return (
     <fetcher.Form
       method="POST"
       action="/resources/theme-switch"
-      className="aspect-square h-[20px]"
+      className={cn("inline-flex", className)}
     >
-      <ServerOnly>
-        {() => (
-          <input type="hidden" name="redirectTo" value={requestInfo.path} />
+      <fieldset
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/95 p-1 shadow-sm backdrop-blur-sm",
+          isSubmitting && "opacity-80",
         )}
-      </ServerOnly>
-      <input type="hidden" name="theme" value={nextMode} />
-      <button
-        className="cursor-pointer"
-        disabled={fetcher.state !== "idle"}
-        type="submit"
+        aria-label="Theme switcher"
+        disabled={isSubmitting}
       >
-        {modeLabel[mode as ValidTheme]}
-      </button>
+        <legend className="sr-only">Theme switcher</legend>
+        {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+          const selected = activeMode === value;
+
+          return (
+            <button
+              key={value}
+              name="theme"
+              value={value}
+              type="submit"
+              aria-pressed={selected}
+              aria-label={`Use ${label.toLowerCase()} theme`}
+              title={label}
+              className={cn(
+                "inline-flex items-center justify-center gap-2 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+                size === "sm" ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-sm",
+                selected
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <Icon size={iconSize} />
+              <span className={cn(size === "sm" ? "sr-only" : "inline")}>
+                {label}
+              </span>
+            </button>
+          );
+        })}
+        <span className="sr-only" aria-live="polite">
+          Current theme: {activeMode}
+        </span>
+      </fieldset>
     </fetcher.Form>
   );
 }
@@ -111,8 +153,9 @@ export function ThemeSwitch({
 export function useTheme() {
   const hints = useHints();
   const requestInfo = useRequestInfo();
+  const optimisticTheme = useOptimisticThemeSubmission();
 
-  const userPref = requestInfo.userPrefs.theme;
+  const userPref = optimisticTheme ?? requestInfo.userPrefs.theme;
   // If user preference is 'system' or null, use hints.theme
   // Otherwise return the user preference (light or dark)
   return userPref === "system" || !userPref ? hints.theme : userPref;

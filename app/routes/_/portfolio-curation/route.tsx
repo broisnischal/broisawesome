@@ -83,14 +83,11 @@ export default function Page() {
   return (
     <div className="font-sans">
       <header className="mb-4">
-        <h1 className="font-clash text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+        <h1 className=" text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Sites
         </h1>
         <p className="mt-2 text-base text-muted-foreground leading-relaxed">
           Sites I like, jump in and love the most.
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Rows with a star are highlighted picks.
         </p>
       </header>
 
@@ -98,12 +95,8 @@ export default function Page() {
         <table className="w-full border-collapse text-base">
           <thead>
             <tr className="border-b border-border/60 bg-muted/20 text-muted-foreground">
-              <th className="px-4 md:px-6 lg:px-8 xl:px-12 py-2 text-left font-medium text-base">
-                Name
-              </th>
-              <th className="py-2 pr-4 md:pr-6 lg:pr-8 text-left font-medium">
-                Site
-              </th>
+              <th className=" py-2 text-left font-medium text-base">Name</th>
+              <th className="py-2 text-left font-medium">Site</th>
             </tr>
           </thead>
           <tbody>
@@ -117,7 +110,7 @@ export default function Page() {
                     : "hover:bg-muted/10",
                 ].join(" ")}
               >
-                <td className="px-4 md:px-6 lg:px-8 xl:px-12 py-2.5 pr-4 min-w-[280px] ">
+                <td className="py-2.5 pr-4 min-w-[280px] ">
                   <div className="flex min-w-0 items-center gap-3">
                     <a
                       href={item.url}

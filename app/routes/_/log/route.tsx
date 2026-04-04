@@ -3,8 +3,10 @@ import { useRef, type ReactNode } from "react";
 import { Link, redirect, useSearchParams } from "react-router";
 import { loadGameLogs } from "~/.server/logs/game-logs";
 import { loadLogJsonContent } from "~/.server/logs/log-content";
-import { Kbd } from "~/components/kbd";
+import { Kbd, Kbd as KbdComponent } from "~/components/kbd";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { ClashRoyaleCrownScore } from "~/lib/clash-royale-crown";
+import { cocBattleStarImageUrl } from "~/lib/coc-battle-stars";
 import type {
   ClashBattleRow,
   ClashProfileSummary,
@@ -16,11 +18,8 @@ import type {
   LogStatus,
 } from "~/lib/logs/types";
 import { createHeaders, createMetaTags } from "~/lib/meta";
-import { cocBattleStarImageUrl } from "~/lib/coc-battle-stars";
-import { ClashRoyaleCrownScore } from "~/lib/clash-royale-crown";
 import { cn } from "~/lib/utils";
 import type { Route } from "./+types/route";
-import { Kbd as KbdComponent } from "~/components/kbd";
 
 const LOG_TABS = ["book", "movie", "blog", "game", "glossary"] as const;
 export type LogTab = (typeof LOG_TABS)[number];
@@ -686,10 +685,10 @@ function ClashBattleRows({ battles }: { battles: ClashBattleRow[] }) {
           {(row.myDeckIconUrls.length > 0 ||
             row.oppDeckIconUrls.length > 0) && (
             <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start sm:gap-x-6 sm:gap-y-0">
-              <div className="min-w-0">
+              <div className="min-w-0 max-w-full">
                 <DeckStrip label="You" urls={row.myDeckIconUrls} />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 max-w-full">
                 <DeckStrip
                   label={row.opponentName}
                   urls={row.oppDeckIconUrls}
@@ -775,11 +774,11 @@ function GlossaryTermRow({ e, i }: { e: GlossaryEntry; i: number }) {
 function GlossarySection({ entries = [] }: { entries?: GlossaryEntry[] }) {
   if (entries.length === 0) {
     return (
-      <section aria-labelledby="glossary-heading" className="max-w-xl h-full">
+      <section aria-labelledby="glossary-heading" className="w-full h-full">
         <h2 id="glossary-heading" className={cn("m-0 mb-8", sectionLabelClass)}>
           Glossary
         </h2>
-        <p className="m-0 text-sm leading-relaxed text-muted-foreground">
+        <p className="m-0 max-w-prose text-sm leading-relaxed text-muted-foreground">
           No terms yet. Add{" "}
           <span className="font-mono text-foreground/80">glossary</span> to your{" "}
           <span className="font-mono">log JSON</span> (
@@ -798,7 +797,7 @@ function GlossarySection({ entries = [] }: { entries?: GlossaryEntry[] }) {
     <section
       aria-labelledby="glossary-heading"
       aria-describedby="glossary-hint"
-      className="max-w-xl"
+      className="w-full"
     >
       <p id="glossary-hint" className="sr-only">
         Hover a term to read definition, example, and notes. On touch devices,
@@ -963,7 +962,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <article className="relative flex w-full max-w-3xl flex-col gap-10 p-0 text-left font-sans">
+    <article className="relative flex w-full flex-col gap-10 p-0 text-left font-sans">
       <div
         className="pointer-events-none absolute -right-20 -top-6 h-56 w-56 rounded-full bg-linear-to-br from-foreground/6 via-transparent to-transparent blur-3xl dark:from-foreground/9"
         aria-hidden

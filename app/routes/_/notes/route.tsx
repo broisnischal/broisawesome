@@ -280,7 +280,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   ];
 
   return (
-    <div className="max-w-4xl font-sans">
+    <div className="w-full font-sans">
       <div className="mb-8">
         <h1 className="mb-2 text-4xl font-semibold tracking-tight text-foreground">
           Notes

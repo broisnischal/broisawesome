@@ -14,9 +14,6 @@ import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
 import { SiteWritingToggle } from "./components/site-writing-toggle";
 import { ScriptDangerously } from "./lib";
-import { useTheme } from "./routes/resources/theme-switch";
-import { ClientHintCheck, getHints } from "./utils/client-hints";
-import { getTheme } from "./utils/theme-server";
 
 export const meta: Route.MetaFunction = ({}) => {
   return [
@@ -56,35 +53,17 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   return data({
-    requestInfo: {
-      hints: getHints(request),
-      path: new URL(request.url).pathname,
-      userPrefs: {
-        theme: getTheme(request),
-      },
-    },
-    // publicEnv: getPublicEnv(),
+    path: new URL(request.url).pathname,
   });
 }
 
-function Document({
-  children,
-  theme,
-}: {
-  children: React.ReactNode;
-  loaderData: Route.ComponentProps["loaderData"];
-  theme: ReturnType<typeof useTheme>;
-}) {
+function Document({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="font-sans antialiased">
       <head>
-        <ClientHintCheck />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-          name="color-scheme"
-          content={theme === "light" ? "light" : "dark"}
-        />
+        <meta name="color-scheme" content="light" />
         <meta name="MobileOptimized" content="320" />
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -123,11 +102,9 @@ function Document({
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
-  const theme = useTheme();
-
+export default function App({}: Route.ComponentProps) {
   return (
-    <Document loaderData={loaderData} theme={theme}>
+    <Document>
       <div className="relative flex min-h-screen flex-col">
         <ProgessBar />
         <div className="pointer-events-none fixed right-4 top-4 z-50 md:right-6 md:top-6 lg:right-8 lg:top-8 xl:right-12 xl:top-10">
