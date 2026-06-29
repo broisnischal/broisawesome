@@ -168,6 +168,8 @@ html {
     font-optical-sizing: auto;
     /* Variable mono renders thin on dark — nudge weight up for legibility */
     font-weight: 440;
+    /* Guard against accidental horizontal scroll on small screens */
+    overflow-x: hidden;
   }
 }
 
