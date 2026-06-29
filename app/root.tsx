@@ -9,10 +9,12 @@ import {
 } from "react-router";
 import { CANONICAL_SITE_URL } from "~/lib/meta";
 import type { Route } from "./+types/root";
+// Self-host the variable mono font that the whole terminal UI is built on.
+import "@fontsource-variable/geist-mono";
+import "@fontsource-variable/geist";
 import "./app.css";
 import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
-import { SiteWritingToggle } from "./components/site-writing-toggle";
 import { ScriptDangerously } from "./lib";
 
 export const meta: Route.MetaFunction = ({}) => {
@@ -32,10 +34,6 @@ export const links: Route.LinksFunction = () => [
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
     crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500&display=swap",
   },
   {
     rel: "alternate",
@@ -59,14 +57,22 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 function Document({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="font-sans antialiased">
+    <html lang="en" className="dark font-mono antialiased">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="light" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#0a0a0b" />
         <meta name="MobileOptimized" content="320" />
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* Favicons, PWA manifest (assets live in /public). */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
 
         <meta
           name="google-site-verification"
@@ -89,7 +95,7 @@ function Document({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+      <body className="min-h-dvh bg-background font-mono text-foreground antialiased">
         {children}
         <Scripts />
         <ScrollRestoration
@@ -107,9 +113,6 @@ export default function App({}: Route.ComponentProps) {
     <Document>
       <div className="relative flex min-h-screen flex-col">
         <ProgessBar />
-        <div className="pointer-events-none fixed right-4 top-4 z-50 md:right-6 md:top-6 lg:right-8 lg:top-8 xl:right-12 xl:top-10">
-          <SiteWritingToggle className="pointer-events-auto" />
-        </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <Outlet />
           <Footer />

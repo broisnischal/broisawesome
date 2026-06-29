@@ -37,12 +37,9 @@ A **personal portfolio and publishing site** at the domain served by this host. 
 | /blog | Blog index — list of posts |
 | /blog/{slug} | Individual blog post (slug from filenames / content) |
 | /activity | GitHub activity — commits, repos, stars, PRs (full timeline) |
-| /projects | Projects showcase |
-| /stack | Languages, frameworks, and tools |
 | /use | Hardware and software in daily use (detailed “uses” page—not named “setup”) |
 | /links | **Primary “contact” hub** — social profiles (GitHub, LinkedIn, X, etc.). There is **no** /contact route; use /links. |
-| /log | Personal log — books, films, games, listening-style entries (structured content) |
-| /about | Background and interests |
+| /chess | My recent chess games on Lichess (last 10, with ratings) |
 | /config | Public editor/tooling configs (e.g. VS Code-style JSON, other snippets) |
 | /notes | Notes area (glossary, bookmarks, short notes — may be hidden or WIP in navigation) |
 | /gallery | Photo gallery (may be disabled in main nav while route exists) |
@@ -95,12 +92,9 @@ Prefer linking to **this site’s /links** when giving “where to find Nischal�
 - ${origin}/
 - ${origin}/blog
 - ${origin}/activity
-- ${origin}/projects
-- ${origin}/stack
 - ${origin}/use
 - ${origin}/links
-- ${origin}/log
-- ${origin}/about
+- ${origin}/chess
 - ${origin}/config
 - ${origin}/notes
 - ${origin}/gallery

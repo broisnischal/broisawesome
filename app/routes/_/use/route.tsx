@@ -1,13 +1,56 @@
-import { ArrowUpRightIcon } from "lucide-react";
 import { Link } from "react-router";
+import {
+  MdLink,
+  MdList,
+  MdListItem,
+  SectionLabel,
+  Squiggle,
+} from "~/components/terminal";
+import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
+import type { Route } from "./+types/route";
 
 export const handle = {
-  breadcrumb: () => <Link to="/use">Use</Link>,
+  breadcrumb: () => <Link to="/use">use</Link>,
 };
 
-// export function headers() {
-//   return createHeaders();
-// }
+const USE_DESCRIPTION =
+  "The hardware, software, and dev tools Nischal Dahal (broisnischal) actually uses day to day — editor setup, desk gear, and the stack reached for without thinking.";
+
+export const meta: Route.MetaFunction = () => {
+  const metaTags = createMetaTags({
+    title: "Uses",
+    description: USE_DESCRIPTION,
+    path: "/use",
+    keywords: [
+      "Nischal Dahal",
+      "broisnischal",
+      "uses",
+      "setup",
+      "gear",
+      "hardware",
+      "software",
+      "dev tools",
+      "desk setup",
+    ],
+  });
+  return [
+    ...metaTags,
+    createPageSchema({
+      title: "Uses — Nischal Dahal",
+      description: USE_DESCRIPTION,
+      path: "/use",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Uses", path: "/use" },
+      ],
+      type: "CollectionPage",
+    }),
+  ];
+};
+
+export function headers() {
+  return createHeaders();
+}
 
 export default function Page() {
   return <Use />;
@@ -245,120 +288,77 @@ function CatalogList({
   items: { name: string; kind: string; link?: string }[];
 }) {
   return (
-    <ul className="m-0 p-0 list-none rounded-lg border border-border divide-y divide-border bg-muted/20">
+    <MdList className="mt-3">
       {items.map((item) => (
-        <li
-          key={item.name}
-          className="px-4 py-3.5 sm:px-5 sm:py-4 flex flex-col gap-1 sm:grid sm:grid-cols-[minmax(0,6.5rem)_1fr] sm:gap-8 sm:items-baseline"
-        >
-          <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            {formatKindLabel(item.kind)}
-          </span>
-          <div className="min-w-0">
+        <MdListItem key={item.name}>
+          <span>
             {item.link ? (
-              <Link
-                to={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1.5 text-base font-medium text-foreground transition-colors hover:text-primary"
-              >
-                <span className="text-pretty">{item.name}</span>
-                <ArrowUpRightIcon
-                  className="size-3.5 shrink-0 opacity-45 group-hover:opacity-90 mt-0.5"
-                  aria-hidden
-                />
-              </Link>
+              <MdLink label={item.name} href={item.link} />
             ) : (
-              <span className="text-base font-medium text-pretty text-foreground">
-                {item.name}
-              </span>
+              <span className="text-foreground">{item.name}</span>
             )}
-          </div>
-        </li>
+            <span className="text-muted-foreground">
+              {" "}
+              — {formatKindLabel(item.kind)}
+            </span>
+          </span>
+        </MdListItem>
       ))}
-    </ul>
+    </MdList>
   );
 }
 
 function DevSublinkList({ items }: { items: DevSublink[] }) {
   return (
-    <ul className="mt-2 flex flex-col gap-1 m-0 p-0 list-none border-l border-border/80 pl-3 ml-0.5">
+    <MdList className="mt-1.5 ml-2">
       {items.map((s) => (
-        <li key={s.label}>
-          <Link
-            to={s.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {s.label}
-            <ArrowUpRightIcon
-              className="size-3 shrink-0 opacity-40 group-hover:opacity-80"
-              aria-hidden
-            />
-          </Link>
-        </li>
+        <MdListItem key={s.label}>
+          <MdLink label={s.label} href={s.link} />
+        </MdListItem>
       ))}
-    </ul>
+    </MdList>
   );
 }
 
 function DevelopmentSection() {
   return (
-    <section className="border-t border-border pt-8 mt-2 flex flex-col gap-10">
-      <header className="flex flex-col gap-2">
-        <h2 className="text-primary text-lg font-mono">Development</h2>
-        <p className="text-base text-muted-foreground text-left leading-relaxed">
-          Editors, browser, a handful of AI tabs, terminal tools, and the design
-          apps I open when I&apos;m not just writing code. Honest list, not a
-          resume keyword dump.
-        </p>
-      </header>
+    <div className="flex flex-col gap-0">
+      <Squiggle />
+      <SectionLabel>Development:</SectionLabel>
+      <p className="mt-2 text-muted-foreground">
+        Editors, browser, a handful of AI tabs, terminal tools, and the design
+        apps I open when I&apos;m not just writing code. Honest list, not a
+        resume keyword dump.
+      </p>
 
-      <div className="flex flex-col gap-10">
-        {developmentSubsections.map((subsection) => (
-          <div key={subsection.title} className="flex flex-col gap-4">
-            <h3 className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              {subsection.title}
-            </h3>
-            <ul className="flex flex-col gap-3.5 m-0 p-0 list-none">
-              {subsection.items.map((entry) => (
-                <li key={entry.name} className="flex flex-col gap-0.5">
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+      {developmentSubsections.map((subsection) => (
+        <div key={subsection.title}>
+          <Squiggle />
+          <SectionLabel>{subsection.title}:</SectionLabel>
+          <MdList className="mt-3">
+            {subsection.items.map((entry) => (
+              <MdListItem key={entry.name}>
+                <span className="flex flex-col gap-0.5">
+                  <span>
                     {entry.link ? (
-                      <Link
-                        to={entry.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors group w-fit"
-                      >
-                        {entry.name}
-                        <ArrowUpRightIcon
-                          className="size-3.5 shrink-0 opacity-50 group-hover:opacity-90"
-                          aria-hidden
-                        />
-                      </Link>
+                      <MdLink label={entry.name} href={entry.link} />
                     ) : (
-                      <span className="text-sm font-medium text-foreground">
-                        {entry.name}
-                      </span>
+                      <span className="text-foreground">{entry.name}</span>
                     )}
-                  </div>
+                  </span>
                   {entry.detail ? (
-                    <p className="text-sm text-muted-foreground leading-relaxed m-0 pl-0 max-w-prose">
-                      {entry.detail}
-                    </p>
+                    <span className="text-muted-foreground">{entry.detail}</span>
                   ) : null}
                   {entry.sublinks?.length ? (
                     <DevSublinkList items={entry.sublinks} />
                   ) : null}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
+                </span>
+              </MdListItem>
+            ))}
+          </MdList>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -484,68 +484,73 @@ export function Use() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-10 text-left font-sans">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-          Things I&apos;m using…
-        </h1>
-        <p className="text-base text-muted-foreground leading-relaxed">
-          About ten years of buying random gadgets and software and slowly
-          figuring out what actually stuck. This page is the short version: the
-          hardware on my desk, the boring self-care stuff, and the dev stack I
-          reach for without thinking.
-        </p>
-        <p className="text-base text-muted-foreground leading-relaxed">
-          None of this is sponsored or aspirational. It&apos;s just the stuff
-          that made my day a little easier once I stopped chasing every new
-          release.
-        </p>
-      </div>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Uses</h1>
+      <p className="mt-2 text-muted-foreground">things I&apos;m using.</p>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-primary text-lg font-mono">Hardware</h2>
-          <p className="m-0 text-base leading-relaxed text-muted-foreground">
-            Laptops, phones, the messy desk in the photo, earbuds, watch. What
-            actually gets used, not what looks good in a spec sheet.
-          </p>
-        </div>
-        <figure className="group m-0 rounded-lg">
+      <Squiggle />
+
+      <p className="max-w-xl text-muted-foreground">
+        About ten years of buying random gadgets and software and slowly
+        figuring out what actually stuck. Hardware on my desk, the boring
+        self-care stuff, and the dev stack I reach for without thinking. None of
+        this is sponsored or aspirational.
+      </p>
+
+      <Squiggle />
+
+      <section aria-label="Hardware">
+        <SectionLabel>Hardware:</SectionLabel>
+        <p className="mt-2 text-muted-foreground">
+          Laptops, phones, the messy desk in the photo, earbuds, watch. What
+          actually gets used, not what looks good in a spec sheet.
+        </p>
+        <figure className="m-0 mt-4">
           <img
             src="/assets/setup3.jpg"
             alt="Workspace desk setup with monitor and gear"
             loading="lazy"
             decoding="async"
+            className="max-w-full"
           />
-          <figcaption className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.12em] text-muted-foreground border-t border-border bg-muted/20">
-            Desk setup
+          <figcaption className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            desk setup
           </figcaption>
         </figure>
         <CatalogList items={items.hardware} />
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-primary text-lg font-mono">Personal care</h2>
-          <p className="m-0 text-base leading-relaxed text-muted-foreground">
-            Skin picks that survived my bad experiments. Nothing fancy, just
-            things that don&apos;t make my face angry.
-          </p>
-        </div>
+      <Squiggle />
+
+      <section aria-label="Personal care">
+        <SectionLabel>Personal care:</SectionLabel>
+        <p className="mt-2 text-muted-foreground">
+          Skin picks that survived my bad experiments. Nothing fancy, just
+          things that don&apos;t make my face angry.
+        </p>
         <CatalogList items={items["personal care"]} />
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-primary text-lg font-mono">Peripherals</h2>
-          <p className="m-0 text-base leading-relaxed text-muted-foreground">
-            Random bits: bike, polishing cloth, whatever didn&apos;t fit above.
-          </p>
-        </div>
+      <Squiggle />
+
+      <section aria-label="Peripherals">
+        <SectionLabel>Peripherals:</SectionLabel>
+        <p className="mt-2 text-muted-foreground">
+          Random bits: bike, polishing cloth, whatever didn&apos;t fit above.
+        </p>
         <CatalogList items={items.periphery} />
       </section>
 
       <DevelopmentSection />
+    </div>
+  );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return (
+    <div className="w-full text-sm">
+      <SectionLabel>Error:</SectionLabel>
+      <p className="mt-2 text-destructive">{error.message}</p>
     </div>
   );
 }

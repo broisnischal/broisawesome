@@ -1,36 +1,27 @@
-import {
-  Check,
-  Code,
-  Coffee,
-  Copy,
-  ExternalLink,
-  FileText,
-  Github,
-  Images,
-  Instagram,
-  Linkedin,
-  MessageCircle,
-  Package,
-  Rss,
-  Twitter,
-  Youtube,
-  type LucideProps,
-} from "lucide-react";
-import type { ComponentType } from "react";
+import { Check, Copy } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Link, data } from "react-router";
-import { createHeaders, createMetaTags } from "~/lib/meta";
+import {
+  MdLink,
+  MdList,
+  MdListItem,
+  SectionLabel,
+  Squiggle,
+} from "~/components/terminal";
+import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
 import type { Route } from "./+types/route";
 
 export const handle = {
-  breadcrumb: () => <Link to="/links">Links</Link>,
+  breadcrumb: () => <Link to="/links">links</Link>,
 };
 
+const LINKS_DESCRIPTION =
+  "Nischal Dahal's social links - Connect with broisnischal on GitHub, LinkedIn, Twitter, and other platforms. Quick access to all profiles.";
+
 export const meta: Route.MetaFunction = () => {
-  return createMetaTags({
+  const metaTags = createMetaTags({
     title: "Links",
-    description:
-      "Nischal Dahal's social links - Connect with broisnischal on GitHub, LinkedIn, Twitter, and other platforms. Quick access to all profiles.",
+    description: LINKS_DESCRIPTION,
     path: "/links",
     keywords: [
       "Nischal Dahal",
@@ -44,6 +35,18 @@ export const meta: Route.MetaFunction = () => {
       "contact",
     ],
   });
+  return [
+    ...metaTags,
+    createPageSchema({
+      title: "Links — Nischal Dahal",
+      description: LINKS_DESCRIPTION,
+      path: "/links",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Links", path: "/links" },
+      ],
+    }),
+  ];
 };
 
 export function headers() {
@@ -54,113 +57,32 @@ interface SocialLink {
   id: string;
   name: string;
   url: string;
-  iconName: string;
 }
 
-const iconMap: Record<string, ComponentType<LucideProps>> = {
-  github: Github,
-  twitter: Twitter,
-  linkedin: Linkedin,
-  discord: MessageCircle,
-  youtube: Youtube,
-  "ko-fi": Coffee,
-  resume: FileText,
-  dartpub: Package,
-  gist: Code,
-  chess: Code,
-  npmjs: Package,
-  rss: Rss,
-  image: Images,
-  instagram: Instagram,
-};
-
 const socialLinks: SocialLink[] = [
-  {
-    id: "github",
-    name: "GitHub",
-    url: "https://github.com/broisnischal",
-    iconName: "github",
-  },
-  {
-    id: "twitter",
-    name: "X",
-    url: "https://twitter.com/broisnees",
-    iconName: "twitter",
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    url: "https://linkedin.com/in/nischalxdahal",
-    iconName: "linkedin",
-  },
-  {
-    id: "discord",
-    name: "Discord",
-    url: "https://discord.com/users/broisnees",
-    iconName: "discord",
-  },
-  {
-    id: "youtube",
-    name: "Youtube",
-    url: "https://youtube.com/@broisnees",
-    iconName: "youtube",
-  },
-  {
-    id: "ko-fi",
-    name: "Ko-fi",
-    url: "https://ko-fi.com/nischal-dahal",
-    iconName: "ko-fi",
-  },
-  {
-    id: "resume",
-    name: "Resume",
-    url: "/resume.pdf",
-    iconName: "resume",
-  },
+  { id: "github", name: "GitHub", url: "https://github.com/broisnischal" },
+  { id: "twitter", name: "X", url: "https://twitter.com/broisnees" },
+  { id: "resume", name: "Resume", url: "/resume.pdf" },
   {
     id: "dartpub",
     name: "Dart Pub",
     url: "https://pub.dev/publishers/nischal-dahal.com.np/packages",
-    iconName: "dartpub",
   },
-  {
-    id: "gist",
-    name: "Gist",
-    url: "https://gist.github.com/broisnischal",
-    iconName: "gist",
-  },
-  {
-    id: "npmjs",
-    name: "npmjs",
-    url: "https://www.npmjs.com/~broisnees",
-    iconName: "npmjs",
-  },
-  {
-    id: "rss",
-    name: "RSS",
-    url: "/blogs.rss",
-    iconName: "rss",
-  },
+  { id: "gist", name: "Gist", url: "https://gist.github.com/broisnischal" },
+  { id: "npmjs", name: "npmjs", url: "https://www.npmjs.com/~broisnees" },
+  { id: "rss", name: "RSS", url: "/blogs.rss" },
   {
     id: "gallery",
     name: "Gallery",
     url: "https://photos.app.goo.gl/2RHWh9PyAGyRCZAP9",
-    iconName: "image",
   },
-  {
-    id: "instagram",
-    name: "Instagram",
-    url: "https://instagram.com/broisnees",
-    iconName: "instagram",
-  },
+  { id: "instagram", name: "Instagram", url: "https://instagram.com/broisnees" },
 ];
 
 const WALLET_ADDRESS = "0x644D721Cbe97BC458d9347A2CCE47c063EEd0Eb0" as const;
 
 export async function loader({}: Route.LoaderArgs) {
-  return data({
-    links: socialLinks,
-  });
+  return data({ links: socialLinks });
 }
 
 function WalletRow({ address }: { address: string }) {
@@ -179,63 +101,33 @@ function WalletRow({ address }: { address: string }) {
   const explorerUrl = `https://etherscan.io/address/${address}`;
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1">
-      <p className="text-muted-foreground text-sm flex flex-wrap items-center gap-x-1 gap-y-1">
-        <span>Wallet :</span>
-        <button
-          type="button"
-          onClick={copy}
-          className="group inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-background/80 px-2 py-0.5 font-mono text-xs text-foreground transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-sm"
-          title={copied ? "Copied" : "Copy address"}
-          aria-label={
-            copied
-              ? "Address copied to clipboard"
-              : `Copy wallet address ${address} to clipboard`
-          }
-        >
-          <span className="truncate">{address}</span>
-          {copied ? (
-            <Check
-              className="size-3.5 shrink-0 text-emerald-600"
-              strokeWidth={2}
-              aria-hidden
-            />
-          ) : (
-            <Copy
-              className="size-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-          )}
-        </button>
-      </p>
-      <a
-        href={explorerUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
+    <div className="space-y-2">
+      <SectionLabel>Wallet (ETH):</SectionLabel>
+      <button
+        type="button"
+        onClick={copy}
+        className="group inline-flex max-w-full items-center gap-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        title={copied ? "Copied" : "Copy address"}
+        aria-label={
+          copied ? "Address copied" : `Copy wallet address ${address}`
+        }
       >
-        View on Etherscan
-        <ExternalLink className="size-3.5" strokeWidth={1.75} aria-hidden />
-      </a>
+        <span className="min-w-0 break-all text-left text-term-link underline decoration-term-link/55 underline-offset-[3px]">
+          {address}
+        </span>
+        {copied ? (
+          <Check className="size-3.5 shrink-0 text-term-link" strokeWidth={2} />
+        ) : (
+          <Copy
+            className="size-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100"
+            strokeWidth={1.75}
+          />
+        )}
+      </button>
+      <p>
+        <MdLink label="View on Etherscan" href={explorerUrl} />
+      </p>
     </div>
-  );
-}
-
-function SocialAnchor({ link }: { link: SocialLink }) {
-  const Icon = iconMap[link.iconName] ?? Code;
-  const isExternal = link.url.startsWith("http") || link.url.startsWith("//");
-
-  return (
-    <a
-      href={link.url}
-      target={isExternal ? "_blank" : undefined}
-      rel={isExternal ? "noopener noreferrer" : undefined}
-      className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
-    >
-      <Icon className="size-4.5 shrink-0" strokeWidth={1.75} aria-hidden />
-      <span className="text-base underline underline-offset-4">{link.name}</span>
-    </a>
   );
 }
 
@@ -243,40 +135,35 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { links } = loaderData;
 
   return (
-    <div className="h-1/2 w-full font-sans">
-      <section
-        className="flex flex-col gap-6"
-        aria-labelledby="links-find-heading"
-      >
-        <h1
-          id="links-find-heading"
-          className="max-w-2xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl"
-        >
-          Links
-        </h1>
-        <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-          Elsewhere on the web where I&apos;m active.
-        </p>
-        <nav
-          className="flex flex-col items-start gap-x-6 gap-y-4"
-          aria-label="Social and profile links for Nischal Dahal"
-        >
-          {links.map((link) => (
-            <SocialAnchor key={link.id} link={link} />
-          ))}
-        </nav>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Links</h1>
+      <p className="mt-2 text-muted-foreground">
+        Elsewhere on the web where I&apos;m active.
+      </p>
 
-        <WalletRow address={WALLET_ADDRESS} />
-      </section>
+      <Squiggle />
+
+      <SectionLabel>Profiles:</SectionLabel>
+      <MdList>
+        {links.map((link) => (
+          <MdListItem key={link.id}>
+            <MdLink label={link.name} href={link.url} display={link.url} />
+          </MdListItem>
+        ))}
+      </MdList>
+
+      <Squiggle />
+
+      <WalletRow address={WALLET_ADDRESS} />
     </div>
   );
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="w-full font-sans">
-      <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
-      <p className="text-destructive">{error.message}</p>
+    <div className="w-full text-sm">
+      <SectionLabel>Error:</SectionLabel>
+      <p className="mt-2 text-destructive">{error.message}</p>
     </div>
   );
 }

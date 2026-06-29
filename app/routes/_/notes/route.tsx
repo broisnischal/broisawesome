@@ -1,19 +1,26 @@
 import { Link, data, useSearchParams } from "react-router";
 import type { Route } from "./+types/route";
 import { useState, useMemo } from "react";
-import { createMetaTags, createHeaders } from "~/lib/meta";
-import { XIcon } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { createMetaTags, createHeaders, createPageSchema } from "~/lib/meta";
+import {
+  MdLink,
+  MdList,
+  MdListItem,
+  SectionLabel,
+  Squiggle,
+} from "~/components/terminal";
 
 export const handle = {
-  breadcrumb: () => <Link to="/notes">Notes</Link>,
+  breadcrumb: () => <Link to="/notes">notes</Link>,
 };
 
+const NOTES_DESCRIPTION =
+  "Notes by Nischal Dahal - Personal notes, glossary terms, and bookmarks. Technical definitions and useful resources for developers.";
+
 export const meta: Route.MetaFunction = () => {
-  return createMetaTags({
+  const metaTags = createMetaTags({
     title: "Notes",
-    description:
-      "Notes by Nischal Dahal - Personal notes, glossary terms, and bookmarks. Technical definitions and useful resources for developers.",
+    description: NOTES_DESCRIPTION,
     path: "/notes",
     keywords: [
       "Nischal Dahal",
@@ -27,6 +34,19 @@ export const meta: Route.MetaFunction = () => {
       "programming notes",
     ],
   });
+  return [
+    ...metaTags,
+    createPageSchema({
+      title: "Notes — Nischal Dahal",
+      description: NOTES_DESCRIPTION,
+      path: "/notes",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Notes", path: "/notes" },
+      ],
+      type: "CollectionPage",
+    }),
+  ];
 };
 
 export function headers() {
@@ -280,120 +300,92 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   ];
 
   return (
-    <div className="w-full font-sans">
-      <div className="mb-8">
-        <h1 className="mb-2 text-4xl font-semibold tracking-tight text-foreground">
-          Notes
-        </h1>
-        <p className="text-base leading-relaxed text-muted-foreground">
-          Personal notes, glossary terms, and bookmarks I&apos;ve collected.
-        </p>
-      </div>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Notes</h1>
+      <p className="mt-2 text-muted-foreground">
+        personal notes, glossary terms, and bookmarks
+      </p>
 
-      {/* Search Input */}
+      <Squiggle />
+
+      {/* Search */}
       <div className="mb-6">
-        <div className="relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+        <SectionLabel>Search:</SectionLabel>
+        <div className="mt-2">
           <input
             type="text"
-            placeholder="Search notes, terms, or bookmarks..."
+            placeholder="search notes, terms, bookmarks..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full rounded-lg border border-border bg-background py-2.5 pl-10 pr-4 text-base text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-term-link focus:outline-none"
           />
         </div>
       </div>
 
-      <Tabs
-        value={selectedCategory}
-        onValueChange={(value) => setSelectedCategory(value as Category)}
-      >
-        <TabsList className="mb-4">
-          {categories.map((category) => (
-            <TabsTrigger key={category.value} value={category.value}>
-              {category.label}
-              <span className="opacity-70">({category.count})</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {allTags.length > 0 && (
-          <div className="mb-6">
-            <p className="text-xs text-muted-foreground mb-2">
-              Filter by tags:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {allTags.map((tag) => {
-                const isSelected = selectedTags.includes(tag);
-                const isYouTube = tag === "youtube";
-                return (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={` cursor-pointer
-                                        px-3 py-1 text-xs font-medium rounded-full transition-all
-                                        ${
-                                          isSelected
-                                            ? isYouTube
-                                              ? "bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30"
-                                              : "bg-primary/20 text-primary border border-primary/30"
-                                            : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
-                                        }
-                                    `}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
-              {selectedTags.length > 0 && (
-                <button
-                  onClick={() =>
-                    setSearchParams(new URLSearchParams(), { replace: true })
-                  }
-                  className="cursor-pointer px-3 py-1 text-xs font-medium rounded-full transition-all bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
-                >
-                  <XIcon className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-        {categories.map((category) => (
-          <TabsContent key={category.value} value={category.value}>
-            <div className="space-y-8">
-              {filteredNotes
-                .filter((note) => note.category === category.value)
-                .map((note) => (
-                  <NoteItem key={note.id} note={note} />
-                ))}
-            </div>
-          </TabsContent>
+      {/* Category filter */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat.value}
+            onClick={() => setSelectedCategory(cat.value)}
+            className={`border px-2 py-0.5 font-mono text-xs uppercase tracking-wide transition-colors ${
+              selectedCategory === cat.value
+                ? "border-term-link text-term-link"
+                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+            }`}
+          >
+            {cat.label}
+            <span className="ml-1 opacity-60">({cat.count})</span>
+          </button>
         ))}
-      </Tabs>
-
-      {/* Tags Filter */}
-
-      {/* Notes List */}
-      <div className="space-y-8">
-        {filteredNotes.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>No items found. Try adjusting your search or filters.</p>
-          </div>
-        ) : (
-          filteredNotes.map((note) => <NoteItem key={note.id} note={note} />)
-        )}
       </div>
+
+      {/* Tag filter */}
+      {allTags.length > 0 && (
+        <div className="mb-6">
+          <SectionLabel>Tags:</SectionLabel>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {allTags.map((tag) => {
+              const isSelected = selectedTags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`border px-2 py-0.5 font-mono text-xs transition-colors ${
+                    isSelected
+                      ? "border-term-link text-term-link"
+                      : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  #{tag}
+                </button>
+              );
+            })}
+            {selectedTags.length > 0 && (
+              <button
+                onClick={() =>
+                  setSearchParams(new URLSearchParams(), { replace: true })
+                }
+                className="border border-border px-2 py-0.5 font-mono text-xs text-muted-foreground hover:border-foreground hover:text-foreground"
+              >
+                clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <Squiggle />
+
+      {filteredNotes.length === 0 ? (
+        <p className="text-muted-foreground">no items found</p>
+      ) : (
+        <div className="space-y-0">
+          {filteredNotes.map((note) => (
+            <NoteItem key={note.id} note={note} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -426,124 +418,76 @@ function NoteItem({ note }: { note: NoteItem }) {
   const videoId = isYouTube && note.url ? getYouTubeVideoId(note.url) : null;
 
   return (
-    <div className="border-b border-border pb-6 last:border-b-0 last:pb-0">
-      {/* Category and Date */}
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+    <div className="border-b border-border py-5 last:border-b-0">
+      <div className="mb-1 flex items-baseline gap-3">
+        <span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground/60">
           {note.category}
         </span>
         {note.date && (
-          <span className="text-xs text-muted-foreground">
+          <span className="font-mono text-xs text-muted-foreground/50">
             {formatDate(note.date)}
+          </span>
+        )}
+        {note.tags && note.tags.length > 0 && (
+          <span className="font-mono text-xs text-muted-foreground/40">
+            {note.tags.map((t) => `#${t}`).join(" ")}
           </span>
         )}
       </div>
 
       {note.category === "glossary" ? (
         <div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">
+          <p className="text-bright uppercase tracking-[0.1em]">
             {note.term || note.title}
-          </h3>
+          </p>
           {note.definition && (
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              {note.definition}
-            </p>
+            <p className="mt-1 text-muted-foreground">{note.definition}</p>
           )}
           {note.references && note.references.length > 0 && (
-            <div className="space-y-2 mt-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                References
-              </p>
-              {note.references.map((ref, index) => {
-                return (
-                  <div key={index} className="flex items-start gap-3 group">
-                    <div className="flex-1 min-w-0">
-                      <a
+            <div className="mt-3">
+              <SectionLabel className="text-xs">References:</SectionLabel>
+              <MdList className="mt-1">
+                {note.references.map((ref, index) => (
+                  <MdListItem key={index}>
+                    <span className="text-muted-foreground">
+                      <MdLink
+                        label={ref.title || ref.url}
                         href={ref.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline inline-flex items-center gap-1.5 group/link"
-                      >
-                        {ref.title || ref.url}
-                        <svg
-                          className="w-3.5 h-3.5 opacity-0 group-hover/link:opacity-100 transition-opacity shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {ref.description}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+                      />{" "}
+                      — {ref.description}
+                    </span>
+                  </MdListItem>
+                ))}
+              </MdList>
             </div>
           )}
         </div>
       ) : note.category === "bookmark" ? (
         <div>
-          <a
-            href={note.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl font-semibold text-primary hover:underline inline-flex items-center gap-2 group/link mb-2"
-          >
-            {note.title}
-            <svg
-              className="w-4 h-4 opacity-0 group-hover/link:opacity-100 transition-opacity"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </a>
+          <MdLink label={note.title} href={note.url ?? "#"} />
           {isYouTube && videoId && (
-            <div className="mt-3 rounded-lg overflow-hidden max-w-2xl">
-              <a
-                href={note.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
+            <div className="mt-3 border border-border overflow-hidden max-w-md">
+              <a href={note.url} target="_blank" rel="noopener noreferrer" className="block">
                 <img
                   src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                   alt={note.title}
-                  className="w-full h-auto rounded-lg"
+                  className="w-full h-auto"
                   loading="lazy"
                 />
               </a>
             </div>
           )}
           {note.url && !isYouTube && (
-            <p className="text-xs text-muted-foreground mt-1 truncate">
+            <p className="mt-0.5 font-mono text-xs text-muted-foreground/50 truncate">
               {note.url}
             </p>
           )}
         </div>
       ) : (
         <div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            {note.title}
-          </h3>
+          <p className="text-foreground">{note.title}</p>
           {note.content && (
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {note.content}
-            </p>
+            <p className="mt-1 text-muted-foreground">{note.content}</p>
           )}
         </div>
       )}

@@ -1,6 +1,7 @@
 import { data, Link } from "react-router";
 import { useMemo } from "react";
 import type { Route } from "./+types/blogs.$slug";
+import { CopyForLLM } from "~/components/copy-llm-button";
 import { getBlogBySlug, getBlogs } from "~/lib/blog-content";
 import {
   absoluteUrl,
@@ -12,7 +13,7 @@ import {
   createSchemaMetaTag,
 } from "~/lib/meta";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { slug } = params;
   const blog = getBlogBySlug(slug);
 
@@ -22,6 +23,8 @@ export async function loader({ params }: Route.LoaderArgs) {
       statusText: "Not Found",
     });
   }
+
+  const url = `${new URL(request.url).origin}/blog/${blog.slug}`;
 
   // Only serialize the data, not the component (functions can't be serialized)
   return data({
@@ -33,6 +36,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       frontmatter: blog.frontmatter,
     },
     slug, // Pass slug so we can fetch the component in the component
+    url,
   });
 }
 
@@ -156,7 +160,7 @@ export const handle = {
 };
 
 export default function BlogPost({ loaderData }: Route.ComponentProps) {
-  const { blog, slug } = loaderData;
+  const { blog, slug, url } = loaderData;
 
   if (!blog) {
     return (
@@ -201,13 +205,22 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className="blog-content font-sans">
-      <header className="mb-8 pb-6 border-b border-border">
-        <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
+    <article className="blog-content">
+      <header className="mb-10 border-b border-border pb-6">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-term-link"
+          >
+            ← all posts
+          </Link>
+          <CopyForLLM title={blog.title} url={url} date={blog.date} />
+        </div>
+        <h1 className="mt-4 text-xl font-semibold leading-snug tracking-tight text-bright sm:text-2xl">
           {blog.title}
         </h1>
         {blog.date && (
-          <time className="mb-4 block text-base text-muted-foreground">
+          <time className="mt-3 block text-xs tabular-nums text-muted-foreground">
             {new Date(blog.date).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
@@ -216,12 +229,10 @@ export default function BlogPost({ loaderData }: Route.ComponentProps) {
           </time>
         )}
         {blog.excerpt && (
-          <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
-            {blog.excerpt}
-          </p>
+          <p className="mt-3 text-muted-foreground">{blog.excerpt}</p>
         )}
       </header>
-      <div>
+      <div data-blog-body>
         <BlogComponent />
       </div>
     </article>

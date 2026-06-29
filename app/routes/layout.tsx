@@ -1,5 +1,4 @@
 import { Outlet, useMatches } from "react-router";
-// import { BlogSidebar } from "../components/blog-sidebar";
 import { Breadcrumbs } from "../components/breadcrumbs";
 
 export default function Page() {
@@ -10,9 +9,9 @@ export default function Page() {
   );
 
   return (
-    <main className="min-h-0 flex-1 font-sans">
-      <div className="mx-auto max-w-3xl px-4 py-16 md:px-0">
-        <div className="mb-6 min-h-10 min-w-0">
+    <main className="min-h-0 flex-1 font-mono">
+      <div className="max-w-none px-5 py-14 md:px-10 md:py-16">
+        <div className="mb-8 min-h-6 min-w-0">
           {!hideBreadcrumbs && <Breadcrumbs />}
         </div>
         <Outlet />

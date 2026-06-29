@@ -1,5 +1,5 @@
-import { ArrowRightIcon } from "lucide-react";
 import { Link, data } from "react-router";
+import { MdLink, SectionLabel, Squiggle } from "~/components/terminal";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import {
   CANONICAL_SITE_URL,
@@ -11,7 +11,7 @@ import {
 import type { Route } from "./+types/blogs";
 
 export const handle = {
-  breadcrumb: () => <Link to="/blog">Blogs</Link>,
+  breadcrumb: () => <Link to="/blog">blog</Link>,
 };
 
 export const links: Route.LinksFunction = () => [
@@ -91,73 +91,55 @@ export async function loader() {
   return data({ blogs: serializable });
 }
 
-export default function BlogLayout({ loaderData }: Route.ComponentProps) {
-  return (
-    <div className="border-border font-sans">
-      <div className="mb-8 max-w-2xl">
-        <p className="mb-4 text-base leading-relaxed text-muted-foreground">
-          I write about topics like{" "}
-          <strong className="text-foreground">modern web development</strong>,
-          <strong className="text-foreground"> serverless architecture</strong>,
-          <strong className="text-foreground"> system design</strong>, and
-          <strong className="text-foreground"> core computer science</strong>.
-          Each post shares knowledge and insights from real-world projects and
-          experiences.
-        </p>
-        <p className="text-base text-muted-foreground">
-          Prefer a minimal, date-grouped list? See{" "}
-          <Link
-            to="/writing"
-            className="text-foreground underline underline-offset-4 hover:text-foreground/90"
-          >
-            Writing
-          </Link>
-          .
-        </p>
-      </div>
-      <Blogs data={loaderData.blogs} url="/blog" />
-      <br />
-      {/* <Newsletter /> */}
-    </div>
-  );
+function formatDate(date?: string) {
+  if (!date) return null;
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
 }
 
-function Blogs({
-  data,
-  url,
-}: {
-  data: (BlogListItem & { slug: string })[];
-  url: string;
-}) {
+export default function BlogLayout({ loaderData }: Route.ComponentProps) {
+  const { blogs } = loaderData;
+
   return (
-    <div>
-      <p className="mb-3 flex items-center gap-1 text-base text-muted-foreground">
-        Subscribe to my articles using{" "}
-        <a
-          className="flex items-center gap-1 font-medium text-foreground underline underline-offset-4"
-          href="/blogs.rss"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Subscribe to my articles using RSS"
-        >
-          RSS <ArrowRightIcon className="size-4" aria-hidden />
-        </a>
-      </p>
-      <ul className="flex flex-col gap-2.5 md:list-inside md:list-disc">
-        {data.map((blog) => (
-          <li className="" key={blog.slug}>
-            <Link
-              // viewTransition
-              state={{ back: url }}
-              prefetch="intent"
-              className="text-lg text-foreground underline-offset-4 visited:text-muted-foreground hover:text-primary hover:underline"
-              to={`/blog/${blog.slug}`}
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Blog</h1>
+
+      <Squiggle />
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
+        <span className="uppercase tracking-[0.12em] text-muted-foreground/70">
+          subscribe:
+        </span>
+        <MdLink label="rss" href="/blogs.rss" display="blogs.rss" />
+        <MdLink label="json" href="/feed.json" display="feed.json" />
+      </div>
+
+      <Squiggle />
+
+      <SectionLabel>Posts:</SectionLabel>
+      <ol className="mt-3 space-y-2.5">
+        {blogs.map((blog) => {
+          const date = formatDate(blog.date);
+          return (
+            <li
+              key={blog.slug}
+              className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-1"
             >
-              {blog.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
+              <span className="text-xs tabular-nums text-muted-foreground/55">
+                {date}
+              </span>
+              <span className="min-w-0">
+                <MdLink
+                  label={blog.title}
+                  to={`/blog/${blog.slug}`}
+                  display={blog.slug}
+                />
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

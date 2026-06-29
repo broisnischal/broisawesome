@@ -50,8 +50,12 @@
 }
 
 html {
-  @apply bg-background font-sans text-foreground antialiased;
+  @apply bg-background font-mono text-foreground antialiased;
   font-synthesis: none;
+  /* Crisp glyph rendering on dark backgrounds — kills the bold/fuzzy look.
+     (Avoid text-rendering: optimizeLegibility — it janks on text-heavy pages.) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-feature-settings:
     "kern" 1,
     "liga" 1,
@@ -75,6 +79,9 @@ html {
   --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-bright: var(--bright);
+  --color-term-link: var(--term-link);
+  --color-term-link-hover: var(--term-link-hover);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -106,96 +113,61 @@ html {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --selection-bg: color-mix(in oklch, var(--foreground) 28%, transparent);
-  --selection-fg: var(--background);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  /* Darker than default for secondary text — reads better at smaller sizes */
-  --muted-foreground: oklch(0.48 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
+/*
+ * Terminal palette — near-black canvas, soft grey body text, a single magenta
+ * accent for links (the "[label](href)" markdown look). Applied to both :root
+ * and .dark so the site is always in terminal mode regardless of theme toggle.
+ */
+:root,
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --selection-bg: color-mix(in oklch, var(--foreground) 38%, transparent);
-  --selection-fg: var(--background);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.74 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius: 0.5rem;
+  /* Near-black canvas (Pierre-adjacent #070708), kept a hair lifted on purpose */
+  --background: oklch(0.115 0.004 286);
+  --foreground: oklch(0.905 0.004 286);
+  --bright: oklch(0.98 0 0);
+  /* Warm amber accent — links + interactive primary */
+  --term-link: oklch(0.82 0.13 75);
+  --term-link-hover: oklch(0.88 0.14 75);
+  --card: oklch(0.195 0.004 286);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.195 0.004 286);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.82 0.13 75);
+  --primary-foreground: oklch(0.2 0.03 75);
+  --secondary: oklch(0.245 0.004 286);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.225 0.004 286);
+  --muted-foreground: oklch(0.655 0.006 286);
+  --accent: oklch(0.245 0.004 286);
+  --accent-foreground: var(--bright);
+  --destructive: oklch(0.62 0.2 25);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--term-link);
+  --chart-1: oklch(0.8 0.094 344);
+  --chart-2: oklch(0.72 0.13 200);
+  --chart-3: oklch(0.78 0.14 90);
+  --chart-4: oklch(0.7 0.16 300);
+  --chart-5: oklch(0.7 0.15 30);
+  --sidebar: oklch(0.165 0.004 286);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--term-link);
+  --sidebar-primary-foreground: var(--bright);
+  --sidebar-accent: oklch(0.245 0.004 286);
+  --sidebar-accent-foreground: var(--bright);
+  --sidebar-border: oklch(1 0 0 / 9%);
+  --sidebar-ring: var(--term-link);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  ::selection {
-    background: var(--selection-bg);
-    color: var(--selection-fg);
-  }
-  ::-moz-selection {
-    background: var(--selection-bg);
-    color: var(--selection-fg);
-  }
   body {
-    @apply bg-background text-foreground font-sans text-base leading-relaxed;
+    @apply bg-background text-foreground font-mono text-sm leading-relaxed;
     font-optical-sizing: auto;
+    /* Variable mono renders thin on dark — nudge weight up for legibility */
+    font-weight: 440;
   }
 }
 
@@ -210,6 +182,75 @@ html {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 1ms !important;
+  }
+}
+
+/* Terminal blinking cursor block (after the name on the landing page) */
+@keyframes term-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.term-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 0.18em;
+  background: var(--bright);
+  vertical-align: -0.16em;
+  animation: term-blink 1.15s steps(1, end) infinite;
+}
+
+/* A blinking block glyph (█) for inline use inside a <pre> — stays on the
+   monospace grid where a CSS box would drift. */
+.term-caret {
+  color: var(--bright);
+  animation: term-blink 1.15s steps(1, end) infinite;
+}
+
+/* The pink "(href)" part of a markdown-style [label](href) link */
+.term-link {
+  color: var(--term-link);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--term-link) 55%, transparent);
+  text-underline-offset: 3px;
+  transition:
+    color 150ms ease,
+    text-decoration-color 150ms ease;
+}
+.term-link:hover {
+  color: var(--term-link-hover);
+  text-decoration-color: var(--term-link-hover);
+}
+
+/* Thin terminal scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent)
+    transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 18%, transparent);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--foreground) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-cursor,
+  .term-caret {
+    animation: none;
   }
 }
 
@@ -272,22 +313,22 @@ html {
 
   [data-blog-content] h1,
   .blog-content h1 {
-    @apply text-4xl md:text-5xl font-bold mb-6 mt-8 text-foreground;
+    @apply text-2xl font-semibold mb-5 mt-10 text-bright tracking-tight;
   }
 
   [data-blog-content] h2,
   .blog-content h2 {
-    @apply text-3xl md:text-4xl font-semibold mb-4 mt-6 text-foreground;
+    @apply text-xl font-semibold mb-3 mt-9 text-bright tracking-tight;
   }
 
   [data-blog-content] h3,
   .blog-content h3 {
-    @apply text-2xl md:text-3xl font-semibold mb-3 mt-5 text-foreground;
+    @apply text-lg font-medium mb-2 mt-7 text-bright tracking-tight;
   }
 
   [data-blog-content] h4,
   .blog-content h4 {
-    @apply text-xl md:text-2xl font-semibold mb-2 mt-4 text-foreground;
+    @apply text-base font-medium mb-2 mt-6 text-bright;
   }
 
   [data-blog-content] p,
@@ -383,15 +424,9 @@ html {
     margin-right: 0;
     width: 100%;
     padding: 1.125rem 1.25rem;
-    border-radius: calc(var(--radius) + 6px);
-    border: 1px solid oklch(0.92 0.004 264 / 0.65);
-    background-color: oklch(0.994 0.002 264) !important;
-  }
-
-  .dark [data-blog-content] pre[data-theme],
-  .dark .blog-content pre[data-theme],
-  .dark article.blog-content pre[data-theme] {
-    border-color: oklch(0.45 0.015 264 / 0.32);
+    border-radius: calc(var(--radius) + 4px);
+    border: 1px solid oklch(1 0 0 / 0.08);
+    background-color: oklch(0.155 0.004 286) !important;
   }
 
   @media (min-width: 768px) {
@@ -431,7 +466,7 @@ html {
 
   [data-blog-content] pre code .line.highlighted,
   .blog-content pre code .line.highlighted {
-    background-color: color-mix(in oklch, var(--primary) 14%, oklch(0.96 0.01 264));
+    background-color: color-mix(in oklch, var(--term-link) 16%, transparent);
     border-radius: 0.2rem;
   }
 
@@ -602,6 +637,26 @@ html {
   [data-blog-content] li:last-child p,
   .blog-content li:last-child p {
     @apply mb-0;
+  }
+
+  /* Markdown/MDX links use the terminal magenta accent */
+  [data-blog-content] a,
+  .blog-content a,
+  article a {
+    color: var(--term-link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(
+      in oklch,
+      var(--term-link) 55%,
+      transparent
+    );
+    text-underline-offset: 3px;
+  }
+  [data-blog-content] a:hover,
+  .blog-content a:hover,
+  article a:hover {
+    color: var(--term-link-hover);
+    text-decoration-color: var(--term-link-hover);
   }
 
   /* Line clamp utility */
