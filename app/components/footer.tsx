@@ -68,7 +68,7 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-border/60 bg-background font-mono text-sm">
       <div className="max-w-none px-5 py-10 md:px-10 md:py-12">
-        <div className="flex flex-wrap gap-x-16 gap-y-8">
+        <div className="flex flex-wrap gap-x-10 gap-y-8 sm:gap-x-16">
           {FOOTER_GROUPS.map((group) => (
             <nav key={group.title} aria-label={group.title} className="min-w-28">
               <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted-foreground/45">
