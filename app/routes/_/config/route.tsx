@@ -1,7 +1,6 @@
 import { data, Link } from "react-router";
 import type { Route } from "./+types/route";
 import yaml from "yaml";
-import { Copy, Download, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { codeToHtml } from "shiki";
 import {
@@ -9,6 +8,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
+import { SectionLabel, Squiggle } from "~/components/terminal";
+import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
 
 type Config =
   | {
@@ -184,8 +185,48 @@ set -g mouse on`,
 ];
 
 export const handle = {
-  breadcrumb: () => <Link to="/config">Config</Link>,
+  breadcrumb: () => <Link to="/config">config</Link>,
 };
+
+const CONFIG_DESCRIPTION =
+  "Editor, formatter, and tooling configs Nischal Dahal (broisnischal) uses — VS Code, Wrangler, tsconfig, ESLint, Neovim, and tmux — to copy or download.";
+
+export const meta: Route.MetaFunction = () => {
+  const metaTags = createMetaTags({
+    title: "Config",
+    description: CONFIG_DESCRIPTION,
+    path: "/config",
+    keywords: [
+      "Nischal Dahal",
+      "broisnischal",
+      "config",
+      "dotfiles",
+      "VS Code settings",
+      "tsconfig",
+      "ESLint",
+      "Neovim",
+      "tmux",
+      "developer setup",
+    ],
+  });
+  return [
+    ...metaTags,
+    createPageSchema({
+      title: "Config — Nischal Dahal",
+      description: CONFIG_DESCRIPTION,
+      path: "/config",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Config", path: "/config" },
+      ],
+      type: "CollectionPage",
+    }),
+  ];
+};
+
+export function headers() {
+  return createHeaders();
+}
 
 export async function loader() {
   return data({
@@ -258,7 +299,7 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
 
   return (
     <div
-      className="[&_pre]:mb-0 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:border-none [&_pre]:bg-transparent [&_pre_code]:bg-transparent [&_pre_code]:border-none [&_pre_code]:m-0 [&_pre_code]:p-4 [&_pre_code]:block [&_pre_code]:text-sm"
+      className="[&_pre]:mb-0 [&_pre]:overflow-x-auto [&_pre]:border-none [&_pre]:bg-transparent [&_pre_code]:bg-transparent [&_pre_code]:border-none [&_pre_code]:m-0 [&_pre_code]:p-4 [&_pre_code]:block [&_pre_code]:text-sm"
       dangerouslySetInnerHTML={{ __html: highlightedCode }}
     />
   );
@@ -283,23 +324,28 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   return (
-    <div className="">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">Configuration Files</h1>
-        <p className="text-muted-foreground">
-          Copy or download your development configuration files
-        </p>
-      </div>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">
+        Configuration Files
+      </h1>
+      <p className="mt-2 text-muted-foreground">
+        copy or download development config files
+      </p>
 
-      <div className="grid gap-4">
+      <Squiggle />
+
+      <SectionLabel>Files ({configs.length}):</SectionLabel>
+
+      <div className="mt-4 space-y-0 border-t border-border">
         {configs.map((config, index) => {
           const content = getConfigContent(config);
           const isCopied = copiedIndex === index;
+          const isOpen = openConfigs.has(index);
 
           return (
-            <div key={config.name} className="">
+            <div key={config.name} className="border-b border-border">
               <Collapsible
-                open={openConfigs.has(index)}
+                open={isOpen}
                 onOpenChange={(open) => {
                   const newOpen = new Set(openConfigs);
                   if (open) {
@@ -310,53 +356,35 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   setOpenConfigs(newOpen);
                 }}
               >
-                <div className="flex items-center justify-between ">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-lg capitalize">
-                        {config.name}
-                      </span>
-                      <span className="px-2 py-0.5 text-xs font-medium bg-muted rounded-md text-muted-foreground uppercase">
-                        {config.extension}
-                      </span>
-                    </div>
+                <div className="flex items-center justify-between py-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono text-foreground uppercase tracking-[0.1em]">
+                      {config.name}
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground/60 uppercase">
+                      .{config.extension}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CollapsibleTrigger className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors font-medium">
-                      {openConfigs.has(index) ? (
-                        <>
-                          <ChevronUp className="w-4 h-4" />
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="w-4 h-4" />
-                        </>
-                      )}
+                  <div className="flex items-center gap-1">
+                    <CollapsibleTrigger className="border border-border px-3 py-1 font-mono text-xs text-muted-foreground uppercase tracking-wide hover:border-foreground hover:text-foreground transition-colors">
+                      {isOpen ? "collapse" : "expand"}
                     </CollapsibleTrigger>
                     <button
                       onClick={() => handleCopy(config, index)}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
+                      className="border border-border px-3 py-1 font-mono text-xs text-muted-foreground uppercase tracking-wide hover:border-term-link hover:text-term-link transition-colors"
                     >
-                      {isCopied ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                        </>
-                      )}
+                      {isCopied ? "copied" : "copy"}
                     </button>
                     <button
                       onClick={() => handleDownload(config)}
-                      className="flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors font-medium"
+                      className="border border-border px-3 py-1 font-mono text-xs text-muted-foreground uppercase tracking-wide hover:border-foreground hover:text-foreground transition-colors"
                     >
-                      <Download className="w-4 h-4" />
+                      dl
                     </button>
                   </div>
                 </div>
                 <CollapsibleContent>
-                  <div className="mt-4 rounded-md overflow-hidden bg-muted/50">
+                  <div className="mb-3 border border-border bg-muted/50 overflow-x-auto">
                     <CodeBlock
                       code={content}
                       language={getLanguageFromExtension(config.extension)}

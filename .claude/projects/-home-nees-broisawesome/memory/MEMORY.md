@@ -1,0 +1,1 @@
+- [No comment-prefix descriptions](no-comment-prefix-descriptions.md) — don't put `// ` in front of visible page subtitle/description text

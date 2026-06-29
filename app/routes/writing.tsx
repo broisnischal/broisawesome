@@ -3,9 +3,15 @@ import {
   HotkeysProvider,
   useHotkey,
 } from "@tanstack/react-hotkeys";
-import { Search } from "lucide-react";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Link, data } from "react-router";
+import { data } from "react-router";
+import {
+  MdLink,
+  MdList,
+  MdListItem,
+  SectionLabel,
+  Squiggle,
+} from "~/components/terminal";
 import { getBlogs, type BlogListItem } from "~/lib/blog-content";
 import {
   CANONICAL_SITE_URL,
@@ -120,39 +126,24 @@ export default function WritingPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <HotkeysProvider>
-      <div className="writing-archive min-h-[55vh] font-sans text-foreground">
-        <div className="max-w-xl w-full">
-          <header className="pb-8">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl sm:leading-[1.1]">
-              Writing
-            </h1>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
-              Long-form posts, newest first. Also available via{" "}
-              <a
-                href="/blogs.rss"
-                className="font-medium text-foreground underline decoration-border underline-offset-[3px] transition-colors hover:decoration-foreground"
-              >
-                RSS
-              </a>{" "}
-              or the{" "}
-              <Link
-                to="/blog"
-                className="font-medium text-foreground underline decoration-border underline-offset-[3px] transition-colors hover:decoration-foreground"
-              >
-                full blog page
-              </Link>
-              .
-            </p>
-          </header>
+      <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+        <h1 className="text-lg font-medium tracking-tight text-bright">Writing</h1>
+        <p className="mt-2 text-muted-foreground">
+          long-form posts, newest first — also via{" "}
+          <a href="/blogs.rss" className="term-link">
+            /blogs.rss
+          </a>{" "}
+          or{" "}
+          <MdLink label="blog" to="/blog" />
+        </p>
 
-          {groups.length === 0 ? (
-            <p className="mt-12 text-base text-muted-foreground">
-              No dated posts yet.
-            </p>
-          ) : (
-            <WritingPostList groups={groups} />
-          )}
-        </div>
+        <Squiggle />
+
+        {groups.length === 0 ? (
+          <p className="text-muted-foreground">no dated posts yet.</p>
+        ) : (
+          <WritingPostList groups={groups} />
+        )}
       </div>
     </HotkeysProvider>
   );
@@ -186,22 +177,20 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
         <label className="sr-only" htmlFor="writing-search">
           Search posts
         </label>
-        <div className="flex w-full items-center gap-2.5 rounded-full border border-border bg-muted/30 px-3.5 py-2.5 pl-3">
-          <Search
-            className="size-4.5 shrink-0 text-muted-foreground"
-            aria-hidden
-            strokeWidth={1.75}
-          />
+        <div className="flex w-full items-center gap-2 border border-border bg-muted px-3 py-1.5">
+          <span className="select-none text-muted-foreground/60" aria-hidden>
+            /
+          </span>
           <input
             ref={inputRef}
             id="writing-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search"
+            placeholder="search posts"
             autoComplete="off"
             spellCheck={false}
-            className="min-w-0 flex-1 border-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+            className="min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
           />
           <span
             className="hidden shrink-0 items-center gap-1 sm:flex"
@@ -210,7 +199,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
             {shortcutParts.map((part) => (
               <kbd
                 key={part}
-                className="rounded-md border border-border bg-muted/80 px-1.5 py-0.5 font-sans text-xs font-medium text-muted-foreground"
+                className="border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
               >
                 {part}
               </kbd>
@@ -220,32 +209,30 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
       </div>
 
       {emptySearch ? (
-        <p className="mt-12 text-base text-muted-foreground">
-          No posts match &ldquo;{trimmed}&rdquo;.
+        <p className="mt-6 text-muted-foreground">
+          no posts match &ldquo;{trimmed}&rdquo;.
         </p>
       ) : (
-        <div className="mt-12 space-y-14 sm:space-y-16">
-          {filtered.map(({ year, posts }) => (
-            <section key={year} aria-labelledby={`writing-y-${year}`}>
-              <h2
-                id={`writing-y-${year}`}
-                className="text-sm font-medium tabular-nums tracking-wide text-muted-foreground"
-              >
-                {year}
-              </h2>
-              <ul className="mt-5 space-y-3.5 sm:space-y-4">
+        <div className="mt-6 space-y-8">
+          {filtered.map(({ year, posts }, i) => (
+            <section key={year} aria-label={`${year} posts`}>
+              {i > 0 && <Squiggle />}
+              <SectionLabel>{year}:</SectionLabel>
+              <MdList>
                 {posts.map((post) => (
-                  <li key={post.slug}>
-                    <Link
+                  <MdListItem key={post.slug}>
+                    <MdLink
+                      label={post.title}
                       to={`/blog/${post.slug}`}
-                      prefetch="intent"
-                      className="block text-lg font-normal leading-snug text-foreground transition-colors hover:text-primary"
-                    >
-                      {post.title}
-                    </Link>
-                  </li>
+                    />
+                    {post.excerpt ? (
+                      <span className="ml-1 text-muted-foreground">
+                        — {post.excerpt}
+                      </span>
+                    ) : null}
+                  </MdListItem>
                 ))}
-              </ul>
+              </MdList>
             </section>
           ))}
         </div>

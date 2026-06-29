@@ -13,6 +13,8 @@ export interface MetaConfig {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  /** When true, emit `noindex, nofollow` (for WIP / utility pages). */
+  noindex?: boolean;
 }
 
 /** Canonical origin — use for sitemaps, canonical tags, and JSON-LD URLs. */
@@ -20,8 +22,38 @@ export const CANONICAL_SITE_URL = "https://nischal-dahal.com.np";
 
 const SITE_URL = CANONICAL_SITE_URL;
 const DEFAULT_AUTHOR = "Nischal Dahal";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.ico`;
-const PUBLISHER_LOGO = "https://avatars.githubusercontent.com/u/98168009?v=4";
+/** Real raster image (favicon.ico breaks social cards); reused as publisher logo. */
+const PROFILE_IMAGE = "https://avatars.githubusercontent.com/u/98168009?v=4";
+const DEFAULT_OG_IMAGE = PROFILE_IMAGE;
+const OG_IMAGE_ALT = "Nischal Dahal (broisnischal)";
+const PUBLISHER_LOGO = PROFILE_IMAGE;
+
+/** Verified profiles — shared across every Person/Organization node. */
+const SAME_AS = [
+  "https://github.com/broisnischal",
+  "https://twitter.com/broisnees",
+  "https://www.linkedin.com/in/nischalxdahal/",
+  "https://t.me/broisnees",
+  "https://instagram.com/broisnischal",
+];
+
+/** Topics the author writes/works in — strengthens entity understanding. */
+const KNOWS_ABOUT = [
+  "Software Engineering",
+  "Web Development",
+  "Serverless Architecture",
+  "React",
+  "TypeScript",
+  "Cloudflare Workers",
+  "Android Development",
+  "User Experience",
+];
+
+const PERSON_ADDRESS = {
+  "@type": "PostalAddress",
+  addressLocality: "Kathmandu",
+  addressCountry: "NP",
+};
 
 export function absoluteUrl(path: string): string {
   if (!path) return SITE_URL;
@@ -89,6 +121,7 @@ export function createMetaTags(config: MetaConfig) {
     author = DEFAULT_AUTHOR,
     publishedTime,
     modifiedTime,
+    noindex = false,
   } = config;
 
   // Ensure keywords include target keywords (name variants + common search phrases)
@@ -127,10 +160,14 @@ export function createMetaTags(config: MetaConfig) {
     { name: "author", content: author },
     {
       name: "robots",
-      content:
-        "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      content: noindex
+        ? "noindex, nofollow"
+        : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
     },
-    { name: "googlebot", content: "index, follow" },
+    {
+      name: "googlebot",
+      content: noindex ? "noindex, nofollow" : "index, follow",
+    },
 
     // Open Graph / Facebook
     { property: "og:type", content: ogType },
@@ -138,6 +175,7 @@ export function createMetaTags(config: MetaConfig) {
     { property: "og:description", content: optimizedDescription },
     { property: "og:url", content: url },
     { property: "og:image", content: ogImage },
+    { property: "og:image:alt", content: OG_IMAGE_ALT },
     { property: "og:site_name", content: "Nischal Dahal" },
     { property: "og:locale", content: "en_US" },
 
@@ -146,6 +184,7 @@ export function createMetaTags(config: MetaConfig) {
     { name: "twitter:title", content: fullTitle },
     { name: "twitter:description", content: optimizedDescription },
     { name: "twitter:image", content: ogImage },
+    { name: "twitter:image:alt", content: OG_IMAGE_ALT },
     { name: "twitter:creator", content: "@broisnees" },
     { name: "twitter:site", content: "@broisnees" },
 
@@ -181,18 +220,16 @@ export function createPersonSchema(options?: {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `${SITE_URL}/#person`,
     name: "Nischal Dahal",
     alternateName: ["broisnischal", "broisnees", "Nischal"],
     url,
+    image: PROFILE_IMAGE,
     jobTitle,
     description,
-    sameAs: [
-      "https://github.com/broisnischal",
-      "https://twitter.com/broisnees",
-      "https://www.linkedin.com/in/nischalxdahal/",
-      "https://t.me/broisnees",
-      "https://instagram.com/broisnischal",
-    ],
+    address: PERSON_ADDRESS,
+    knowsAbout: KNOWS_ABOUT,
+    sameAs: SAME_AS,
   };
 }
 
@@ -224,6 +261,15 @@ export function createWebSiteSchema(options?: { description?: string }) {
         description,
         inLanguage: "en",
         publisher: { "@id": `${SITE_URL}/#person` },
+        // Enables the Google sitelinks search box (search lives at /writing).
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${SITE_URL}/writing?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
       },
       {
         "@type": "Person",
@@ -231,15 +277,13 @@ export function createWebSiteSchema(options?: { description?: string }) {
         name: "Nischal Dahal",
         alternateName: ["broisnischal", "broisnees", "Nischal"],
         url: SITE_URL,
+        image: PROFILE_IMAGE,
         jobTitle: "Software Engineer",
         description: personDescription,
-        sameAs: [
-          "https://github.com/broisnischal",
-          "https://twitter.com/broisnees",
-          "https://www.linkedin.com/in/nischalxdahal/",
-          "https://t.me/broisnees",
-          "https://instagram.com/broisnischal",
-        ],
+        address: PERSON_ADDRESS,
+        knowsAbout: KNOWS_ABOUT,
+        sameAs: SAME_AS,
+        mainEntityOfPage: { "@id": `${SITE_URL}/#website` },
       },
     ],
   };
@@ -317,6 +361,48 @@ export function createBreadcrumbListSchema(
 }
 
 /**
+ * Per-page JSON-LD for content pages: a WebPage (or CollectionPage / ProfilePage)
+ * node wired into the site `@graph` (WebSite + Person via @id) plus a matching
+ * BreadcrumbList. Returns a ready-to-spread `script:ld+json` meta tag.
+ *
+ * Pass the trail INCLUDING Home, e.g. `[{ name: "Home", path: "/" }, …]`.
+ */
+export function createPageSchema(opts: {
+  title: string;
+  description: string;
+  path: string;
+  breadcrumbs: { name: string; path: string }[];
+  type?: "WebPage" | "CollectionPage" | "ProfilePage" | "AboutPage";
+}): { "script:ld+json": string } {
+  const url = absoluteUrl(opts.path);
+  const webPage = {
+    "@type": opts.type ?? "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: opts.title,
+    description: opts.description,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    about: { "@id": `${SITE_URL}/#person` },
+    breadcrumb: { "@id": `${url}#breadcrumb` },
+    inLanguage: "en",
+  };
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    "@id": `${url}#breadcrumb`,
+    itemListElement: opts.breadcrumbs.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+  return createSchemaMetaTag({
+    "@context": "https://schema.org",
+    "@graph": [webPage, breadcrumb],
+  });
+}
+
+/**
  * Creates JSON-LD schema markup for Blog/Article
  */
 export function createArticleSchema(options: {
@@ -338,7 +424,7 @@ export function createArticleSchema(options: {
     image,
   } = options;
 
-  const imageUrl = image ? absoluteUrl(image) : undefined;
+  const imageUrl = image ? absoluteUrl(image) : DEFAULT_OG_IMAGE;
 
   return {
     "@context": "https://schema.org",
@@ -346,6 +432,12 @@ export function createArticleSchema(options: {
     headline: title,
     description,
     url,
+    inLanguage: "en",
+    isPartOf: {
+      "@type": "Blog",
+      "@id": `${SITE_URL}/blog#blog`,
+      name: "Blog by Nischal Dahal",
+    },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": url,
@@ -354,10 +446,7 @@ export function createArticleSchema(options: {
       "@type": "Person",
       name: author,
       url: SITE_URL,
-      sameAs: [
-        "https://github.com/broisnischal",
-        "https://twitter.com/broisnees",
-      ],
+      sameAs: SAME_AS,
     },
     publisher: {
       "@type": "Organization",
@@ -369,8 +458,8 @@ export function createArticleSchema(options: {
       },
     },
     datePublished: publishedTime,
-    ...(modifiedTime && { dateModified: modifiedTime }),
-    ...(imageUrl && { image: imageUrl }),
+    dateModified: modifiedTime ?? publishedTime,
+    image: imageUrl,
   };
 }
 

@@ -280,7 +280,7 @@ async function fetchLichess(
   const [profile, gamesRes] = await Promise.all([
     fetchLichessProfile(username),
     fetch(
-      `https://lichess.org/api/games/user/${encodeURIComponent(username)}?max=5`,
+      `https://lichess.org/api/games/user/${encodeURIComponent(username)}?max=10`,
       { headers: { Accept: "application/x-ndjson" } },
     ),
   ]);
@@ -294,7 +294,7 @@ async function fetchLichess(
 
   const text = await gamesRes.text();
   const games = parseNdjsonGames(text)
-    .slice(0, 5)
+    .slice(0, 10)
     .map((g) => formatLichessRow(g, username));
   return { ok: true, profile, games };
 }
@@ -693,6 +693,15 @@ async function fetchCoc(
     return { ok: false, message: result.error };
   }
   return { ok: true, profile: result.profile, battles };
+}
+
+/** Chess-only page: fetch just the Lichess profile + last 10 games. */
+export async function loadLichessLog(
+  context: AppLoadContext,
+): Promise<GamesLoaderData["lichess"]> {
+  const env = context.cloudflare?.env as GameLogEnv | undefined;
+  const key = `lichess-log:v1:${env?.LICHESS_USERNAME?.trim() || ""}`;
+  return withMemoryCache(key, GAME_LOGS_CACHE_MS, () => fetchLichess(env));
 }
 
 export async function loadGameLogs(

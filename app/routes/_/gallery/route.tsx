@@ -1,27 +1,22 @@
-import { ImageIcon } from "lucide-react";
 import { Link, data } from "react-router";
 import type { GalleryPhoto } from "~/.server/gallery/google-photos";
 import { loadGooglePhotosGallery } from "~/.server/gallery/google-photos";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
-import { createHeaders, createMetaTags } from "~/lib/meta";
+import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
 import { cn } from "~/lib/utils";
+import { MdLink, SectionLabel, Squiggle } from "~/components/terminal";
 import type { Route } from "./+types/route";
 
 export const handle = {
-  breadcrumb: () => <Link to="/gallery">Gallery</Link>,
+  breadcrumb: () => <Link to="/gallery">gallery</Link>,
 };
 
+const GALLERY_DESCRIPTION =
+  "Photo gallery from Google Photos — moments and shots I share on my portfolio.";
+
 export const meta: Route.MetaFunction = () => {
-  return createMetaTags({
+  const metaTags = createMetaTags({
     title: "Gallery",
-    description:
-      "Photo gallery from Google Photos — moments and shots I share on my portfolio.",
+    description: GALLERY_DESCRIPTION,
     path: "/gallery",
     keywords: [
       "gallery",
@@ -31,6 +26,19 @@ export const meta: Route.MetaFunction = () => {
       "portfolio",
     ],
   });
+  return [
+    ...metaTags,
+    createPageSchema({
+      title: "Gallery — Nischal Dahal",
+      description: GALLERY_DESCRIPTION,
+      path: "/gallery",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Gallery", path: "/gallery" },
+      ],
+      type: "CollectionPage",
+    }),
+  ];
 };
 
 export function headers() {
@@ -47,81 +55,61 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { gallery } = loaderData;
 
   return (
-    <div className="w-full font-sans">
-      <header className="mb-8">
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-          Gallery
-        </h1>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
-          Loaded with the Photos Library API from{" "}
-          <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
-            GOOGLE_PHOTOS_ALBUM_ID
-          </code>
-          . Only{" "}
-          <a
-            className="underline underline-offset-2"
-            href="https://developers.google.com/photos/library/reference/rest/v1/mediaItems/search"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            app-created
-          </a>{" "}
-          media appears (
-          <a
-            className="underline underline-offset-2"
-            href="https://developers.google.com/photos/support/updates"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            API policy
-          </a>
-          )—upload through your Google Cloud project if the album looks full
-          in the Photos app but stays empty here.
-        </p>
-      </header>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Gallery</h1>
+
+      <p className="mt-2 text-muted-foreground">
+        Loaded via{" "}
+        <a
+          className="term-link"
+          href="https://developers.google.com/photos/library/reference/rest/v1/mediaItems/search"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Photos Library API
+        </a>{" "}
+        — only app-created media appears (
+        <a
+          className="term-link"
+          href="https://developers.google.com/photos/support/updates"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          API policy
+        </a>
+        )
+      </p>
+
+      <Squiggle />
 
       {!gallery.ok ? (
-        <Empty className="border border-dashed border-border rounded-lg py-12">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <ImageIcon className="size-5" />
-            </EmptyMedia>
-            <EmptyTitle>Gallery unavailable</EmptyTitle>
-            <EmptyDescription className="max-w-lg text-pretty">
-              {gallery.message}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <div>
+          <SectionLabel>Status:</SectionLabel>
+          <p className="mt-2 text-muted-foreground">{gallery.message}</p>
+        </div>
       ) : gallery.photos.length === 0 ? (
-        <Empty className="border border-dashed border-border rounded-lg py-12">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <ImageIcon className="size-5" />
-            </EmptyMedia>
-            <EmptyTitle>No photos from the API</EmptyTitle>
-            <EmptyDescription className="max-w-lg text-pretty">
-              The search returned no app-created items for this album. Use the
-              album id from{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono text-sm">
-                albums.create
-              </code>{" "}
-              if a browser-only album id does not match the API, and ensure
-              media was created with the Library API (including upload) for
-              this OAuth client.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <div>
+          <SectionLabel>Status:</SectionLabel>
+          <p className="mt-2 text-muted-foreground">
+            No app-created items found for this album — upload via{" "}
+            <code className="font-mono text-foreground">albums.create</code> and
+            ensure media was created with the Library API
+          </p>
+        </div>
       ) : (
-        <ul
-          className={cn(
-            "grid gap-2 sm:gap-3",
-            "grid-cols-2 sm:grid-cols-3 md:grid-cols-4",
-          )}
-        >
-          {gallery.photos.map((photo) => (
-            <GalleryTile key={photo.id} photo={photo} />
-          ))}
-        </ul>
+        <>
+          <SectionLabel>Photos ({gallery.photos.length}):</SectionLabel>
+          <ul
+            className={cn(
+              "mt-3 grid gap-px border border-border",
+              "grid-cols-2 sm:grid-cols-3 md:grid-cols-4",
+            )}
+          >
+            {gallery.photos.map((photo) => (
+              <GalleryTile key={photo.id} photo={photo} />
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
@@ -135,7 +123,7 @@ function GalleryTile({ photo }: { photo: GalleryPhoto }) {
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "group block size-full overflow-hidden rounded-md border border-border bg-muted",
+          "group block size-full overflow-hidden border border-border bg-muted",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         )}
       >
@@ -158,9 +146,12 @@ function GalleryTile({ photo }: { photo: GalleryPhoto }) {
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className="w-full font-sans">
-      <h1 className="text-2xl font-bold text-foreground mb-4">Error</h1>
-      <p className="text-destructive">{error.message}</p>
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <SectionLabel>Error:</SectionLabel>
+      <p className="mt-2 text-destructive">{error.message}</p>
+      <p className="mt-3">
+        <MdLink label="Back home" to="/" />
+      </p>
     </div>
   );
 }

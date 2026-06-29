@@ -3,17 +3,23 @@ import {
   fetchGitHubActivity,
   groupActivityByDate,
 } from "~/.server/github-activity";
-import { GithubActivityRow } from "~/components/github-activity-row";
+import {
+  MdList,
+  MdListItem,
+  SectionLabel,
+  Squiggle,
+} from "~/components/terminal";
 import {
   createHeaders,
   createMetaTags,
+  createPageSchema,
   createPersonSchema,
   createSchemaMetaTag,
 } from "~/lib/meta";
 import type { Route } from "./+types/route";
 
 export const handle = {
-  breadcrumb: () => <Link to="/activity">Activity</Link>,
+  breadcrumb: () => <Link to="/activity">activity</Link>,
 };
 
 export const meta: Route.MetaFunction = () => {
@@ -35,7 +41,21 @@ export const meta: Route.MetaFunction = () => {
     description:
       "Public GitHub activity timeline: repositories, contributions, and interactions.",
   });
-  return [...metaTags, createSchemaMetaTag(schema)];
+  return [
+    ...metaTags,
+    createSchemaMetaTag(schema),
+    createPageSchema({
+      title: "Activity — Nischal Dahal",
+      description:
+        "Recent GitHub activity: commits, repositories, stars, issues, and pull requests by Nischal Dahal (broisnischal).",
+      path: "/activity",
+      breadcrumbs: [
+        { name: "Home", path: "/" },
+        { name: "Activity", path: "/activity" },
+      ],
+      type: "CollectionPage",
+    }),
+  ];
 };
 
 export function headers() {
@@ -58,64 +78,104 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { groups, username, error, rateLimitRemaining, fromApi } = loaderData;
 
   return (
-    <div className="max-w-xl font-sans">
-      <header className="mb-8 border-b border-border pb-6">
-        <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
-          GitHub
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <h1 className="text-lg font-medium tracking-tight text-bright">Activity</h1>
+      <p className="mt-2 text-muted-foreground">
+        public events from{" "}
+        <a
+          href={`https://github.com/${username}`}
+          className="term-link"
+          target="_blank"
+          rel="noreferrer"
+        >
+          @{username}
+        </a>
+      </p>
+
+      {error && (
+        <p className="mt-3 text-sm text-destructive" role="alert">
+          {fromApi ? "GitHub: " : ""}
+          {error}
+          {rateLimitRemaining != null && rateLimitRemaining <= 10 && (
+            <span className="mt-1 block text-sm text-muted-foreground">
+              rate limit remaining: {rateLimitRemaining}
+            </span>
+          )}
         </p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight text-foreground">
-          Activity
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-          Public events from{" "}
-          <a
-            href={`https://github.com/${username}`}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            @{username}
-          </a>
-          .
-        </p>
-        {error && (
-          <p className="mt-3 text-sm text-destructive" role="alert">
-            {fromApi ? "GitHub: " : ""}
-            {error}
-            {rateLimitRemaining != null && rateLimitRemaining <= 10 && (
-              <span className="mt-1 block text-sm text-muted-foreground">
-                Rate limit remaining: {rateLimitRemaining}
-              </span>
-            )}
-          </p>
-        )}
-      </header>
+      )}
 
       {groups.length === 0 && !error ? (
-        <p className="text-base text-muted-foreground">
-          No recent public events.
+        <p className="mt-6 text-muted-foreground">
+          no recent public events.
         </p>
       ) : (
-        <ol className="space-y-8 list-none pl-0" aria-label="Activity timeline">
-          {groups.map((group) => (
-            <li key={group.dateKey}>
-              <h2 className="mb-3 text-base font-semibold tracking-tight text-foreground">
-                <time dateTime={group.dateKey}>{group.label}</time>
-              </h2>
-              <ul className="list-none pl-0 space-y-0">
-                {group.items.map((item, i) => (
-                  <GithubActivityRow
-                    key={item.id}
-                    item={item}
-                    variant="timeline"
-                    isLast={i === group.items.length - 1}
-                    timeFormat="time"
-                  />
-                ))}
-              </ul>
-            </li>
+        <div className="mt-6 space-y-8" aria-label="Activity timeline">
+          {groups.map((group, gi) => (
+            <section key={group.dateKey} aria-label={group.label}>
+              {gi > 0 && <Squiggle />}
+              <SectionLabel>
+                <time dateTime={group.dateKey}>{group.label}:</time>
+              </SectionLabel>
+              <MdList>
+                {group.items.map((item) => {
+                  const structured =
+                    item.action != null &&
+                    item.repoLabel != null &&
+                    item.repoUrl != null;
+                  return (
+                    <MdListItem key={item.id}>
+                      <span className="text-muted-foreground">
+                        {structured ? (
+                          <>
+                            <span className="text-foreground">
+                              {item.action}
+                            </span>
+                            <a
+                              href={item.repoUrl!}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="term-link"
+                            >
+                              {item.repoLabel}
+                            </a>
+                            {item.tail ? (
+                              <span className="text-muted-foreground">
+                                {item.tail}
+                              </span>
+                            ) : null}
+                          </>
+                        ) : (
+                          <a
+                            href={item.href}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="term-link"
+                          >
+                            {item.title}
+                          </a>
+                        )}
+                        {item.subtitle ? (
+                          <span className="ml-1 text-muted-foreground/70">
+                            — {item.subtitle}
+                          </span>
+                        ) : null}
+                        <time
+                          className="ml-2 font-mono text-xs tabular-nums text-muted-foreground/60"
+                          dateTime={item.createdAt}
+                        >
+                          {new Date(item.createdAt).toLocaleTimeString(
+                            undefined,
+                            { hour: "2-digit", minute: "2-digit" },
+                          )}
+                        </time>
+                      </span>
+                    </MdListItem>
+                  );
+                })}
+              </MdList>
+            </section>
           ))}
-        </ol>
+        </div>
       )}
     </div>
   );

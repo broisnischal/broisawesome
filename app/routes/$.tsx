@@ -1,19 +1,19 @@
-import { Link } from "react-router";
+import { MdLink, SectionLabel, Squiggle } from "~/components/terminal";
 
 export default function Page() {
   return (
-    <div className="flex flex-col space-y-4 ">
-      <h1 className="text-4xl font-bold text-destructive">404</h1>
-      <p className="text-lg text-muted-foreground"> Page not found</p>
-      <p className="text-sm text-muted-foreground">
-        The page you are looking for does not exist.
+    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
+      <SectionLabel>404 — page not found</SectionLabel>
+
+      <Squiggle />
+
+      <p className="text-muted-foreground">
+        The page you requested doesn&apos;t exist or has moved.
       </p>
-      <Link
-        to="/"
-        className="text-primary hover:text-primary/80 transition-colors"
-      >
-        Go back to the home page
-      </Link>
+
+      <p className="mt-4">
+        <MdLink label="Back home" to="/" />
+      </p>
     </div>
   );
 }

@@ -61,9 +61,9 @@ export default defineConfig({
         () =>
           rehypePrettyCode({
             // Shiki theme for fenced code in MDX (build-time via rehype-pretty-code).
-            // "github-light" matches the soft light syntax colors in the reference.
-            theme: "github-light",
-            keepBackground: true,
+            // Warm dark theme to match the near-black canvas + amber accent.
+            theme: "vesper",
+            keepBackground: false,
             bypassInlineCode: false,
             transformers: [],
           }),
