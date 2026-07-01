@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   data,
   isRouteErrorResponse,
@@ -16,6 +17,10 @@ import "./app.css";
 import { Footer } from "./components/footer";
 import ProgessBar from "./components/global-pending";
 import { ScriptDangerously } from "./lib";
+import { cn } from "./lib/utils";
+import { ClientHintCheck, getHints } from "./utils/client-hints";
+import { getTheme } from "./utils/theme-server";
+import { useThemeMode } from "./routes/resources/theme-switch";
 
 export const meta: Route.MetaFunction = ({}) => {
   return [
@@ -51,26 +56,80 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   return data({
-    path: new URL(request.url).pathname,
+    requestInfo: {
+      path: new URL(request.url).pathname,
+      // System preferences mirrored into cookies by the browser (client hints).
+      hints: getHints(request),
+      // The user's explicit choice, if any ("light" | "dark" | "system").
+      userPrefs: { theme: getTheme(request) },
+    },
   });
 }
 
 function Document({ children }: { children: React.ReactNode }) {
+  // Explicit choices get a class on <html>; "system" gets none, so the CSS
+  // `prefers-color-scheme` media query drives the first paint with no JS and
+  // therefore no flash.
+  const themeMode = useThemeMode();
+  const themeClass = themeMode === "system" ? undefined : themeMode;
+
+  // React does not reliably reconcile attribute changes on the <html> element
+  // during in-place client re-renders (a theme toggle or post-action
+  // revalidation) — the change only landed on the next navigation. So we keep
+  // the class in sync imperatively. The SSR'd `className` still handles the
+  // first paint, so there's no flash; this just makes toggles apply instantly.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    if (themeMode !== "system") root.classList.add(themeMode);
+    root.style.colorScheme = themeMode === "system" ? "" : themeMode;
+  }, [themeMode]);
+
   return (
-    <html lang="en" className="dark font-mono antialiased">
+    <html lang="en" className={cn(themeClass, "font-mono antialiased")}>
       <head>
+        {/* Keep theme cookies in sync with the OS without a full reload. */}
+        <ClientHintCheck />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="dark" />
-        <meta name="theme-color" content="#0a0a0b" />
+        <meta name="color-scheme" content="light dark" />
+        {themeMode === "system" ? (
+          <>
+            <meta
+              name="theme-color"
+              content="#fafafa"
+              media="(prefers-color-scheme: light)"
+            />
+            <meta
+              name="theme-color"
+              content="#0a0a0b"
+              media="(prefers-color-scheme: dark)"
+            />
+          </>
+        ) : (
+          <meta
+            name="theme-color"
+            content={themeMode === "dark" ? "#0a0a0b" : "#fafafa"}
+          />
+        )}
         <meta name="MobileOptimized" content="320" />
         <meta name="pagename" content="Nischal Dahal" />
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* Favicons, PWA manifest (assets live in /public). */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
 
