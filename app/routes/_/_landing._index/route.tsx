@@ -1,3 +1,4 @@
+import { Github } from "lucide-react";
 import { Link } from "react-router";
 import {
   MdLink,
@@ -60,29 +61,52 @@ type LinkItem = {
   to?: string;
   display?: string;
   strike?: boolean;
+  /** GitHub repo URL, rendered as a small icon button beside the link. */
+  github?: string;
 };
 
 const PROJECTS: LinkItem[] = [
-  { label: "stroke.click", href: "https://stroke.click", display: "stroke.click" },
   {
-    label: "studio.stroke.click",
+    label: "battlify",
+    href: "https://github.com/broisnischal/battlify",
+    display: "github.com/broisnischal/battlify",
+    github: "https://github.com/broisnischal/battlify",
+  },
+  {
+    label: "stroke.click",
+    href: "https://stroke.click",
+    display: "stroke.click",
+    github: "https://github.com/broisnischal/stroke",
+  },
+  {
+    label: "wasper",
     href: "https://studio.stroke.click",
     display: "studio.stroke.click",
+    github: "https://github.com/broisnischal/wasper",
+  },
+  {
+    label: "zorail",
+    href: "https://github.com/broisnischal/zorail",
+    display: "github.com/broisnischal/zorail",
+    github: "https://github.com/broisnischal/zorail",
   },
   {
     label: "azure-mcp",
     href: "https://github.com/broisnischal/azure-mcp",
     display: "github.com/broisnischal/azure-mcp",
+    github: "https://github.com/broisnischal/azure-mcp",
+  },
+  {
+    label: "prisma-type-generator",
+    href: "https://github.com/broisnischal/prisma-type-generator",
+    display: "github.com/broisnischal/prisma-type-generator",
+    github: "https://github.com/broisnischal/prisma-type-generator",
   },
   {
     label: "zap",
     href: "https://github.com/broisnischal/zap",
     display: "github.com/broisnischal/zap",
-  },
-  {
-    label: "prisma-type-generator",
-    href: "https://github.com/broisnischal/primsa-type-generator",
-    display: "github.com/broisnischal/prisma-type-generator",
+    github: "https://github.com/broisnischal/zap",
   },
   { label: "lexicon", display: "sunset 2026", strike: true },
 ];
@@ -121,6 +145,18 @@ function Item({ item }: { item: LinkItem }) {
         href={item.href}
         display={item.display}
       />
+      {item.github && (
+        <a
+          href={item.github}
+          target="_blank"
+          rel="noreferrer noopener"
+          title={item.github}
+          aria-label={`${item.label} on GitHub`}
+          className="ml-2 inline-flex rounded-xs align-middle text-muted-foreground/60 outline-none transition-colors hover:text-bright focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          <Github className="size-3.5" aria-hidden />
+        </a>
+      )}
     </MdListItem>
   );
 }
