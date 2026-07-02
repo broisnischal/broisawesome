@@ -18,47 +18,77 @@ const hintsUtils = getHintUtils({
   timeZone: timeZoneHint,
 });
 
+export const { getHints } = hintsUtils;
+
+function readCookie(name: string): string | null {
+  const match = document.cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(name + "="));
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match.slice(name.length + 1));
+  } catch {
+    return null;
+  }
+}
+
+function writeCookie(name: string, value: string) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=31536000; SameSite=Lax; Path=/`;
+}
+
 /**
- * @returns inline script element that checks for client hints and sets cookies
- * if they are not set then reloads the page if any cookie was set to an
- * inaccurate value.
+ * Mirrors the browser's real client hints (system colour scheme, time zone)
+ * into cookies so the server can render the correct theme on the *next*
+ * request — and triggers a **soft** revalidation (not a full page reload)
+ * whenever a hint changes.
+ *
+ * Unlike the stock `getClientHintCheckScript()`, this never calls
+ * `window.location.reload()`. It doesn't need to: the first paint is already
+ * correct because the SSR'd `<html>` class comes from the explicit-preference
+ * cookie and "system" mode is driven entirely by the CSS `prefers-color-scheme`
+ * media query. So there is no flash.
  */
-/** `nonce` must be stable between SSR and hydration; never use `Date`/`random` here. */
-export function ClientHintCheck({ nonce }: { nonce?: string }) {
+export function ClientHintCheck() {
   const { revalidate } = useRevalidator();
-  const requestInfo = useRequestInfo();
+  const userTheme = useRequestInfo().userPrefs.theme;
 
+  // On mount, reconcile cookies with the actual browser values once.
   useEffect(() => {
-    // Only subscribe to system theme changes if user preference is 'system' or null
-    // This prevents unwanted theme switches when user has manually set a theme
-    const userPref = requestInfo?.userPrefs?.theme;
+    let changed = false;
 
-    if (userPref === "system" || !userPref) {
-      // User wants to follow system theme, so subscribe to changes
-      return subscribeToSchemeChange(() => revalidate());
+    const actualTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+    if (readCookie(colourSchemeHint.cookieName) !== actualTheme) {
+      writeCookie(colourSchemeHint.cookieName, actualTheme);
+      changed = true;
     }
 
-    // User has manual theme preference, don't subscribe to system changes
-    // This prevents the theme from switching when system theme changes
-    return () => {};
-  }, [revalidate, requestInfo?.userPrefs?.theme]);
+    const actualTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (readCookie(timeZoneHint.cookieName) !== actualTimeZone) {
+      writeCookie(timeZoneHint.cookieName, actualTimeZone);
+      changed = true;
+    }
 
-  return (
-    <script
-      {...(nonce ? { nonce } : {})}
-      dangerouslySetInnerHTML={{
-        __html: hintsUtils.getClientHintCheckScript(),
-      }}
-    />
-  );
+    if (changed) void revalidate();
+    // Run once on mount; the browser values don't change without a reload.
+  }, []);
+
+  // While following the system, keep up with live OS light/dark changes.
+  // (CSS updates the paint instantly; this keeps server-rendered state in sync.)
+  useEffect(() => {
+    if (userTheme !== "system") return;
+    return subscribeToSchemeChange(() => void revalidate());
+  }, [revalidate, userTheme]);
+
+  return null;
 }
 
 /**
  * @returns an object with the client hints and their values
  */
 export function useHints() {
-  const requestInfo = useRequestInfo();
-  return requestInfo.hints;
+  return useRequestInfo().hints;
 }
-
-export const { getHints, getClientHintCheckScript } = hintsUtils;

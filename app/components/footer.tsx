@@ -6,6 +6,7 @@ import {
   getBuildInfo,
 } from "~/lib/build-meta";
 import { cn } from "~/lib/utils";
+import { ThemeSwitch, useThemeMode } from "~/routes/resources/theme-switch";
 
 type FooterItem = { label: string; to?: string; href?: string };
 
@@ -64,13 +65,18 @@ function FooterLink({ label, to, href }: FooterItem) {
 export function Footer() {
   const { version, commit, modified } = getBuildInfo();
   const commitUrl = `${PORTFOLIO_REPO_URL}/commit/${commit}`;
+  const themeMode = useThemeMode();
 
   return (
     <footer className="mt-auto border-t border-border/60 bg-background font-mono text-sm">
       <div className="max-w-none px-5 py-10 md:px-10 md:py-12">
         <div className="flex flex-wrap gap-x-10 gap-y-8 sm:gap-x-16">
           {FOOTER_GROUPS.map((group) => (
-            <nav key={group.title} aria-label={group.title} className="min-w-28">
+            <nav
+              key={group.title}
+              aria-label={group.title}
+              className="min-w-28"
+            >
               <p className="text-[0.7rem] font-medium uppercase tracking-[0.18em] text-muted-foreground/45">
                 {group.title}
               </p>
@@ -92,25 +98,24 @@ export function Footer() {
           ---
         </div>
 
-        <div className="flex flex-col gap-2 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p
-            className="flex flex-wrap items-center gap-x-3 gap-y-1 tabular-nums"
-            aria-label="Build version, last modified date, and commit"
+        <div
+          className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground tabular-nums"
+          aria-label="Build version, last modified date, commit, and theme"
+        >
+          <span className="text-foreground/80">v{version}</span>
+          <span className="opacity-90" title="last deploy">
+            updated {formatBuildDate(modified)}
+          </span>
+          <a
+            href={commitUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="term-link"
+            title="view commit on GitHub"
           >
-            <span className="text-foreground/80">v{version}</span>
-            <span className="opacity-90" title="last deploy">
-              updated {formatBuildDate(modified)}
-            </span>
-            <a
-              href={commitUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="term-link"
-              title="view commit on GitHub"
-            >
-              {commit}
-            </a>
-          </p>
+            {commit}
+          </a>
+          <ThemeSwitch userPreference={themeMode} />
         </div>
       </div>
     </footer>

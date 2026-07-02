@@ -3,7 +3,22 @@
 @plugin "@tailwindcss/typography";
 
 /* Geist (Vercel): self-hosted variable fonts via Fontsource — see root.tsx imports */
-@custom-variant dark (&:is(.dark *));
+/*
+ * `dark:` applies when the document is explicitly dark (`.dark` class) OR when
+ * the OS prefers dark and the user hasn't explicitly chosen light. This mirrors
+ * the CSS-variable theme below so utility variants and tokens stay in sync —
+ * and it's what makes "follow system" work with no class on the first paint.
+ */
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not(.light):not(.light *)) {
+      @slot;
+    }
+  }
+}
 
 @theme {
   /* Display: rounded playful (Clash-adjacent; Fredoka from Google Fonts in root links) */
@@ -63,6 +78,18 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 
+  /* Make <html> the single viewport scroll container and keep the vertical
+     scrollbar always present (overflow-y: scroll) so its gutter is permanently
+     reserved. Without this the centered content jumps sideways whenever a page
+     toggles between scrolling and not (navigation, content height changes).
+     `scrollbar-gutter: stable` does the same on browsers that honor it; the
+     forced scrollbar is the universally-supported guarantee. overflow-x: hidden
+     also guards against accidental horizontal scroll on small screens. */
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+
+  /* System default: let the OS decide the native control / scrollbar palette. */
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
@@ -70,6 +97,14 @@ html {
   @media (prefers-color-scheme: light) {
     color-scheme: light;
   }
+}
+
+/* An explicit user choice overrides the system preference above. */
+html.light {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -114,11 +149,66 @@ html {
 }
 
 /*
- * Terminal palette — near-black canvas, soft grey body text, a single magenta
- * accent for links (the "[label](href)" markdown look). Applied to both :root
- * and .dark so the site is always in terminal mode regardless of theme toggle.
+ * Terminal palette. Two surfaces, one identity (a single warm amber accent for
+ * links — the "[label](href)" markdown look):
+ *
+ *   - Light ("terminal on paper"): warm off-white canvas, near-black ink.
+ *   - Dark  ("near-black canvas"):  the original Pierre-adjacent #070708 look.
+ *
+ * Resolution order (lowest → highest priority):
+ *   :root (light)  →  @media dark (system)  →  .light / .dark (explicit choice)
+ *
+ * Because the system fallback is pure CSS, the very first paint is already
+ * correct with no JS and no theme class — that's what kills the flash.
  */
 :root,
+.light {
+  --radius: 0.5rem;
+  /* Warm off-white "paper" canvas */
+  --background: oklch(0.985 0.002 286);
+  --foreground: oklch(0.255 0.006 286);
+  --bright: oklch(0.17 0.006 286);
+  /* Warm amber accent — darkened so links stay legible on a light canvas */
+  --term-link: oklch(0.555 0.15 58);
+  --term-link-hover: oklch(0.475 0.16 52);
+  --card: oklch(0.975 0.003 286);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.555 0.15 58);
+  --primary-foreground: oklch(0.99 0.01 75);
+  --secondary: oklch(0.94 0.003 286);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.955 0.003 286);
+  --muted-foreground: oklch(0.5 0.006 286);
+  --accent: oklch(0.94 0.003 286);
+  --accent-foreground: var(--bright);
+  --destructive: oklch(0.55 0.22 25);
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 14%);
+  --ring: var(--term-link);
+  --chart-1: oklch(0.65 0.12 344);
+  --chart-2: oklch(0.55 0.13 200);
+  --chart-3: oklch(0.6 0.14 90);
+  --chart-4: oklch(0.55 0.16 300);
+  --chart-5: oklch(0.6 0.15 30);
+  --sidebar: oklch(0.97 0.003 286);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--term-link);
+  --sidebar-primary-foreground: oklch(0.99 0.01 75);
+  --sidebar-accent: oklch(0.94 0.003 286);
+  --sidebar-accent-foreground: var(--bright);
+  --sidebar-border: oklch(0 0 0 / 9%);
+  --sidebar-ring: var(--term-link);
+}
+
+/*
+ * Dark surface. Two selectors, identical tokens:
+ *   - `.dark`            → the explicit user choice (always wins).
+ *   - system fallback    → OS prefers dark and no explicit `.light`/`.dark`.
+ * They can't be merged into one rule: `.dark` must apply outside any media
+ * query, while the fallback must be gated behind `prefers-color-scheme: dark`.
+ */
 .dark {
   --radius: 0.5rem;
   /* Near-black canvas (Pierre-adjacent #070708), kept a hair lifted on purpose */
@@ -159,6 +249,48 @@ html {
   --sidebar-ring: var(--term-link);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    --radius: 0.5rem;
+    /* Near-black canvas (Pierre-adjacent #070708), kept a hair lifted on purpose */
+    --background: oklch(0.115 0.004 286);
+    --foreground: oklch(0.905 0.004 286);
+    --bright: oklch(0.98 0 0);
+    /* Warm amber accent — links + interactive primary */
+    --term-link: oklch(0.82 0.13 75);
+    --term-link-hover: oklch(0.88 0.14 75);
+    --card: oklch(0.195 0.004 286);
+    --card-foreground: var(--foreground);
+    --popover: oklch(0.195 0.004 286);
+    --popover-foreground: var(--foreground);
+    --primary: oklch(0.82 0.13 75);
+    --primary-foreground: oklch(0.2 0.03 75);
+    --secondary: oklch(0.245 0.004 286);
+    --secondary-foreground: var(--foreground);
+    --muted: oklch(0.225 0.004 286);
+    --muted-foreground: oklch(0.655 0.006 286);
+    --accent: oklch(0.245 0.004 286);
+    --accent-foreground: var(--bright);
+    --destructive: oklch(0.62 0.2 25);
+    --border: oklch(1 0 0 / 9%);
+    --input: oklch(1 0 0 / 12%);
+    --ring: var(--term-link);
+    --chart-1: oklch(0.8 0.094 344);
+    --chart-2: oklch(0.72 0.13 200);
+    --chart-3: oklch(0.78 0.14 90);
+    --chart-4: oklch(0.7 0.16 300);
+    --chart-5: oklch(0.7 0.15 30);
+    --sidebar: oklch(0.165 0.004 286);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--term-link);
+    --sidebar-primary-foreground: var(--bright);
+    --sidebar-accent: oklch(0.245 0.004 286);
+    --sidebar-accent-foreground: var(--bright);
+    --sidebar-border: oklch(1 0 0 / 9%);
+    --sidebar-ring: var(--term-link);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -168,8 +300,6 @@ html {
     font-optical-sizing: auto;
     /* Variable mono renders thin on dark — nudge weight up for legibility */
     font-weight: 440;
-    /* Guard against accidental horizontal scroll on small screens */
-    overflow-x: hidden;
   }
 }
 

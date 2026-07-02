@@ -2,7 +2,7 @@ import { useHints } from "../../utils/client-hints";
 import { useRequestInfo } from "../../utils/request-info";
 import { setTheme, type Theme } from "../../utils/theme-server";
 import { invariantResponse } from "@epic-web/invariant";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { useSyncExternalStore } from "react";
 import { data, useFetcher, useFetchers } from "react-router";
 import type { Route } from "./+types/theme-switch";
 import { createMetaTags, createHeaders } from "~/lib/meta";
@@ -32,19 +32,63 @@ export function headers() {
 const VALID_THEMES = ["system", "light", "dark"] as const;
 type ValidTheme = (typeof VALID_THEMES)[number];
 const THEME_OPTIONS = [
-  { value: "system", label: "System", icon: Monitor },
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
 ] as const satisfies ReadonlyArray<{
   value: ValidTheme;
   label: string;
-  icon: typeof Monitor;
 }>;
 
 function isValidTheme(value: unknown): value is ValidTheme {
   return (
     typeof value === "string" && VALID_THEMES.includes(value as ValidTheme)
   );
+}
+
+/**
+ * Client-side "active theme" store.
+ *
+ * Why this exists: the theme switch persists the choice in a cookie via its
+ * action, and React Router auto-revalidates the root loader afterwards. But in
+ * single-fetch the revalidation request is dispatched before the browser
+ * commits the action's `Set-Cookie`, so the root loader re-runs *without* the
+ * new cookie and reports the old value — snapping the theme back. (Verified in
+ * a real browser: the `/_root.data` revalidation goes out with no `en_theme`.)
+ *
+ * So we keep the chosen mode here as a sticky client override that wins over
+ * the (racy) loader value for the rest of the session. The cookie is still
+ * written client-side immediately, so the next full page load is correct with
+ * no flash. This makes the toggle instant and reliable without depending on the
+ * round-trip at all.
+ */
+let clientThemeOverride: ValidTheme | null = null;
+const themeSubscribers = new Set<() => void>();
+
+function subscribeTheme(callback: () => void) {
+  themeSubscribers.add(callback);
+  return () => themeSubscribers.delete(callback);
+}
+
+function getThemeOverride() {
+  return clientThemeOverride;
+}
+
+function getServerThemeOverride(): ValidTheme | null {
+  // No override during SSR / initial hydration — fall back to the cookie value.
+  return null;
+}
+
+/** Apply a theme choice instantly on the client and persist it for next load. */
+export function setClientTheme(mode: ValidTheme) {
+  clientThemeOverride = mode;
+  if (typeof document !== "undefined") {
+    document.cookie =
+      mode === "system"
+        ? "en_theme=; Max-Age=0; Path=/; SameSite=Lax"
+        : `en_theme=${mode}; Max-Age=31536000; Path=/; SameSite=Lax`;
+  }
+  themeSubscribers.forEach((fn) => fn());
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -82,36 +126,31 @@ function useOptimisticThemeSubmission() {
 export function ThemeSwitch({
   userPreference,
   className,
-  size = "default",
 }: {
   userPreference?: Theme | "system" | null;
   className?: string;
-  size?: "sm" | "default";
 }) {
   const fetcher = useFetcher();
   const optimisticTheme = useOptimisticThemeSubmission();
 
-  const mode = userPreference ?? "system";
-  const activeMode = optimisticTheme ?? mode;
-  const isSubmitting = fetcher.state !== "idle";
-  const iconSize = size === "sm" ? 14 : 16;
+  const activeMode = optimisticTheme ?? userPreference ?? "system";
 
+  // Plain terminal-style switcher: lowercase words, no chrome. The active
+  // option is wrapped in brackets ([dark]); the others render bare and turn
+  // amber on hover, matching the footer links.
   return (
     <fetcher.Form
       method="POST"
       action="/resources/theme-switch"
-      className={cn("inline-flex", className)}
+      className={cn("inline-flex items-center gap-2", className)}
     >
-      <fieldset
-        className={cn(
-          "inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/95 p-1 shadow-sm backdrop-blur-sm",
-          isSubmitting && "opacity-80",
-        )}
-        aria-label="Theme switcher"
-        disabled={isSubmitting}
+      <span className="text-muted-foreground/50">theme:</span>
+      <span
+        className="inline-flex items-center gap-2"
+        role="group"
+        aria-label="Theme"
       >
-        <legend className="sr-only">Theme switcher</legend>
-        {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+        {THEME_OPTIONS.map(({ value, label }) => {
           const selected = activeMode === value;
 
           return (
@@ -120,30 +159,44 @@ export function ThemeSwitch({
               name="theme"
               value={value}
               type="submit"
+              onClick={() => setClientTheme(value)}
               aria-pressed={selected}
               aria-label={`Use ${label.toLowerCase()} theme`}
-              title={label}
               className={cn(
-                "inline-flex items-center justify-center gap-2 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
-                size === "sm" ? "h-8 px-2.5 text-xs" : "h-9 px-3 text-sm",
+                "outline-none transition-colors focus-visible:underline",
                 selected
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-term-link",
               )}
             >
-              <Icon size={iconSize} />
-              <span className={cn(size === "sm" ? "sr-only" : "inline")}>
-                {label}
-              </span>
+              {selected ? `[${value}]` : value}
             </button>
           );
         })}
-        <span className="sr-only" aria-live="polite">
-          Current theme: {activeMode}
-        </span>
-      </fieldset>
+      </span>
+      <span className="sr-only" aria-live="polite">
+        Current theme: {activeMode}
+      </span>
     </fetcher.Form>
   );
+}
+
+/**
+ * @returns the user's *mode* selection ("light" | "dark" | "system"),
+ * reflecting an in-flight switch optimistically. Use this to drive UI that
+ * needs to distinguish "system" from an explicit choice (e.g. the `<html>`
+ * class and the theme switcher's active state).
+ */
+export function useThemeMode(): ValidTheme {
+  const requestInfo = useRequestInfo();
+  // A client override (set by the switch) wins over the loader value, which can
+  // lag behind due to the post-action revalidation cookie race described above.
+  const override = useSyncExternalStore(
+    subscribeTheme,
+    getThemeOverride,
+    getServerThemeOverride,
+  );
+  return override ?? requestInfo.userPrefs.theme;
 }
 
 /**
