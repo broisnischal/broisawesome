@@ -274,6 +274,18 @@ const developmentSubsections: DevSubsection[] = [
   },
 ];
 
+/**
+ * Bare hostname for the magenta `(…)` link segment. Without this, MdLink falls
+ * back to the full href and the rows become a wall of raw URLs.
+ */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 function formatKindLabel(kind: string): string {
   return kind
     .split(/[-_\s]+/)
@@ -288,18 +300,22 @@ function CatalogList({
   items: { name: string; kind: string; link?: string }[];
 }) {
   return (
-    <MdList className="mt-3">
+    <MdList className="mt-3 space-y-2">
       {items.map((item) => (
         <MdListItem key={item.name}>
           <span>
             {item.link ? (
-              <MdLink label={item.name} href={item.link} />
+              <MdLink
+                label={item.name}
+                href={item.link}
+                display={hostOf(item.link)}
+              />
             ) : (
               <span className="text-foreground">{item.name}</span>
             )}
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground/70">
               {" "}
-              — {formatKindLabel(item.kind)}
+              · {formatKindLabel(item.kind)}
             </span>
           </span>
         </MdListItem>
@@ -310,10 +326,10 @@ function CatalogList({
 
 function DevSublinkList({ items }: { items: DevSublink[] }) {
   return (
-    <MdList className="mt-1.5 ml-2">
+    <MdList className="mt-1.5 ml-2 border-l border-border/40 pl-3">
       {items.map((s) => (
         <MdListItem key={s.label}>
-          <MdLink label={s.label} href={s.link} />
+          <MdLink label={s.label} href={s.link} display={hostOf(s.link)} />
         </MdListItem>
       ))}
     </MdList>
@@ -335,19 +351,25 @@ function DevelopmentSection() {
         <div key={subsection.title}>
           <Squiggle />
           <SectionLabel>{subsection.title}:</SectionLabel>
-          <MdList className="mt-3">
+          <MdList className="mt-3 space-y-4">
             {subsection.items.map((entry) => (
               <MdListItem key={entry.name}>
-                <span className="flex flex-col gap-0.5">
+                <span className="flex flex-col gap-1">
                   <span>
                     {entry.link ? (
-                      <MdLink label={entry.name} href={entry.link} />
+                      <MdLink
+                        label={entry.name}
+                        href={entry.link}
+                        display={hostOf(entry.link)}
+                      />
                     ) : (
                       <span className="text-foreground">{entry.name}</span>
                     )}
                   </span>
                   {entry.detail ? (
-                    <span className="text-muted-foreground">{entry.detail}</span>
+                    <span className="text-muted-foreground/80">
+                      {entry.detail}
+                    </span>
                   ) : null}
                   {entry.sublinks?.length ? (
                     <DevSublinkList items={entry.sublinks} />
@@ -442,7 +464,6 @@ export function Use() {
       },
       {
         name: "Watch Pro 2",
-        // link: 'https://www.apple.com/watch/pro/',
         kind: "watch",
       },
     ],
@@ -511,7 +532,7 @@ export function Use() {
             alt="Workspace desk setup with monitor and gear"
             loading="lazy"
             decoding="async"
-            className="max-w-full"
+            className="w-full max-w-sm rounded-md border border-border/60"
           />
           <figcaption className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
             desk setup

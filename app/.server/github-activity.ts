@@ -385,17 +385,26 @@ export type GitHubActivityResult = {
   fromApi: boolean;
   error?: string;
   rateLimitRemaining?: number;
+  /** The page just fetched. */
+  page: number;
+  /** Whether another page within the window is worth fetching. */
+  hasMore: boolean;
 };
+
+/** GitHub's Events API caps at ~300 events total across pages. */
+const EVENTS_CAP = 300;
 
 export async function fetchGitHubActivity(
   env: Cloudflare.Env | undefined,
-  options?: { perPage?: number },
+  options?: { perPage?: number; page?: number; sinceIso?: string },
 ): Promise<GitHubActivityResult> {
   const username = (env?.GITHUB_USERNAME?.trim() || DEFAULT_USERNAME).replace(/^@/, "");
   const token = env?.GITHUB_TOKEN?.trim();
   const perPage = Math.min(Math.max(options?.perPage ?? 30, 1), 100);
+  const page = Math.min(Math.max(options?.page ?? 1, 1), 10);
+  const sinceIso = options?.sinceIso;
 
-  const url = `https://api.github.com/users/${encodeURIComponent(username)}/events/public?per_page=${perPage}`;
+  const url = `https://api.github.com/users/${encodeURIComponent(username)}/events/public?per_page=${perPage}&page=${page}`;
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": API_VERSION,
@@ -425,6 +434,8 @@ export async function fetchGitHubActivity(
         fromApi: true,
         error: message,
         rateLimitRemaining,
+        page,
+        hasMore: false,
       };
     }
 
@@ -436,19 +447,32 @@ export async function fetchGitHubActivity(
         fromApi: true,
         error: "Unexpected GitHub response",
         rateLimitRemaining,
+        page,
+        hasMore: false,
       };
     }
 
+    // Whether we've paged past the window: any raw event older than `since`
+    // means this page reached the boundary, so there's nothing newer beyond it.
+    const reachedWindowEnd =
+      sinceIso != null && raw.some((ev) => ev.created_at < sinceIso);
+
     const items: GitHubActivityItem[] = [];
     for (const ev of raw) {
+      if (sinceIso != null && ev.created_at < sinceIso) continue;
       const parsed = parseEvent(ev);
       if (parsed) items.push(parsed);
     }
 
-    return { items, username, fromApi: true, rateLimitRemaining };
+    const hasMore =
+      raw.length >= perPage &&
+      !reachedWindowEnd &&
+      page * perPage < EVENTS_CAP;
+
+    return { items, username, fromApi: true, rateLimitRemaining, page, hasMore };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Network error";
-    return { items: [], username, fromApi: false, error: message };
+    return { items: [], username, fromApi: false, error: message, page, hasMore: false };
   }
 }
 

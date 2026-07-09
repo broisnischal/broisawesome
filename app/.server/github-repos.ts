@@ -114,6 +114,113 @@ function mapPinnedNode(node: PinnedRepoGqlNode): GitHubRepoItem | null {
   };
 }
 
+export type RepoStarInfo = { count: number; viewerHasStarred: boolean };
+/** Keyed by lowercased repo name. */
+export type RepoStars = Record<string, RepoStarInfo>;
+
+export type RepoStarsResult = {
+  stars: RepoStars;
+  fromApi: boolean;
+  error?: string;
+  rateLimitRemaining?: number;
+};
+
+/**
+ * Live star state for a set of the user's repos, resolved in a single GraphQL
+ * request (one aliased `repository()` field per name). Repos that don't resolve
+ * are omitted from the map — callers should treat missing as 0 / not-starred.
+ *
+ * Pass `viewerToken` (the signed-in visitor's OAuth token) to get an accurate
+ * `viewerHasStarred`; without it that flag reflects whatever the fallback
+ * `GITHUB_TOKEN` account has starred and should be ignored.
+ */
+export async function fetchGitHubRepoStars(
+  env: Cloudflare.Env | undefined,
+  repoNames: string[],
+  viewerToken?: string,
+): Promise<RepoStarsResult> {
+  const username = (env?.GITHUB_USERNAME?.trim() || DEFAULT_USERNAME).replace(
+    /^@/,
+    "",
+  );
+  const token = viewerToken?.trim() || env?.GITHUB_TOKEN?.trim();
+  const names = [...new Set(repoNames.map((n) => n.trim()).filter(Boolean))];
+  if (names.length === 0) return { stars: {}, fromApi: false };
+
+  const fields = names
+    .map(
+      (name, i) =>
+        `r${i}: repository(name: ${JSON.stringify(name)}) { name stargazerCount viewerHasStarred }`,
+    )
+    .join("\n");
+  const query = `query StarCounts($login: String!) {\n  user(login: $login) {\n${fields}\n  }\n}`;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "User-Agent": "nischal-portfolio-projects",
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  try {
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ query, variables: { login: username } }),
+    });
+
+    const remaining = res.headers.get("x-ratelimit-remaining");
+    const rateLimitRemaining = remaining ? Number(remaining) : undefined;
+
+    const body = (await res.json()) as {
+      data?: {
+        user?: Record<
+          string,
+          {
+            name: string;
+            stargazerCount: number;
+            viewerHasStarred: boolean;
+          } | null
+        > | null;
+      };
+      errors?: Array<{ message: string }>;
+      message?: string;
+    };
+
+    if (!res.ok) {
+      return {
+        stars: {},
+        fromApi: true,
+        error: body.message || body.errors?.[0]?.message || `GitHub GraphQL ${res.status}`,
+        rateLimitRemaining,
+      };
+    }
+
+    const user = body.data?.user;
+    const stars: RepoStars = {};
+    if (user) {
+      for (const node of Object.values(user)) {
+        if (node)
+          stars[node.name.toLowerCase()] = {
+            count: node.stargazerCount,
+            viewerHasStarred: node.viewerHasStarred,
+          };
+      }
+    }
+
+    // Partial results are fine (a missing repo yields a per-field error but the
+    // rest still resolve); only surface an error when nothing came back.
+    const error =
+      Object.keys(stars).length === 0
+        ? body.errors?.[0]?.message || body.message || undefined
+        : undefined;
+
+    return { stars, fromApi: true, error, rateLimitRemaining };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Network error";
+    return { stars: {}, fromApi: false, error: message };
+  }
+}
+
 /**
  * Public profile pins only (private / hidden repos omitted from the grid).
  */

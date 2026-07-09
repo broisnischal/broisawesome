@@ -213,8 +213,8 @@ export function createPersonSchema(options?: {
 }) {
   const {
     url = SITE_URL,
-    jobTitle = "Software Engineer",
-    description = "Self-started software developer focusing on serverless architecture, Android development, user experience, and product development.",
+    jobTitle = "AI/ML-based Full-Stack Engineer",
+    description = "AI/ML-based full-stack engineer focusing on serverless architecture, applied machine learning, user experience, and product development.",
   } = options || {};
 
   return {
@@ -242,7 +242,7 @@ export function createWebSiteSchema(options?: { description?: string }) {
     "Portfolio, blog, and GitHub activity by Nischal Dahal (broisnischal): software engineering, serverless, Android, and web development.";
 
   const personDescription =
-    "Self-started software developer focusing on serverless architecture, Android development, user experience, and product development.";
+    "AI/ML-based full-stack engineer focusing on serverless architecture, applied machine learning, user experience, and product development.";
 
   return {
     "@context": "https://schema.org",
@@ -278,7 +278,7 @@ export function createWebSiteSchema(options?: { description?: string }) {
         alternateName: ["broisnischal", "broisnees", "Nischal"],
         url: SITE_URL,
         image: PROFILE_IMAGE,
-        jobTitle: "Software Engineer",
+        jobTitle: "AI/ML-based Full-Stack Engineer",
         description: personDescription,
         address: PERSON_ADDRESS,
         knowsAbout: KNOWS_ABOUT,

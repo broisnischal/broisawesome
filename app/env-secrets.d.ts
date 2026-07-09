@@ -25,6 +25,13 @@ declare namespace Cloudflare {
     /** Public events username (default `broisnischal`). */
     GITHUB_USERNAME?: string;
     /**
+     * GitHub OAuth App credentials for the "star in place" flow.
+     * Callback URL to register: `<origin>/resources/github-callback`.
+     * Set via `wrangler secret put` (or `.dev.vars` locally).
+     */
+    GITHUB_OAUTH_CLIENT_ID?: string;
+    GITHUB_OAUTH_CLIENT_SECRET?: string;
+    /**
      * npm **login** username for maintainer search (registry.npmjs.org).
      * May differ from your npm profile URL; if the npm section is empty, set this to the account that publishes your packages.
      */

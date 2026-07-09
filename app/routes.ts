@@ -44,4 +44,10 @@ export default [
     "resources/gallery-image",
     typedFilePath("routes/resources/gallery-image.tsx"),
   ),
+  route("resources/github-auth", typedFilePath("routes/resources/github-auth.tsx")),
+  route(
+    "resources/github-callback",
+    typedFilePath("routes/resources/github-callback.tsx"),
+  ),
+  route("resources/github-star", typedFilePath("routes/resources/github-star.tsx")),
 ] satisfies RouteConfig;
