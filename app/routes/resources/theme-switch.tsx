@@ -79,8 +79,100 @@ function getServerThemeOverride(): ValidTheme | null {
   return null;
 }
 
+/**
+ * A theme flip changes color on nearly every element at once; with their
+ * color transitions running, the page smears instead of snapping. Kill
+ * transitions for one frame around the swap.
+ */
+function suppressTransitionsForOneFrame() {
+  if (typeof document === "undefined") return;
+  const style = document.createElement("style");
+  style.textContent = "*,*::before,*::after{transition:none !important}";
+  document.head.appendChild(style);
+  // Force a reflow so the class change applies with transitions off.
+  void window.getComputedStyle(document.body).opacity;
+  requestAnimationFrame(() => requestAnimationFrame(() => style.remove()));
+}
+
+const WAVE_MS = 420;
+
+function resolveTheme(mode: ValidTheme): "light" | "dark" {
+  if (mode !== "system") return mode;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function currentTheme(): "light" | "dark" {
+  const root = document.documentElement.classList;
+  if (root.contains("dark")) return "dark";
+  if (root.contains("light")) return "light";
+  return resolveTheme("system");
+}
+
+/**
+ * Theme wave: the page switches at once, but every visible grid tile
+ * (`[data-tile]`) is pinned to the old theme and then released in random
+ * order, so the grid flips cell by cell like a board of tiles. One rAF loop
+ * does the releases; transitions are off so each tile snaps; React and the
+ * canvases catch up once the wave is done. Works because the colour tokens
+ * hang off `.light` / `.dark`, so a class on one tile themes just that tile.
+ * Returns false (switch the plain way) when nothing would change visually or
+ * under reduced motion.
+ */
+function runThemeWave(mode: ValidTheme, done: () => void): boolean {
+  const prev = currentTheme();
+  const next = resolveTheme(mode);
+  if (next === prev) return false;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    return false;
+
+  // Read every rect first (one layout), then write.
+  const tiles = [
+    ...document.querySelectorAll<HTMLElement>("[data-tile]"),
+  ].filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+  });
+  if (tiles.length === 0) return false;
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+
+  const still = document.createElement("style");
+  still.textContent = "*,*::before,*::after{transition:none !important}";
+  document.head.appendChild(still);
+
+  // Same task, so one paint: pin tiles to the old look, then flip the page.
+  for (const el of tiles) el.classList.add(prev);
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  if (mode !== "system") root.classList.add(mode);
+  root.style.colorScheme = mode === "system" ? "" : mode;
+
+  const start = performance.now();
+  let released = 0;
+  const step = (now: number) => {
+    const due = Math.min(
+      tiles.length,
+      Math.ceil(((now - start) / WAVE_MS) * tiles.length),
+    );
+    while (released < due) tiles[released++].classList.remove(prev);
+    if (released < tiles.length) {
+      requestAnimationFrame(step);
+    } else {
+      still.remove();
+      done();
+    }
+  };
+  requestAnimationFrame(step);
+  return true;
+}
+
 /** Apply a theme choice instantly on the client and persist it for next load. */
 export function setClientTheme(mode: ValidTheme) {
+  suppressTransitionsForOneFrame();
   clientThemeOverride = mode;
   if (typeof document !== "undefined") {
     document.cookie =
@@ -126,7 +218,10 @@ function useOptimisticThemeSubmission() {
 export function ThemeSwitch({
   userPreference,
   className,
+  labelClassName,
 }: {
+  /** Classes for the inline "theme:" prefix, e.g. hide it where a tile labels it. */
+  labelClassName?: string;
   userPreference?: Theme | "system" | null;
   className?: string;
 }) {
@@ -144,7 +239,9 @@ export function ThemeSwitch({
       action="/resources/theme-switch"
       className={cn("inline-flex items-center gap-2", className)}
     >
-      <span className="text-muted-foreground/50">theme:</span>
+      <span className={cn("text-muted-foreground", labelClassName)}>
+        theme:
+      </span>
       <span
         className="inline-flex items-center gap-2"
         role="group"
@@ -159,11 +256,25 @@ export function ThemeSwitch({
               name="theme"
               value={value}
               type="submit"
-              onClick={() => setClientTheme(value)}
+              onClick={(e) => {
+                const persist = () => {
+                  setClientTheme(value);
+                  fetcher.submit(
+                    { theme: value },
+                    { method: "POST", action: "/resources/theme-switch" },
+                  );
+                };
+                // Wave: hold the form submit and persist when it lands.
+                if (runThemeWave(value, persist)) {
+                  e.preventDefault();
+                } else {
+                  setClientTheme(value);
+                }
+              }}
               aria-pressed={selected}
               aria-label={`Use ${label.toLowerCase()} theme`}
               className={cn(
-                "outline-none transition-colors focus-visible:underline",
+                "inline-flex min-h-6 cursor-pointer items-center transition-colors",
                 selected
                   ? "text-foreground"
                   : "text-muted-foreground hover:text-term-link",

@@ -1,9 +1,9 @@
 /**
  * Terminal UI kit.
  *
- * The whole site is styled as a raw-markdown document rendered in a terminal:
- * monospace, CAPS section labels, `~~~` dividers, and links shown literally as
- * `[label](href)` where the href is the magenta, underlined part you can click.
+ * The whole site is a grid-line page: a framed column with hairline rails,
+ * sections as bordered bands with CAPS labels, monospace throughout, and links
+ * shown literally as `[label](href)` where the href is the amber part.
  *
  * Keep these primitives small and composable — pages are mostly just lists of
  * <MdLink /> rows under a <SectionLabel />, separated by <Squiggle />.
@@ -21,40 +21,49 @@ export function Cursor({ className }: { className?: string }) {
   return <span className={cn("term-cursor", className)} aria-hidden />;
 }
 
-/** Markdown thematic break, rendered as the literal `---`. */
+/**
+ * Section break: a hairline that runs rail to rail (it bleeds through the
+ * page padding) with a + where it meets each rail.
+ */
 export function Squiggle({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "my-7 select-none tracking-[0.3em] text-muted-foreground/45 md:my-9",
+        "grid-cross relative -mx-5 my-10 border-t border-border md:-mx-8 md:my-12",
         className,
       )}
       aria-hidden
-    >
-      ---
-    </div>
+    />
   );
 }
 
-/** Section heading (plain, no markdown marker). */
+/**
+ * Section heading (plain, no markdown marker). Renders a real heading so the
+ * page has an outline screen readers can jump through; `as` picks the level.
+ */
 export function SectionLabel({
   children,
   className,
   id,
+  as: Tag = "h2",
 }: {
   children: ReactNode;
   className?: string;
   id?: string;
+  as?: "h1" | "h2" | "h3" | "h4" | "p";
 }) {
   const text =
     typeof children === "string" ? children.replace(/:\s*$/, "") : children;
   return (
-    <p
+    <Tag
       id={id}
-      className={cn("font-medium text-bright", className)}
+      className={cn(
+        "text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground",
+        className,
+      )}
     >
       {text}
-    </p>
+    </Tag>
   );
 }
 
@@ -108,38 +117,34 @@ export function MdLink({
 
   const body = (
     <>
-      <span className="select-none text-muted-foreground/60">[</span>
+      <span className="select-none text-faint">[</span>
       <span
         className={cn(
           "text-foreground group-hover:text-bright",
-          strike && "line-through decoration-muted-foreground/70",
+          strike && "line-through decoration-faint",
         )}
       >
         {label}
       </span>
-      <span className="select-none text-muted-foreground/60">](</span>
+      <span className="select-none text-faint">](</span>
       <span className="term-link">{shown}</span>
-      <span className="select-none text-muted-foreground/60">)</span>
+      <span className="select-none text-faint">)</span>
     </>
   );
 
   // `inline` (not inline-flex) so long labels wrap as normal text instead of
   // breaking the `[label](url)` punctuation across lines. `overflow-wrap`
   // lets long unbroken URLs in `display` wrap instead of overflowing on mobile.
+  // Focus uses the global :focus-visible outline (app.css).
   const classes = cn(
-    "group rounded-xs outline-none transition-colors [overflow-wrap:anywhere]",
-    "focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "group rounded-xs transition-colors [overflow-wrap:anywhere]",
     className,
   );
-
-  // Native title reveals the full destination (useful when `display` is shortened).
-  const tip = target && target !== "#" ? target : undefined;
 
   if (external || !to) {
     return (
       <a
         href={target}
-        title={tip}
         className={classes}
         {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
       >
@@ -151,7 +156,7 @@ export function MdLink({
   // No hover-prefetch: several routes have external-API loaders, so
   // prefetching on every mouseover caused noticeable jank.
   return (
-    <Link to={to} title={tip} className={classes}>
+    <Link to={to} className={classes}>
       {body}
     </Link>
   );
@@ -165,9 +170,7 @@ export function MdList({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <ul className={cn("mt-3 space-y-1.5", className)}>{children}</ul>
-  );
+  return <ul className={cn("mt-3 space-y-1.5", className)}>{children}</ul>;
 }
 
 export function MdListItem({
@@ -179,7 +182,7 @@ export function MdListItem({
 }) {
   return (
     <li className={cn("flex gap-2", className)}>
-      <span className="select-none text-muted-foreground/60" aria-hidden>
+      <span className="select-none text-faint" aria-hidden>
         -
       </span>
       <span className="min-w-0 flex-1">{children}</span>
