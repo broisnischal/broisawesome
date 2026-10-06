@@ -67,11 +67,17 @@ export function StarButton({
   repo,
   githubUrl,
   count,
+  revealOnHover,
 }: {
   owner: string;
   repo: string;
   githubUrl: string;
   count?: number;
+  /**
+   * Stay invisible until the row is hovered or focused, unless there is
+   * something to show (a count, or the viewer's own star).
+   */
+  revealOnHover?: boolean;
 }) {
   const { configured, authed, starred } = useContext(StarStateContext);
   const key = repo.toLowerCase();
@@ -105,8 +111,15 @@ export function StarButton({
       {hasCount && count}
     </>
   );
-  const shared =
-    "ml-2 inline-flex items-center gap-0.5 rounded-xs align-middle text-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  // The glyph stays 12px; the ::after box gives it a 24px target (WCAG 2.5.8)
+  // without moving anything. z-10 keeps it above a table row's stretched link.
+  // Focus uses the global :focus-visible outline.
+  const quiet = revealOnHover && !on && !hasCount;
+  const shared = cn(
+    "relative z-10 inline-flex items-center gap-0.5 rounded-xs align-middle text-xs whitespace-nowrap transition-[color,opacity] after:absolute after:-inset-x-[5px] after:-inset-y-[6px]",
+    quiet &&
+      "opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100",
+  );
 
   // Fallback: no OAuth configured → link to the repo (visitor stars there).
   if (!configured) {
@@ -117,7 +130,7 @@ export function StarButton({
         rel="noreferrer noopener"
         title={hasCount ? `${count} stars on GitHub` : "Star on GitHub"}
         aria-label={label}
-        className={cn(shared, "text-muted-foreground/60 hover:text-bright")}
+        className={cn(shared, "text-muted-foreground hover:text-bright")}
       >
         {badge}
       </a>
@@ -149,7 +162,9 @@ export function StarButton({
       className={cn(
         shared,
         "cursor-pointer disabled:opacity-60",
-        on ? "text-amber-500 hover:text-amber-400" : "text-muted-foreground/60 hover:text-bright",
+        on
+          ? "text-term-link hover:text-term-link-hover"
+          : "text-muted-foreground hover:text-bright",
       )}
     >
       {badge}

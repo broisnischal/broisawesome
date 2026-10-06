@@ -313,7 +313,7 @@ function CatalogList({
             ) : (
               <span className="text-foreground">{item.name}</span>
             )}
-            <span className="text-muted-foreground/70">
+            <span className="text-muted-foreground">
               {" "}
               · {formatKindLabel(item.kind)}
             </span>
@@ -326,7 +326,7 @@ function CatalogList({
 
 function DevSublinkList({ items }: { items: DevSublink[] }) {
   return (
-    <MdList className="mt-1.5 ml-2 border-l border-border/40 pl-3">
+    <MdList className="mt-1.5 ms-2 border-s border-border/40 ps-3">
       {items.map((s) => (
         <MdListItem key={s.label}>
           <MdLink label={s.label} href={s.link} display={hostOf(s.link)} />
@@ -367,7 +367,7 @@ function DevelopmentSection() {
                     )}
                   </span>
                   {entry.detail ? (
-                    <span className="text-muted-foreground/80">
+                    <span className="text-muted-foreground">
                       {entry.detail}
                     </span>
                   ) : null}
@@ -431,6 +431,11 @@ export function Use() {
         name: "Samsontech C01U Pro",
         link: "https://samsontech.com/products/microphones/usb-microphones/c01upro/",
         kind: "microphone",
+      },
+      {
+        name: "Epomaker TH40 | custom QMK firmware",
+        link: "https://github.com/broisnischal/keyboard",
+        kind: "keyboard",
       },
       {
         name: "Razer Deathadder V2",
@@ -532,7 +537,7 @@ export function Use() {
             alt="Workspace desk setup with monitor and gear"
             loading="lazy"
             decoding="async"
-            className="w-full max-w-sm rounded-md border border-border/60"
+            className="w-full max-w-sm rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
           />
           <figcaption className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
             desk setup

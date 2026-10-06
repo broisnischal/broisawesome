@@ -16,7 +16,7 @@ export default function Page() {
             name="email"
             autoComplete="email"
             required
-            className="mt-1 w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-term-link focus:outline-none"
+            className="mt-1 w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-term-link"
           />
         </div>
 
@@ -27,7 +27,7 @@ export default function Page() {
             name="password"
             autoComplete="current-password"
             required
-            className="mt-1 w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-term-link focus:outline-none"
+            className="mt-1 w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-term-link"
           />
         </div>
 

@@ -64,8 +64,8 @@ export function NewsletterSubscribeForm({
               disabled={isSubmitting}
               className={cn(
                 "min-h-10 min-w-0 flex-1 border-0 bg-transparent py-2 pr-2 text-sm text-foreground outline-none",
-                "placeholder:text-muted-foreground/70 placeholder:transition-opacity placeholder:duration-200",
-                "focus:placeholder:text-muted-foreground/45",
+                "placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-200",
+                "focus:placeholder:text-faint",
                 "focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-60",
               )}
             />
@@ -118,7 +118,7 @@ export function NewsletterSubscribeForm({
               className={cn(
                 "box-border min-w-0 flex-1 rounded-xl border border-border bg-background px-3.5 py-2 text-foreground placeholder:text-muted-foreground",
                 "transition-[border-color,box-shadow] duration-200",
-                "focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/45",
+                "focus-visible:border-ring",
                 "h-10 text-sm leading-none sm:min-w-[200px]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
               )}

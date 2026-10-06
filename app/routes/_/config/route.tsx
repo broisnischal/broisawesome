@@ -8,7 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
-import { SectionLabel, Squiggle } from "~/components/terminal";
+import { MdLink, SectionLabel, Squiggle } from "~/components/terminal";
 import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
 
 type Config =
@@ -329,7 +329,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         Configuration Files
       </h1>
       <p className="mt-2 text-muted-foreground">
-        copy or download development config files
+        copy or download development config files. the full setup (Hyprland,
+        zsh, nvim, tmux, Claude Code) lives in{" "}
+        <MdLink
+          label="dotfiles"
+          href="https://github.com/broisnischal/dotfiles"
+          display="gh/dotfiles"
+        />
+        .
       </p>
 
       <Squiggle />
@@ -361,7 +368,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     <span className="font-mono text-foreground uppercase tracking-[0.1em]">
                       {config.name}
                     </span>
-                    <span className="font-mono text-xs text-muted-foreground/60 uppercase">
+                    <span className="font-mono text-xs text-muted-foreground uppercase">
                       .{config.extension}
                     </span>
                   </div>

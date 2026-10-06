@@ -51,7 +51,7 @@ export function Breadcrumbs() {
       </Link>
       {breadcrumbs.map((crumb, index) => (
         <span key={crumb.pathname} className="flex items-center gap-2">
-          <span className="select-none text-muted-foreground/40">/</span>
+          <span className="select-none text-faint">/</span>
           <span
             className={
               index === breadcrumbs.length - 1

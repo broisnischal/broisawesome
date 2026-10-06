@@ -122,10 +122,7 @@ function GalleryTile({ photo }: { photo: GalleryPhoto }) {
         href={photo.productUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={cn(
-          "group block size-full overflow-hidden border border-border bg-muted",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        )}
+        className="group block size-full overflow-hidden border border-border bg-muted"
       >
         <img
           src={photo.thumbSrc}

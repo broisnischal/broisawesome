@@ -108,7 +108,7 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
       <Squiggle />
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
-        <span className="uppercase tracking-[0.12em] text-muted-foreground/70">
+        <span className="uppercase tracking-[0.12em] text-muted-foreground">
           subscribe:
         </span>
         <MdLink label="rss" href="/blogs.rss" display="blogs.rss" />
@@ -126,7 +126,7 @@ export default function BlogLayout({ loaderData }: Route.ComponentProps) {
               key={blog.slug}
               className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-1"
             >
-              <span className="text-xs tabular-nums text-muted-foreground/55">
+              <span className="text-xs tabular-nums text-muted-foreground">
                 {date}
               </span>
               <span className="min-w-0">

@@ -95,7 +95,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   ) : (
                     <span className="text-foreground">{track.song}</span>
                   )}
-                  <span className="text-muted-foreground/60">—</span>
+                  <span className="text-faint">—</span>
                   {track.artistUrl ? (
                     <a
                       href={track.artistUrl}
@@ -108,7 +108,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   ) : (
                     <span className="text-muted-foreground">{track.artist}</span>
                   )}
-                  <span className="text-muted-foreground/50 text-xs">
+                  <span className="text-muted-foreground text-xs">
                     <time dateTime={track.addedAtIso}>{track.addedAt}</time>
                   </span>
                 </span>
