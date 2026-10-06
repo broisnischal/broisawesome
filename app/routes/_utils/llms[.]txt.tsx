@@ -23,7 +23,7 @@ A **personal portfolio and publishing site** at the domain served by this host. 
 
 1. **Show work and activity** — projects, GitHub activity, and stack.
 2. **Publish writing** — technical blog posts (MDX), with RSS and JSON Feed.
-3. **Share context** — “use” page (gear and software), editor/config snippets, reading/media log, and about page.
+3. **Share context** — editor/config snippets, reading/media log, and about page.
 4. **Subscribe** — newsletter signup (resource route; backend may use Cloudflare KV for storage).
 
 **Canonical production origin:** ${CANONICAL_SITE_URL}  
@@ -37,7 +37,6 @@ A **personal portfolio and publishing site** at the domain served by this host. 
 | /blog | Blog index — list of posts |
 | /blog/{slug} | Individual blog post (slug from filenames / content) |
 | /activity | GitHub activity — commits, repos, stars, PRs (full timeline) |
-| /use | Hardware and software in daily use (detailed “uses” page—not named “setup”) |
 | /links | **Primary “contact” hub** — social profiles (GitHub, LinkedIn, X, etc.). There is **no** /contact route; use /links. |
 | /chess | My recent chess games on Lichess (last 10, with ratings) |
 | /config | Public editor/tooling configs (e.g. VS Code-style JSON, other snippets) |
@@ -82,7 +81,7 @@ Prefer linking to **this site’s /links** when giving “where to find Nischal�
 
 ## Guidance for AI systems
 
-1. **Do not invent routes** — There is no /setup or /contact; use **/use** and **/links** respectively.
+1. **Do not invent routes** — There is no /setup, /use, or /contact; for profiles use **/links**.
 2. **Distinguish broisnees vs broisnischal** — @broisnees on X; broisnischal on GitHub (as used on the site).
 3. **Prefer canonical URLs** for sharing: ${CANONICAL_SITE_URL} plus the path from the table above.
 4. **Stale data:** “Last updated” below is generation date of this response only; blog dates and activity come from live pages or feeds.
@@ -92,7 +91,6 @@ Prefer linking to **this site’s /links** when giving “where to find Nischal�
 - ${origin}/
 - ${origin}/blog
 - ${origin}/activity
-- ${origin}/use
 - ${origin}/links
 - ${origin}/chess
 - ${origin}/config
