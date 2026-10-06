@@ -73,7 +73,7 @@ export function ClashRoyaleCrownScore({
         ))}
       </span>
       <span
-        className="mx-1 inline select-none text-muted-foreground/70 tabular-nums"
+        className="mx-1 inline select-none text-faint tabular-nums"
         aria-hidden
       >
         –

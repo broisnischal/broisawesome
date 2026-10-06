@@ -27,6 +27,8 @@ export default [
     route("*", typedFilePath("routes/$.tsx")),
     ...(await flatRoutes({
       rootDirectory: "routes/_",
+      // /use is off for now; delete this line to bring the page back.
+      ignoredRouteFiles: ["routes/_/use", "routes/_/use/**"],
     })),
   ]),
   ...(await flatRoutes({
@@ -44,10 +46,33 @@ export default [
     "resources/gallery-image",
     typedFilePath("routes/resources/gallery-image.tsx"),
   ),
-  route("resources/github-auth", typedFilePath("routes/resources/github-auth.tsx")),
+  route(
+    "resources/github-auth",
+    typedFilePath("routes/resources/github-auth.tsx"),
+  ),
   route(
     "resources/github-callback",
     typedFilePath("routes/resources/github-callback.tsx"),
   ),
-  route("resources/github-star", typedFilePath("routes/resources/github-star.tsx")),
+  route(
+    "resources/github-star",
+    typedFilePath("routes/resources/github-star.tsx"),
+  ),
+  route("resources/post-text", typedFilePath("routes/resources/post-text.tsx")),
+  route(
+    "resources/album-preview",
+    typedFilePath("routes/resources/album-preview.tsx"),
+  ),
+  route(
+    "resources/album-photo",
+    typedFilePath("routes/resources/album-photo.tsx"),
+  ),
+  route(
+    "resources/recent-commits",
+    typedFilePath("routes/resources/recent-commits.tsx"),
+  ),
+  route(
+    "resources/contributions",
+    typedFilePath("routes/resources/contributions.tsx"),
+  ),
 ] satisfies RouteConfig;

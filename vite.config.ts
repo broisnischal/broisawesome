@@ -39,11 +39,56 @@ const buildModified =
 
 const buildVersion = pkg.version ?? "0.0.0";
 
+/** Last few commits with their line stats, for the footer's commit ticker. */
+function readBuildLog() {
+  const raw = git("git log -8 --shortstat --format=%x1e%h%x1f%s");
+  if (!raw) return [];
+  return raw
+    .split("\x1e")
+    .filter((chunk) => chunk.trim())
+    .map((chunk) => {
+      const [head, ...rest] = chunk.trim().split("\n");
+      const [hash, subject = ""] = head.split("\x1f");
+      const stat = rest.join(" ");
+      return {
+        hash,
+        subject,
+        add: Number(stat.match(/(\d+) insertion/)?.[1] ?? 0),
+        del: Number(stat.match(/(\d+) deletion/)?.[1] ?? 0),
+      };
+    });
+}
+
+const buildLog = readBuildLog();
+
+/**
+ * @mdx-js/rollup drops the query before matching ids, so `post.mdx?raw` gets
+ * compiled into a component too. Let `?raw` imports through untouched (the
+ * post-text route needs the markdown source).
+ */
+function skipRawImports(
+  plugin: ReturnType<typeof mdx>,
+): ReturnType<typeof mdx> {
+  const transform = plugin.transform as (
+    this: unknown,
+    code: string,
+    id: string,
+  ) => unknown;
+  return {
+    ...plugin,
+    transform(this: unknown, code: string, id: string) {
+      if (id.includes("?raw")) return null;
+      return transform.call(this, code, id);
+    },
+  } as ReturnType<typeof mdx>;
+}
+
 export default defineConfig({
   define: {
     "import.meta.env.VITE_BUILD_VERSION": JSON.stringify(buildVersion),
     "import.meta.env.VITE_BUILD_COMMIT": JSON.stringify(buildCommit),
     "import.meta.env.VITE_BUILD_MODIFIED": JSON.stringify(buildModified),
+    "import.meta.env.VITE_BUILD_LOG": JSON.stringify(JSON.stringify(buildLog)),
   },
   plugins: [
     routeTypesPlugin(),
@@ -53,22 +98,24 @@ export default defineConfig({
       experimental: {},
     }),
     tailwindcss(),
-    mdx({
-      providerImportSource: "@mdx-js/react",
-      remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
-      rehypePlugins: [
-        rehypeSlug,
-        () =>
-          rehypePrettyCode({
-            // Shiki theme for fenced code in MDX (build-time via rehype-pretty-code).
-            // Warm dark theme to match the near-black canvas + amber accent.
-            theme: "vesper",
-            keepBackground: false,
-            bypassInlineCode: false,
-            transformers: [],
-          }),
-      ],
-    }),
+    skipRawImports(
+      mdx({
+        providerImportSource: "@mdx-js/react",
+        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+        rehypePlugins: [
+          rehypeSlug,
+          () =>
+            rehypePrettyCode({
+              // Shiki theme for fenced code in MDX (build-time via rehype-pretty-code).
+              // Warm dark theme to match the near-black canvas + amber accent.
+              theme: "vesper",
+              keepBackground: false,
+              bypassInlineCode: false,
+              transformers: [],
+            }),
+        ],
+      }),
+    ),
     reactRouter(),
     tsconfigPaths(),
     {

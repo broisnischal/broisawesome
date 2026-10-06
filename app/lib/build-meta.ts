@@ -14,6 +14,23 @@ export function getBuildInfo() {
   };
 }
 
+export type BuildCommit = {
+  hash: string;
+  subject: string;
+  add: number;
+  del: number;
+};
+
+/** Recent commits baked in at build time (empty if git wasn't available). */
+export function getBuildLog(): BuildCommit[] {
+  try {
+    const log = JSON.parse(import.meta.env.VITE_BUILD_LOG ?? "[]");
+    return Array.isArray(log) ? log : [];
+  } catch {
+    return [];
+  }
+}
+
 export function formatBuildDate(isoOrYmd: string) {
   if (!isoOrYmd) return "—";
   const normalized = isoOrYmd.includes("T")

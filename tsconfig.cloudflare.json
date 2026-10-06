@@ -8,6 +8,9 @@
     "workers/**/*",
     "worker-configuration.d.ts"
   ],
+  // The /use route is switched off in app/routes.ts, so its +types aren't
+  // generated; drop this when the page comes back.
+  "exclude": ["app/routes/_/use/**"],
   "compilerOptions": {
     "composite": true,
     "strict": true,

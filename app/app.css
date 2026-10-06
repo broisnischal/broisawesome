@@ -28,6 +28,7 @@
   --font-sans:
     "Geist Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono:
     "Geist Mono Variable", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
     Consolas, "Liberation Mono", monospace;
@@ -115,6 +116,9 @@ html.dark {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-bright: var(--bright);
+  --color-faint: var(--faint);
+  --color-diff-add: var(--diff-add);
+  --color-diff-del: var(--diff-del);
   --color-term-link: var(--term-link);
   --color-term-link-hover: var(--term-link-hover);
   --color-card: var(--card);
@@ -164,41 +168,50 @@ html.dark {
 :root,
 .light {
   --radius: 0.5rem;
-  /* Warm off-white "paper" canvas */
-  --background: oklch(0.985 0.002 286);
-  --foreground: oklch(0.255 0.006 286);
-  --bright: oklch(0.17 0.006 286);
+  /* Light: one warm neutral ramp (hue ~75, tinted toward the amber accent),
+     every step tied to a role. Measured on the canvas: muted text 5.63:1
+     (5.20 on the hover surface), body 14.45, headings 18.02, links 5.29,
+     faint glyphs 3.10 (decorative only). */
+  --background: oklch(0.985 0.004 85);
+  --foreground: oklch(0.27 0.012 75);
+  --bright: oklch(0.18 0.01 75);
+  /* Decorative glyphs only ([ ] ( ) bullets, ---, separators). 3.1:1 on the
+     canvas: passes the 3:1 non-text bar, never used for words. */
+  --faint: oklch(0.65 0.012 75);
+  /* Diff colours (commit ticker): lines added / removed. */
+  --diff-add: oklch(0.5 0.14 150);
+  --diff-del: oklch(0.53 0.19 25);
   /* Warm amber accent — darkened so links stay legible on a light canvas */
-  --term-link: oklch(0.555 0.15 58);
-  --term-link-hover: oklch(0.475 0.16 52);
-  --card: oklch(0.975 0.003 286);
+  --term-link: oklch(0.53 0.15 58);
+  --term-link-hover: oklch(0.46 0.15 52);
+  --card: oklch(0.975 0.005 82);
   --card-foreground: var(--foreground);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.995 0.003 85);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.555 0.15 58);
+  --primary: oklch(0.53 0.15 58);
   --primary-foreground: oklch(0.99 0.01 75);
-  --secondary: oklch(0.94 0.003 286);
+  --secondary: oklch(0.945 0.008 78);
   --secondary-foreground: var(--foreground);
-  --muted: oklch(0.955 0.003 286);
-  --muted-foreground: oklch(0.5 0.006 286);
-  --accent: oklch(0.94 0.003 286);
+  --muted: oklch(0.958 0.007 80);
+  --muted-foreground: oklch(0.505 0.013 75);
+  --accent: oklch(0.945 0.008 78);
   --accent-foreground: var(--bright);
   --destructive: oklch(0.55 0.22 25);
-  --border: oklch(0 0 0 / 10%);
-  --input: oklch(0 0 0 / 14%);
+  --border: oklch(0.25 0.02 70 / 12%);
+  --input: oklch(0.25 0.02 70 / 16%);
   --ring: var(--term-link);
   --chart-1: oklch(0.65 0.12 344);
   --chart-2: oklch(0.55 0.13 200);
   --chart-3: oklch(0.6 0.14 90);
   --chart-4: oklch(0.55 0.16 300);
   --chart-5: oklch(0.6 0.15 30);
-  --sidebar: oklch(0.97 0.003 286);
+  --sidebar: oklch(0.97 0.006 80);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--term-link);
   --sidebar-primary-foreground: oklch(0.99 0.01 75);
-  --sidebar-accent: oklch(0.94 0.003 286);
+  --sidebar-accent: oklch(0.945 0.008 78);
   --sidebar-accent-foreground: var(--bright);
-  --sidebar-border: oklch(0 0 0 / 9%);
+  --sidebar-border: oklch(0.25 0.02 70 / 11%);
   --sidebar-ring: var(--term-link);
 }
 
@@ -215,6 +228,9 @@ html.dark {
   --background: oklch(0.115 0.004 286);
   --foreground: oklch(0.905 0.004 286);
   --bright: oklch(0.98 0 0);
+  --faint: oklch(0.48 0.006 286);
+  --diff-add: oklch(0.76 0.15 150);
+  --diff-del: oklch(0.7 0.17 25);
   /* Warm amber accent — links + interactive primary */
   --term-link: oklch(0.82 0.13 75);
   --term-link-hover: oklch(0.88 0.14 75);
@@ -256,6 +272,9 @@ html.dark {
     --background: oklch(0.115 0.004 286);
     --foreground: oklch(0.905 0.004 286);
     --bright: oklch(0.98 0 0);
+    --faint: oklch(0.48 0.006 286);
+    --diff-add: oklch(0.76 0.15 150);
+    --diff-del: oklch(0.7 0.17 25);
     /* Warm amber accent — links + interactive primary */
     --term-link: oklch(0.82 0.13 75);
     --term-link-hover: oklch(0.88 0.14 75);
@@ -292,8 +311,31 @@ html.dark {
 }
 
 @layer base {
+  :root {
+    /* Grid row height: 192px at a 1440px-wide window (a third of the width
+       at 5:2), growing with the columns on wider screens so cells keep
+       their shape. */
+    --row: clamp(12rem, 100vw / 7.5, 22rem);
+  }
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
+  }
+  /* One focus indicator for the whole site: a 2px outline in the accent.
+     Outlines (unlike box-shadow rings) survive forced-colors mode. Light
+     4.76:1, dark 11.5:1 against the canvas. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline-color: Highlight;
+    }
+  }
+  /* Anchored headings and the skip-link target land with breathing room. */
+  [id] {
+    scroll-margin-top: 1.5rem;
   }
   body {
     @apply bg-background text-foreground font-mono text-sm leading-relaxed;
@@ -344,6 +386,130 @@ html.dark {
 .term-caret {
   color: var(--bright);
   animation: term-blink 1.15s steps(1, end) infinite;
+}
+
+/*
+ * Grid-line frame. A 9px "+" sits where a horizontal rule meets the side
+ * rails, centred on both 1px lines (rule at the element's top edge, rails just
+ * outside its left and right edges). Decorative only.
+ */
+.grid-cross::before,
+.grid-cross::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  width: 9px;
+  height: 9px;
+  background:
+    linear-gradient(var(--faint), var(--faint)) center / 1px 100% no-repeat,
+    linear-gradient(var(--faint), var(--faint)) center / 100% 1px no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+.grid-cross::before {
+  left: -5px;
+}
+.grid-cross::after {
+  right: -5px;
+}
+
+/*
+ * "Copied" ripple (see copy-burst.tsx). --ripple-r is registered so the mask
+ * radius can animate: a ring of dots ~60px thick travels out from the button
+ * at (--x, --y) while it fades; a soft amber flash marks the origin.
+ */
+@property --ripple-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes copy-ripple {
+  0% {
+    --ripple-r: 0px;
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    --ripple-r: 420px;
+    opacity: 0;
+  }
+}
+@keyframes copy-flash {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.copy-ripple {
+  --ripple-mask: radial-gradient(
+    circle at var(--x) var(--y),
+    transparent calc(var(--ripple-r) - 64px),
+    black calc(var(--ripple-r) - 20px),
+    black var(--ripple-r),
+    transparent calc(var(--ripple-r) + 24px)
+  );
+  -webkit-mask-image: var(--ripple-mask);
+  mask-image: var(--ripple-mask);
+  animation: copy-ripple 1100ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+.copy-flash {
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    color-mix(in oklch, var(--term-link) 26%, transparent),
+    transparent 60%
+  );
+  animation: copy-flash 800ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+/*
+ * Cell hover: four amber corner brackets slide in from inside the cell, like
+ * a viewfinder locking on. One pseudo-element draws all eight strokes with
+ * background layers. Shown on focus too, so keyboard users get the same cue.
+ */
+.cell-corners::after {
+  --c: var(--term-link);
+  --l: 12px;
+  --w: 1.5px;
+  content: "";
+  position: absolute;
+  inset: 14px;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--l) var(--w),
+    linear-gradient(var(--c), var(--c)) top left / var(--w) var(--l),
+    linear-gradient(var(--c), var(--c)) top right / var(--l) var(--w),
+    linear-gradient(var(--c), var(--c)) top right / var(--w) var(--l),
+    linear-gradient(var(--c), var(--c)) bottom left / var(--l) var(--w),
+    linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--l),
+    linear-gradient(var(--c), var(--c)) bottom right / var(--l) var(--w),
+    linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--l);
+  background-repeat: no-repeat;
+  transition:
+    opacity 150ms cubic-bezier(0.2, 0, 0, 1),
+    inset 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+@media (hover: hover) {
+  .cell-corners:hover::after {
+    opacity: 1;
+    inset: 7px;
+  }
+}
+.cell-corners:focus-within::after {
+  opacity: 1;
+  inset: 7px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell-corners::after {
+    transition: none;
+  }
 }
 
 /* The pink "(href)" part of a markdown-style [label](href) link */

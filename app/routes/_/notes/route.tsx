@@ -317,7 +317,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             placeholder="search notes, terms, bookmarks..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-term-link focus:outline-none"
+            className="w-full border border-border bg-muted px-3 py-1.5 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-term-link"
           />
         </div>
       </div>
@@ -420,16 +420,16 @@ function NoteItem({ note }: { note: NoteItem }) {
   return (
     <div className="border-b border-border py-5 last:border-b-0">
       <div className="mb-1 flex items-baseline gap-3">
-        <span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground/60">
+        <span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
           {note.category}
         </span>
         {note.date && (
-          <span className="font-mono text-xs text-muted-foreground/50">
+          <span className="font-mono text-xs text-muted-foreground">
             {formatDate(note.date)}
           </span>
         )}
         {note.tags && note.tags.length > 0 && (
-          <span className="font-mono text-xs text-muted-foreground/40">
+          <span className="font-mono text-xs text-muted-foreground">
             {note.tags.map((t) => `#${t}`).join(" ")}
           </span>
         )}
@@ -478,7 +478,7 @@ function NoteItem({ note }: { note: NoteItem }) {
             </div>
           )}
           {note.url && !isYouTube && (
-            <p className="mt-0.5 font-mono text-xs text-muted-foreground/50 truncate">
+            <p className="mt-0.5 font-mono text-xs text-muted-foreground truncate">
               {note.url}
             </p>
           )}

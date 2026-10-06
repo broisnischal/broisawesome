@@ -177,8 +177,8 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
         <label className="sr-only" htmlFor="writing-search">
           Search posts
         </label>
-        <div className="flex w-full items-center gap-2 border border-border bg-muted px-3 py-1.5">
-          <span className="select-none text-muted-foreground/60" aria-hidden>
+        <div className="flex w-full items-center gap-2 border border-border bg-muted px-3 py-1.5 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring">
+          <span className="select-none text-faint" aria-hidden>
             /
           </span>
           <input
@@ -190,7 +190,7 @@ function WritingPostList({ groups }: { groups: YearGroup[] }) {
             placeholder="search posts"
             autoComplete="off"
             spellCheck={false}
-            className="min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+            className="min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
           />
           <span
             className="hidden shrink-0 items-center gap-1 sm:flex"

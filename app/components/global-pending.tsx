@@ -1,56 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigation } from 'react-router';
-import { useSpinDelay } from 'spin-delay';
-import { cn } from '../lib/utils';
+import { useEffect } from "react";
+import { useNavigation } from "react-router";
+import { useSpinDelay } from "spin-delay";
 
-// Progress Bar
-export default function ProgessBar() {
+/**
+ * Global loading indicator: while a navigation takes more than a moment, the
+ * grid itself flickers (cells blink between the canvas and the hover
+ * surface, out of step with each other) instead of a bar across the top.
+ * Driven by `data-pending` on the frame (styles in app.css); screen readers
+ * get a plain "Loading" status.
+ */
+export default function GridPending() {
   const navigation = useNavigation();
-  const busy = navigation.state !== 'idle';
-
-  const delayedPending = useSpinDelay(busy, {
-    delay: 600,
-    minDuration: 400,
+  const pending = useSpinDelay(navigation.state !== "idle", {
+    delay: 300,
+    minDuration: 500,
   });
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [animationComplete, setAnimationComplete] = useState(true);
-
   useEffect(() => {
-    if (!ref.current) return;
-    if (delayedPending) setAnimationComplete(false);
-
-    const animationPromises = ref.current
-      .getAnimations()
-      .map(({ finished }) => finished);
-
-    Promise.allSettled(animationPromises).then(() => {
-      if (!delayedPending) setAnimationComplete(true);
-    });
-  }, [delayedPending]);
-
-  const showBar = delayedPending || !animationComplete;
-  if (!showBar) return null;
+    const frame = document.querySelector("[data-frame]");
+    if (!frame) return;
+    frame.toggleAttribute("data-pending", pending);
+  }, [pending]);
 
   return (
-    <div
-      role="progressbar"
-      aria-hidden={delayedPending ? undefined : true}
-      aria-valuetext={delayedPending ? 'Loading' : undefined}
-      className="fixed inset-x-0 left-0 top-0 z-[999] h-[0.20rem]"
-    >
-      <div
-        ref={ref}
-        className={cn(
-          'h-full w-0 bg-blue-500 duration-500 ease-in-out dark:bg-white',
-          navigation.state === 'idle' &&
-          (animationComplete
-            ? 'transition-none'
-            : 'w-full opacity-0 transition-all'),
-          delayedPending && navigation.state === 'submitting' && 'w-5/12',
-          delayedPending && navigation.state === 'loading' && 'w-8/12',
-        )}
-      />
-    </div>
+    <span className="sr-only" role="status" aria-live="polite">
+      {pending ? "Loading" : ""}
+    </span>
   );
 }

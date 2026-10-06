@@ -13,9 +13,11 @@ import type { Route } from "./+types/root";
 // Self-host the variable mono font that the whole terminal UI is built on.
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/geist";
+// Display face for page titles (italic only; everything else stays Geist).
+import "@fontsource/instrument-serif/400-italic.css";
 import "./app.css";
 import { Footer } from "./components/footer";
-import ProgessBar from "./components/global-pending";
+import GridPending from "./components/global-pending";
 import { ScriptDangerously } from "./lib";
 import { cn } from "./lib/utils";
 import { ClientHintCheck, getHints } from "./utils/client-hints";
@@ -97,19 +99,19 @@ function Document({ children }: { children: React.ReactNode }) {
           <>
             <meta
               name="theme-color"
-              content="#fafafa"
+              content="#fbfaf7"
               media="(prefers-color-scheme: light)"
             />
             <meta
               name="theme-color"
-              content="#0a0a0b"
+              content="#050506"
               media="(prefers-color-scheme: dark)"
             />
           </>
         ) : (
           <meta
             name="theme-color"
-            content={themeMode === "dark" ? "#0a0a0b" : "#fafafa"}
+            content={themeMode === "dark" ? "#050506" : "#fbfaf7"}
           />
         )}
         <meta name="MobileOptimized" content="320" />
@@ -170,9 +172,17 @@ function Document({ children }: { children: React.ReactNode }) {
 export default function App({}: Route.ComponentProps) {
   return (
     <Document>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[1000] focus:bg-background focus:px-3 focus:py-2 focus:text-bright"
+      >
+        Skip to content
+      </a>
       <div className="relative flex min-h-screen flex-col">
-        <ProgessBar />
-        <div className="flex min-h-0 flex-1 flex-col">
+        <GridPending />
+        {/* The frame: the full-width grid, header to footer. `data-frame`
+            marks it for the theme wave. */}
+        <div data-frame className="flex min-h-0 w-full flex-1 flex-col">
           <Outlet />
           <Footer />
         </div>

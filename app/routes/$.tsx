@@ -3,7 +3,7 @@ import { MdLink, SectionLabel, Squiggle } from "~/components/terminal";
 export default function Page() {
   return (
     <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
-      <SectionLabel>404 — page not found</SectionLabel>
+      <SectionLabel as="h1">404: page not found</SectionLabel>
 
       <Squiggle />
 

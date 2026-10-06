@@ -1,17 +1,14 @@
-import { Check, Copy } from "lucide-react";
-import { useCallback, useState } from "react";
 import { Link, data } from "react-router";
-import {
-  MdLink,
-  MdList,
-  MdListItem,
-  SectionLabel,
-  Squiggle,
-} from "~/components/terminal";
+import { CopyCommand } from "~/components/copy-command";
+import { BLEED, GridCells, ROW_LINK, RowNumber } from "~/components/grid";
+import { ScrambleText, useScramble } from "~/components/scramble";
+import { SectionLabel } from "~/components/terminal";
+import { cn } from "~/lib/utils";
 import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
 import type { Route } from "./+types/route";
 
 export const handle = {
+  grid: true,
   breadcrumb: () => <Link to="/links">links</Link>,
 };
 
@@ -76,7 +73,11 @@ const socialLinks: SocialLink[] = [
     name: "Gallery",
     url: "https://photos.app.goo.gl/2RHWh9PyAGyRCZAP9",
   },
-  { id: "instagram", name: "Instagram", url: "https://instagram.com/broisnees" },
+  {
+    id: "instagram",
+    name: "Instagram",
+    url: "https://instagram.com/broisnees",
+  },
 ];
 
 const WALLET_ADDRESS = "0x644D721Cbe97BC458d9347A2CCE47c063EEd0Eb0" as const;
@@ -85,48 +86,40 @@ export async function loader({}: Route.LoaderArgs) {
   return data({ links: socialLinks });
 }
 
-function WalletRow({ address }: { address: string }) {
-  const [copied, setCopied] = useState(false);
+const CELL =
+  "flex flex-col justify-between gap-3 bg-background px-5 py-5 md:px-8 md:py-6";
 
-  const copy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(address);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard may be unavailable (e.g. non-secure context)
-    }
-  }, [address]);
+/** Host + path, minus protocol and `www.`, for the cell's address line. */
+function shortUrl(url: string) {
+  if (url.startsWith("/")) return url;
+  try {
+    const u = new URL(url);
+    return (u.hostname.replace(/^www\./, "") + u.pathname).replace(/\/$/, "");
+  } catch {
+    return url;
+  }
+}
 
-  const explorerUrl = `https://etherscan.io/address/${address}`;
-
+function LinkCell({ link, index }: { link: SocialLink; index: number }) {
+  const { shown, run } = useScramble(link.name);
+  const external = /^https?:/.test(link.url);
   return (
-    <div className="space-y-2">
-      <SectionLabel>Wallet (ETH):</SectionLabel>
-      <button
-        type="button"
-        onClick={copy}
-        className="group inline-flex max-w-full items-center gap-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        title={copied ? "Copied" : "Copy address"}
-        aria-label={
-          copied ? "Address copied" : `Copy wallet address ${address}`
-        }
+    <div
+      onPointerEnter={run}
+      onFocus={run}
+      className={cn(CELL, "cell-corners relative isolate h-(--row) w-full")}
+    >
+      <RowNumber n={index + 1} />
+      <a
+        href={link.url}
+        {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+        className={`flex-1 text-base font-medium text-bright ${ROW_LINK}`}
       >
-        <span className="min-w-0 break-all text-left text-term-link underline decoration-term-link/55 underline-offset-[3px]">
-          {address}
-        </span>
-        {copied ? (
-          <Check className="size-3.5 shrink-0 text-term-link" strokeWidth={2} />
-        ) : (
-          <Copy
-            className="size-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100"
-            strokeWidth={1.75}
-          />
-        )}
-      </button>
-      <p>
-        <MdLink label="View on Etherscan" href={explorerUrl} />
-      </p>
+        <ScrambleText text={link.name} shown={shown} />
+      </a>
+      <span className="truncate text-xs text-term-link">
+        {shortUrl(link.url)}
+      </span>
     </div>
   );
 }
@@ -135,26 +128,79 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const { links } = loaderData;
 
   return (
-    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
-      <h1 className="text-lg font-medium tracking-tight text-bright">Links</h1>
-      <p className="mt-2 text-muted-foreground">
-        Elsewhere on the web where I&apos;m active.
-      </p>
+    // Flush with header and footer: the page is one stack of boxes.
+    <div className="-mt-10 -mb-16 w-full text-sm leading-7 md:-mt-12 md:-mb-20 md:text-[0.9375rem]">
+      <section
+        aria-labelledby="links-title"
+        className={cn(
+          "grid-cross relative grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-3",
+          BLEED,
+        )}
+      >
+        <div
+          data-tile
+          className={cn(
+            CELL,
+            "min-h-32 sm:col-span-2 lg:col-span-1 lg:h-(--row)",
+          )}
+        >
+          <span className="text-xs text-muted-foreground">elsewhere</span>
+          <h1
+            id="links-title"
+            className="font-display text-[2rem] leading-none font-normal tracking-[-0.02em] text-bright italic md:text-[2.375rem]"
+          >
+            Links
+          </h1>
+        </div>
+        <div
+          data-tile
+          className={cn(CELL, "min-h-32 sm:col-span-2 lg:h-(--row)")}
+        >
+          <span className="text-xs tabular-nums text-muted-foreground">
+            {links.length} profiles
+          </span>
+          <p className="text-muted-foreground">
+            Elsewhere on the web where I&apos;m active.
+          </p>
+        </div>
+      </section>
 
-      <Squiggle />
+      <section
+        aria-label="Profiles"
+        className={cn("grid-cross relative border-t border-border", BLEED)}
+      >
+        <GridCells
+          label="Profiles"
+          items={links}
+          cellKey={(l) => l.id}
+          renderCell={(l, i) => <LinkCell link={l} index={i} />}
+        />
+      </section>
 
-      <SectionLabel>Profiles:</SectionLabel>
-      <MdList>
-        {links.map((link) => (
-          <MdListItem key={link.id}>
-            <MdLink label={link.name} href={link.url} display={link.url} />
-          </MdListItem>
-        ))}
-      </MdList>
-
-      <Squiggle />
-
-      <WalletRow address={WALLET_ADDRESS} />
+      <section
+        aria-labelledby="wallet-title"
+        className={cn("grid-cross relative border-t border-border", BLEED)}
+      >
+        <div data-tile className={cn(CELL, "min-h-(--row) bg-background")}>
+          <h2
+            id="wallet-title"
+            className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground"
+          >
+            Wallet (ETH)
+          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs">
+            <CopyCommand command={WALLET_ADDRESS} prompt={null} />
+            <a
+              href={`https://etherscan.io/address/${WALLET_ADDRESS}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="term-link"
+            >
+              view on etherscan
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

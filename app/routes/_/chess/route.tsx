@@ -1,15 +1,14 @@
-import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { loadLichessLog } from "~/.server/logs/game-logs";
-import { SectionLabel, Squiggle } from "~/components/terminal";
-import type {
-  LichessGameRow,
-  LichessProfileSummary,
-} from "~/lib/logs/types";
+import { ScrambleText, useScramble } from "~/components/scramble";
+import { BLEED, GridCells, ROW_LINK, RowNumber } from "~/components/grid";
+import type { LichessGameRow, LichessProfileSummary } from "~/lib/logs/types";
 import { createHeaders, createMetaTags, createPageSchema } from "~/lib/meta";
+import { cn } from "~/lib/utils";
 import type { Route } from "./+types/route";
 
 export const handle = {
+  grid: true,
   breadcrumb: () => <Link to="/chess">chess</Link>,
 };
 
@@ -50,145 +49,184 @@ export async function loader({ context }: Route.LoaderArgs) {
   return { lichess };
 }
 
-function OutLink({
-  href,
-  className,
-  children,
-}: {
-  href: string;
-  className?: string;
-  children: ReactNode;
-}) {
+const CELL =
+  "flex flex-col justify-between gap-3 bg-background px-5 py-5 md:px-8 md:py-6";
+
+/** WIN on the amber wash, LOSS/DRAW on a neutral one; the word always shows. */
+function ResultChip({ result }: { result: LichessGameRow["result"] }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={className}
+    <span
+      className={cn(
+        "rounded-xs px-1.5 text-xs leading-5 uppercase tracking-[0.08em]",
+        result === "win"
+          ? "bg-term-link/12 text-term-link-hover"
+          : "bg-foreground/8 text-muted-foreground",
+      )}
     >
-      {children}
-    </a>
+      {result}
+    </span>
   );
 }
 
-function LichessProfileBlock({ p }: { p: LichessProfileSummary }) {
-  const ratings = [
-    p.bullet != null ? `bullet ${p.bullet}` : null,
-    p.blitz != null ? `blitz ${p.blitz}` : null,
-    p.rapid != null ? `rapid ${p.rapid}` : null,
-    p.classical != null ? `classical ${p.classical}` : null,
-  ].filter(Boolean);
-
+/** One game, one box: number + date, opponent, speed, result. */
+function GameCell({ game, index }: { game: LichessGameRow; index: number }) {
+  const { shown, run } = useScramble(game.opponent);
   return (
-    <div className="mb-6 space-y-2 border-b border-border/50 pb-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <OutLink
-          href={p.profileHref}
-          className="text-term-link hover:text-term-link-hover transition-colors"
-        >
-          @{p.username}
-          {p.title ? (
-            <span className="text-muted-foreground font-normal"> {p.title}</span>
-          ) : null}
-        </OutLink>
-        {p.allGames != null ? (
-          <span className="text-xs font-mono text-muted-foreground tabular-nums">
-            {p.allGames.toLocaleString()} games
-          </span>
-        ) : null}
+    <div
+      onPointerEnter={run}
+      onFocus={run}
+      className="cell-corners relative isolate flex h-(--row) w-full flex-col gap-3 px-5 py-5 md:px-8 md:py-6"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <RowNumber n={index + 1} />
+        {game.playedAt && (
+          <time
+            dateTime={game.playedAt}
+            className="text-xs tabular-nums text-muted-foreground"
+          >
+            {new Date(game.playedAt).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+            })}
+          </time>
+        )}
       </div>
-      {ratings.length ? (
-        <p className="text-xs font-mono text-muted-foreground m-0 leading-relaxed">
-          {ratings.join(" · ")}
+      <div className="min-w-0 flex-1">
+        <a
+          href={game.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`block truncate text-base font-medium text-bright ${ROW_LINK}`}
+        >
+          <span className="text-muted-foreground">vs </span>
+          <ScrambleText text={game.opponent} shown={shown} />
+        </a>
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          {game.speed} · {game.rated ? "rated" : "casual"}
         </p>
-      ) : null}
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <ResultChip result={game.result} />
+        <span className="text-xs text-term-link">lichess.org</span>
+      </div>
     </div>
   );
 }
 
-function LichessGameRows({ games }: { games: LichessGameRow[] }) {
-  if (games.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground m-0 py-2">
-        No recent games returned.
-      </p>
-    );
-  }
-
-  const wins = games.filter((g) => g.result === "win").length;
-  const losses = games.filter((g) => g.result === "loss").length;
-  const draws = games.filter((g) => g.result === "draw").length;
+function Profile({
+  p,
+  games,
+}: {
+  p?: LichessProfileSummary;
+  games: LichessGameRow[];
+}) {
+  const ratings = p
+    ? (
+        [
+          ["bullet", p.bullet],
+          ["blitz", p.blitz],
+          ["rapid", p.rapid],
+          ["classical", p.classical],
+        ] as const
+      ).filter(([, v]) => v != null)
+    : [];
+  const count = (r: LichessGameRow["result"]) =>
+    games.filter((g) => g.result === r).length;
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <SectionLabel className="m-0">Last {games.length}:</SectionLabel>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          {wins}W · {losses}L · {draws}D
+    <>
+      <div className="flex flex-wrap items-baseline justify-between gap-2 text-xs">
+        {p ? (
+          <a
+            href={p.profileHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="term-link"
+          >
+            @{p.username}
+            {p.title ? ` ${p.title}` : ""}
+          </a>
+        ) : (
+          <span className="text-muted-foreground">lichess</span>
+        )}
+        <span className="tabular-nums text-muted-foreground">
+          {p?.allGames != null && `${p.allGames.toLocaleString()} games · `}
+          last {games.length}: {count("win")}W · {count("loss")}L ·{" "}
+          {count("draw")}D
         </span>
       </div>
-      <div className="flex flex-col">
-        {games.map((g) => (
-          <div
-            key={g.id}
-            className="flex items-baseline justify-between gap-4 border-b border-border/50 py-2.5 last:border-b-0 text-sm"
-          >
-            <div className="min-w-0">
-              <OutLink
-                href={g.href}
-                className="text-foreground hover:text-term-link transition-colors"
-              >
-                vs {g.opponent}
-              </OutLink>
-              <span className="ml-2 text-xs font-mono text-muted-foreground tabular-nums">
-                {g.speed} · {g.rated ? "rated" : "casual"}
-              </span>
+      {ratings.length > 0 && (
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+          {ratings.map(([label, value]) => (
+            <div key={label} className="flex flex-col">
+              <dt className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                {label}
+              </dt>
+              <dd className="text-xl font-medium tabular-nums text-bright">
+                {value}
+              </dd>
             </div>
-            <div className="shrink-0 text-right">
-              <span className="font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
-                {g.result}
-              </span>
-              <span className="ml-2 text-xs font-mono text-muted-foreground tabular-nums">
-                {g.playedAt
-                  ? new Date(g.playedAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : ""}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </dl>
+      )}
+    </>
   );
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { lichess } = loaderData;
+  const games = lichess.ok ? lichess.games : [];
 
   return (
-    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
-      <h1 className="text-lg font-medium tracking-tight text-bright">Chess</h1>
-      <p className="mt-2 text-muted-foreground">
-        my last 10 games on lichess — for the record.
-      </p>
-      <Squiggle />
-
-      <section aria-label="Lichess">
-        {lichess.ok ? (
-          <>
-            {lichess.profile ? (
-              <LichessProfileBlock p={lichess.profile} />
-            ) : null}
-            <LichessGameRows games={lichess.games} />
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground m-0 leading-relaxed">
-            {lichess.message}
-          </p>
+    // Flush with header and footer: the page is one stack of boxes.
+    <div className="-mt-10 -mb-16 w-full text-sm leading-7 md:-mt-12 md:-mb-20 md:text-[0.9375rem]">
+      <section
+        aria-labelledby="chess-title"
+        className={cn(
+          "grid-cross relative grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-3",
+          BLEED,
         )}
+      >
+        <div
+          data-tile
+          className={cn(
+            CELL,
+            "min-h-32 sm:col-span-2 lg:col-span-1 lg:h-(--row)",
+          )}
+        >
+          <span className="text-xs text-muted-foreground">lichess.org</span>
+          <h1
+            id="chess-title"
+            className="font-display text-[2rem] leading-none font-normal tracking-[-0.02em] text-bright italic md:text-[2.375rem]"
+          >
+            Chess
+          </h1>
+        </div>
+        <div
+          data-tile
+          className={cn(CELL, "min-h-48 sm:col-span-2 lg:h-(--row)")}
+        >
+          {lichess.ok ? (
+            <Profile p={lichess.profile ?? undefined} games={games} />
+          ) : (
+            <p className="text-muted-foreground">{lichess.message}</p>
+          )}
+        </div>
       </section>
+
+      {games.length > 0 && (
+        <section
+          aria-label="Recent games"
+          className={cn("grid-cross relative border-t border-border", BLEED)}
+        >
+          <GridCells
+            label="Recent games"
+            items={games}
+            cellKey={(g) => g.id}
+            renderCell={(g, i) => <GameCell game={g} index={i} />}
+          />
+        </section>
+      )}
     </div>
   );
 }

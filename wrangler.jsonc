@@ -29,7 +29,8 @@
     "GOOGLE_PHOTOS_REFRESH_TOKEN": "",
     "LOG_JSON_URL": "https://raw.githubusercontent.com/broisnischal/broisawesome/main/public/log-content.json",
     "GITHUB_USERNAME": "broisnischal",
-    "GITHUB_TOKEN": "",
+    // GITHUB_TOKEN is a secret (wrangler secret put GITHUB_TOKEN), not a var:
+    // a var with the same name would clash with it.
     "GITHUB_OAUTH_CLIENT_ID": "Iv23liBMPOZh14apF81c",
     "GITHUB_OAUTH_CLIENT_SECRET": "",
     "NPM_USERNAME": "neeswebservice"

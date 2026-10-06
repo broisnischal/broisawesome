@@ -20,7 +20,8 @@ import type {
   GitHubActivityItem,
 } from "~/.server/github-activity";
 import { fetchGitHubActivity } from "~/.server/github-activity";
-import { MdList, SectionLabel, Squiggle } from "~/components/terminal";
+import { BLEED, GridCells, ROW_LINK, RowNumber } from "~/components/grid";
+import { ScrambleText, useScramble } from "~/components/scramble";
 import {
   createHeaders,
   createMetaTags,
@@ -53,32 +54,9 @@ const WINDOW_DAYS = 5;
  * Group a flat, time-ordered item list into day buckets. Client-safe (kept out
  * of `.server`) so it can regroup as infinite scroll appends more pages.
  */
-function groupByDate(items: GitHubActivityItem[]) {
-  const groups: {
-    dateKey: string;
-    label: string;
-    items: GitHubActivityItem[];
-  }[] = [];
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  for (const item of items) {
-    const d = new Date(item.createdAt);
-    const dateKey = d.toISOString().slice(0, 10);
-    let g = groups.find((x) => x.dateKey === dateKey);
-    if (!g) {
-      g = { dateKey, label: formatter.format(d), items: [] };
-      groups.push(g);
-    }
-    g.items.push(item);
-  }
-  return groups;
-}
 
 export const handle = {
+  grid: true,
   breadcrumb: () => <Link to="/activity">activity</Link>,
 };
 
@@ -128,11 +106,111 @@ export function headers() {
 export async function loader({ request, context }: Route.LoaderArgs) {
   const env = context.cloudflare?.env;
   const url = new URL(request.url);
-  const page = Math.min(Math.max(Number(url.searchParams.get("page")) || 1, 1), 10);
+  const page = Math.min(
+    Math.max(Number(url.searchParams.get("page")) || 1, 1),
+    10,
+  );
   const sinceIso = new Date(
     Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000,
   ).toISOString();
   return fetchGitHubActivity(env, { perPage: 30, page, sinceIso });
+}
+
+/** One event, one box, like the project cells on the home page. */
+function EventCell({
+  item,
+  index,
+}: {
+  item: GitHubActivityItem;
+  index: number;
+}) {
+  const structured =
+    item.action != null && item.repoLabel != null && item.repoUrl != null;
+  const heading = structured ? item.repoLabel! : item.title;
+  const { shown, run } = useScramble(heading);
+  const Icon = item.accent === "merge" ? GitMerge : ICONS[item.icon];
+  const when = new Date(item.createdAt);
+
+  return (
+    <div
+      onPointerEnter={run}
+      onFocus={run}
+      className="cell-corners relative isolate flex h-(--row) w-full flex-col gap-3 px-5 py-5 md:px-8 md:py-6"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <RowNumber n={index + 1} />
+        <time
+          dateTime={item.createdAt}
+          className="text-xs tabular-nums text-muted-foreground"
+        >
+          {when.toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+          })}
+        </time>
+      </div>
+      <div className="min-w-0 flex-1">
+        {(structured ? item.action : item.subtitle) && (
+          <p className="truncate text-xs text-muted-foreground">
+            {structured ? item.action : item.subtitle}
+          </p>
+        )}
+        <a
+          href={item.href}
+          target="_blank"
+          rel="noreferrer noopener"
+          className={`mt-1 line-clamp-2 text-base font-medium leading-snug text-bright ${ROW_LINK}`}
+        >
+          <ScrambleText text={heading} shown={shown} />
+        </a>
+        {structured && item.tail && (
+          <p className="mt-1 truncate text-xs text-muted-foreground">
+            {item.tail.trim()}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <span className="flex items-center gap-2 text-muted-foreground">
+          <Icon aria-hidden className="size-3.5 text-faint" />
+          {when.toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
+        {item.pushHeadShort && (
+          <span className="tabular-nums text-term-link">
+            {item.pushHeadShort}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Last cell of the events grid: where the feed stands (a live status). */
+function StatusCell({ text, username }: { text: string; username: string }) {
+  return (
+    <div className="flex h-(--row) w-full flex-col gap-3 px-5 py-5 md:px-8 md:py-6">
+      <span className="text-xs text-muted-foreground" aria-hidden>
+        →
+      </span>
+      <p
+        role="status"
+        aria-live="polite"
+        className="flex-1 text-base font-medium leading-snug text-bright"
+      >
+        {text}
+      </p>
+      <a
+        href={`https://github.com/${username}`}
+        target="_blank"
+        rel="noreferrer"
+        className="truncate text-xs text-term-link"
+      >
+        github.com/{username}
+      </a>
+    </div>
+  );
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -179,138 +257,107 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return () => io.disconnect();
   }, [hasMore, page, fetcher]);
 
-  const groups = groupByDate(items);
   const loadingMore = fetcher.state !== "idle";
 
+  const total = items.length;
+
   return (
-    <div className="w-full text-sm leading-7 md:text-[0.9375rem]">
-      <h1 className="text-lg font-medium tracking-tight text-bright">Activity</h1>
-      <p className="mt-2 text-muted-foreground">
-        public events from{" "}
-        <a
-          href={`https://github.com/${username}`}
-          className="term-link"
-          target="_blank"
-          rel="noreferrer"
+    // Flush with header and footer: the page is one stack of boxes.
+    <div className="-mt-10 -mb-16 w-full text-sm leading-7 md:-mt-12 md:-mb-20 md:text-[0.9375rem]">
+      <section
+        aria-labelledby="activity-title"
+        className={cn(
+          "grid-cross relative grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-3",
+          BLEED,
+        )}
+      >
+        <div
+          data-tile
+          className="flex min-h-32 flex-col justify-between gap-6 bg-background px-5 py-5 sm:col-span-2 md:px-8 md:py-6 lg:col-span-1 lg:h-(--row)"
         >
-          @{username}
-        </a>
-      </p>
-
-      {error && (
-        <p className="mt-3 text-sm text-destructive" role="alert">
-          {fromApi ? "GitHub: " : ""}
-          {error}
-          {rateLimitRemaining != null && rateLimitRemaining <= 10 && (
-            <span className="mt-1 block text-sm text-muted-foreground">
-              rate limit remaining: {rateLimitRemaining}
-            </span>
+          <span className="text-xs text-muted-foreground">github.com</span>
+          <h1
+            id="activity-title"
+            className="font-display text-[2rem] leading-none font-normal tracking-[-0.02em] text-bright italic md:text-[2.375rem]"
+          >
+            Activity
+          </h1>
+        </div>
+        <div
+          data-tile
+          className="flex min-h-32 flex-col justify-between gap-3 bg-background px-5 py-5 sm:col-span-2 md:px-8 md:py-6 lg:h-(--row)"
+        >
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+            <a
+              href={`https://github.com/${username}`}
+              className="term-link"
+              target="_blank"
+              rel="noreferrer"
+            >
+              @{username}
+            </a>
+            <span className="tabular-nums">last {WINDOW_DAYS} days</span>
+          </div>
+          <p className="text-muted-foreground">
+            Public events: pushes, pull requests, branches and stars,{" "}
+            <span className="text-bright tabular-nums">{total}</span> loaded so
+            far.
+          </p>
+          {error && (
+            <p className="text-sm text-destructive" role="alert">
+              {fromApi ? "GitHub: " : ""}
+              {error}
+              {rateLimitRemaining != null && rateLimitRemaining <= 10 && (
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  rate limit remaining: {rateLimitRemaining}
+                </span>
+              )}
+            </p>
           )}
-        </p>
-      )}
+        </div>
+      </section>
 
-      {groups.length === 0 && !error ? (
-        <p className="mt-6 text-muted-foreground">
-          no recent public events.
-        </p>
+      {items.length === 0 && !error ? (
+        <section
+          className={cn("grid-cross relative border-t border-border", BLEED)}
+        >
+          <p
+            data-tile
+            className="bg-background px-5 py-8 text-muted-foreground md:px-8"
+          >
+            no recent public events.
+          </p>
+        </section>
       ) : (
-        <div className="mt-6 space-y-8" aria-label="Activity timeline">
-          {groups.map((group, gi) => (
-            <section key={group.dateKey} aria-label={group.label}>
-              {gi > 0 && <Squiggle />}
-              <SectionLabel>
-                <time dateTime={group.dateKey}>{group.label}:</time>
-              </SectionLabel>
-              <MdList>
-                {group.items.map((item) => {
-                  const structured =
-                    item.action != null &&
-                    item.repoLabel != null &&
-                    item.repoUrl != null;
-                  const Icon =
-                    item.accent === "merge" ? GitMerge : ICONS[item.icon];
-                  return (
-                    <li key={item.id} className="flex gap-2.5 leading-6">
-                      <Icon
-                        aria-hidden
-                        className="mt-[3px] size-4 shrink-0 text-muted-foreground/70"
-                      />
-                      <span className="min-w-0 flex-1 text-muted-foreground">
-                        {structured ? (
-                          <>
-                            <span className="text-foreground">
-                              {item.action}
-                            </span>
-                            <a
-                              href={item.repoUrl!}
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="term-link"
-                            >
-                              {item.repoLabel}
-                            </a>
-                            {item.tail ? (
-                              <span className="text-muted-foreground">
-                                {item.tail}
-                              </span>
-                            ) : null}
-                            {item.pushHeadShort ? (
-                              <a
-                                href={item.href}
-                                target="_blank"
-                                rel="noreferrer noopener"
-                                title="View on GitHub"
-                                className="ml-1.5 font-mono text-xs text-muted-foreground/70 hover:text-bright"
-                              >
-                                {item.pushHeadShort}
-                              </a>
-                            ) : null}
-                          </>
-                        ) : (
-                          <a
-                            href={item.href}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="term-link"
-                          >
-                            {item.title}
-                          </a>
-                        )}
-                        {item.subtitle ? (
-                          <span className="ml-1 text-muted-foreground/70">
-                            — {item.subtitle}
-                          </span>
-                        ) : null}
-                        <time
-                          className="ml-2 font-mono text-xs tabular-nums text-muted-foreground/60"
-                          dateTime={item.createdAt}
-                        >
-                          {new Date(item.createdAt).toLocaleTimeString(
-                            undefined,
-                            { hour: "2-digit", minute: "2-digit" },
-                          )}
-                        </time>
-                      </span>
-                    </li>
-                  );
-                })}
-              </MdList>
-            </section>
-          ))}
+        <div aria-label="Activity timeline">
+          <section
+            aria-label="Events"
+            className={cn("grid-cross relative border-t border-border", BLEED)}
+          >
+            <GridCells
+              label="Events"
+              items={[...items.map((item) => ({ item })), { item: undefined }]}
+              cellKey={(c) => c.item?.id ?? "status"}
+              renderCell={(c, i) =>
+                c.item ? (
+                  <EventCell item={c.item} index={i} />
+                ) : (
+                  <StatusCell
+                    text={
+                      loadingMore
+                        ? "loading more"
+                        : hasMore
+                          ? "scroll for more"
+                          : `end of the last ${WINDOW_DAYS} days`
+                    }
+                    username={username}
+                  />
+                )
+              }
+            />
+          </section>
 
           {hasMore && <div ref={sentinelRef} aria-hidden className="h-px" />}
-
-          <p
-            className="pt-2 text-center text-xs text-muted-foreground/60"
-            role="status"
-            aria-live="polite"
-          >
-            {loadingMore
-              ? "loading more…"
-              : hasMore
-                ? null
-                : `— end of the last ${WINDOW_DAYS} days —`}
-          </p>
         </div>
       )}
     </div>
